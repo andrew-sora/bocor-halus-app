@@ -1,0 +1,74 @@
+import { Tabs } from "expo-router";
+import { SymbolView } from "expo-symbols";
+import { strings } from "@/constants/strings";
+import { C } from "@/constants/Colors";
+
+export default function TabLayout() {
+  return (
+    <Tabs
+      screenOptions={{
+        tabBarActiveTintColor: C.greenDark,
+        tabBarInactiveTintColor: C.muted,
+        tabBarStyle: {
+          backgroundColor: C.cream,
+          borderTopColor: C.border,
+          borderTopWidth: 1,
+        },
+        tabBarLabelStyle: { fontSize: 12, fontWeight: "600" },
+        headerStyle: { backgroundColor: C.cream },
+        headerShadowVisible: false,
+        headerTintColor: C.greenDark,
+        headerTitleStyle: { fontWeight: "700", fontSize: 18, color: C.ink },
+      }}
+    >
+      <Tabs.Screen
+        name="index"
+        options={{
+          title: strings.tabBeranda,
+          headerTitle: "Bocor Halus",
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{ ios: "house.fill", android: "home", web: "home" }}
+              tintColor={color}
+              size={24}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="rekap"
+        options={{
+          title: strings.tabRekap,
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{
+                ios: "list.bullet.rectangle",
+                android: "list",
+                web: "list",
+              }}
+              tintColor={color}
+              size={24}
+            />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="pengaturan"
+        options={{
+          title: strings.tabPengaturan,
+          tabBarIcon: ({ color }) => (
+            <SymbolView
+              name={{
+                ios: "gearshape.fill",
+                android: "settings",
+                web: "settings",
+              }}
+              tintColor={color}
+              size={24}
+            />
+          ),
+        }}
+      />
+    </Tabs>
+  );
+}
