@@ -71,13 +71,16 @@ export async function initDb(): Promise<void> {
     );
     CREATE INDEX IF NOT EXISTS idx_expenses_spent_at ON expenses(spent_at);
   `);
-  // Migrasi berbasis user_version
-  const versionRow = await db.getFirstAsync<{ user_version: number }>(
-    "PRAGMA user_version"
-  );
-  const currentVersion = versionRow?.user_version ?? 0;
-  if (currentVersion < 1) {
-    await db.execAsync("PRAGMA user_version = 1;");
+
+  // Migrasi otomatis jika kolom category belum ada di HP pengguna versi lama
+  try {
+    const tableInfo = await db.getAllAsync<{ name: string }>("PRAGMA table_info(expenses)");
+    const hasCategory = tableInfo.some((col) => col.name === "category");
+    if (!hasCategory) {
+      await db.execAsync("ALTER TABLE expenses ADD COLUMN category TEXT DEFAULT 'lainnya'");
+    }
+  } catch (err) {
+    console.warn("Migration check error:", err);
   }
 }
 
