@@ -127,6 +127,14 @@ export default function TambahScreen() {
   const evalResult = evalExpr(inputValue.trim());
   const isValid = evalResult !== null && evalResult > 0;
 
+  const dismissModal = useCallback(() => {
+    if (router.canGoBack()) {
+      router.back();
+    } else {
+      router.replace("/(tabs)");
+    }
+  }, [router]);
+
   const handleSave = async () => {
     if (!isValid || evalResult === null) return;
     setSaving(true);
@@ -148,7 +156,7 @@ export default function TambahScreen() {
           spentAt,
         });
       }
-      router.back();
+      dismissModal();
     } catch (err) {
       Alert.alert("Gagal menyimpan", String(err));
     } finally {
@@ -166,7 +174,7 @@ export default function TambahScreen() {
           if (!id) return;
           try {
             await deleteExpense(id);
-            router.back();
+            dismissModal();
           } catch (err) {
             Alert.alert("Gagal menghapus", String(err));
           }
@@ -189,7 +197,7 @@ export default function TambahScreen() {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.headerBtn}
-          onPress={() => router.back()}
+          onPress={dismissModal}
           accessibilityRole="button"
           accessibilityLabel="Tutup"
         >
