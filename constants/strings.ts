@@ -24,12 +24,12 @@ export const strings = {
   totalTahunIni: "Total Tahun Ini",
   totalSetahun: "Total Setahun",
   sisaJatah: "Sisa Jatah Bulanan",
-  budgetOptimal: "Pengeluaran bulan ini masih dalam batas aman ✨",
-  budgetMepet: "Perhatian! Pengeluaran sudah terpakai > 80% ⚠️",
-  budgetOver: "Overbudget! Pengeluaran melebihi batas jatah 🚨",
+  budgetOptimal: "Pengeluaran bulan ini masih dalam batas aman",
+  budgetMepet: "Perhatian: Pengeluaran telah terpakai lebih dari 80%",
+  budgetOver: "Overbudget: Pengeluaran melebihi batas jatah bulanan",
   bocorHalusInsightTitle: "Deteksi Bocor Halus",
   bocorHalusInsightText: (total: string, count: number) =>
-    `Bulan ini ada ${count} transaksi kecil (< Rp 50rb) senilai total ${total}. Sering tak terasa tapi menumpuk! 💡`,
+    `Bulan ini terdapat ${count} transaksi kecil di bawah Rp 50.000 dengan total ${total}.`,
 
   // Rekap
   rekap: "Rekap 12 Bulan",
@@ -37,7 +37,7 @@ export const strings = {
 
   // State kosong
   belumAdaData: "Belum ada pengeluaran bulan ini.",
-  belumAdaDataDetail: "Ketuk Catat Pengeluaran di bawah untuk memulai pencatatan hematmu.",
+  belumAdaDataDetail: "Ketuk Catat Pengeluaran di bawah untuk memulai pencatatan.",
   tanpaCatatan: "Tanpa catatan",
 
   // Preview ekspresi
@@ -54,7 +54,7 @@ export const strings = {
   gabungkanData: "Gabungkan dengan data sekarang",
   gantiSemuaData: "Ganti semua data",
   gantiKonfirmasi: "Ini akan menghapus semua data saat ini. Lanjutkan?",
-  bantuanBackup: "Data 100% aman tersimpan di HP ini. Cadangkan secara berkala agar aman saat ganti HP.",
+  bantuanBackup: "Data tersimpan secara lokal di perangkat ini. Cadangkan secara berkala saat diperlukan.",
   tentang: "Tentang Bocor Halus",
   targetBudgetTitle: "Batas Jatah Bulanan (Budget)",
   targetBudgetDesc: "Atur target jatah belanja per bulan untuk memantau indikator keuanganmu.",

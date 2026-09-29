@@ -43,7 +43,7 @@ export function TotalCard({
   }
 
   const handleShareWhatsApp = () => {
-    const text = `Halo! 👋\nBerikut rekap pengeluaran bulanan (Bocor Halus) bulan ${namaBulan(month)} ${year}:\n\n💸 Total Pengeluaran: ${formatRupiah(monthlyTotal)}\n✨ Sisa Jatah Bulanan: ${formatRupiah(sisaJatah)} (${percentage}% terpakai)\n💡 Transaksi Kecil (< Rp 50k): ${microCount} transaksi\n\nDicatat rapi dengan Bocor Halus App ✨`;
+    const text = `Rekap Pengeluaran ${namaBulan(month)} ${year}\n\nTotal: ${formatRupiah(monthlyTotal)}\nSisa Jatah: ${formatRupiah(sisaJatah)} (${percentage}% terpakai)\nTransaksi Kecil (< Rp 50k): ${microCount} transaksi\n\nDicatat via Bocor Halus App`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     Linking.openURL(url).catch(() => {});
   };
@@ -85,13 +85,13 @@ export function TotalCard({
 
         <Text style={styles.statusNote}>{statusMsg}</Text>
 
-        {/* Action Share WA General */}
+        {/* Action Share WA */}
         <TouchableOpacity
           style={styles.shareWaBtn}
           onPress={handleShareWhatsApp}
           activeOpacity={0.8}
         >
-          <Text style={styles.shareWaBtnText}>📱  Bagikan Rekap Bulanan ke WhatsApp</Text>
+          <Text style={styles.shareWaBtnText}>Bagikan Ringkasan ke WhatsApp</Text>
         </TouchableOpacity>
 
         <View style={styles.divider} />
@@ -102,12 +102,11 @@ export function TotalCard({
         </View>
       </View>
 
-      {/* General Encouragement Chip */}
+      {/* Encouragement Banner */}
       {ratio <= 0.8 && (
-        <View style={styles.ldrEncouragementChip}>
-          <Text style={styles.ldrEmoji}>🌱</Text>
-          <Text style={styles.ldrText}>
-            Kerja bagus! Pengeluaran bulananmu terkendali dengan baik. Tetap konsisten menjaga keuanganmu tetap sehat ✨
+        <View style={styles.encouragementChip}>
+          <Text style={styles.encouragementText}>
+            Pengeluaran bulan ini terkendali dengan baik. Tetap konsisten menjaga catatan keuangan Anda.
           </Text>
         </View>
       )}
@@ -115,7 +114,6 @@ export function TotalCard({
       {/* Bocor Halus Micro-Insight Chip */}
       {microCount > 0 && (
         <View style={styles.insightChip}>
-          <Text style={styles.insightEmoji}>💡</Text>
           <Text style={styles.insightText}>
             {strings.bocorHalusInsightText(formatRupiah(microTotal), microCount)}
           </Text>
@@ -216,7 +214,7 @@ const styles = StyleSheet.create({
   shareWaBtnText: {
     color: C.white,
     fontSize: 13,
-    fontWeight: "700",
+    fontWeight: "600",
   },
   divider: {
     height: 1,
@@ -232,46 +230,32 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: "rgba(255,255,255,0.75)",
   },
-  ldrEncouragementChip: {
-    flexDirection: "row",
-    backgroundColor: "#ECFDF5",
+  encouragementChip: {
+    backgroundColor: "#F0FDF4",
     borderRadius: 16,
-    padding: 12,
+    padding: 14,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: "#A7F3D0",
-    alignItems: "center",
+    borderColor: "#BBF7D0",
   },
-  ldrEmoji: {
-    fontSize: 18,
-    marginRight: 10,
-  },
-  ldrText: {
-    flex: 1,
-    fontSize: 12,
-    color: "#065F46",
-    lineHeight: 17,
-    fontWeight: "600",
+  encouragementText: {
+    fontSize: 13,
+    color: "#166534",
+    lineHeight: 18,
+    fontWeight: "500",
   },
   insightChip: {
-    flexDirection: "row",
     backgroundColor: C.warningBg,
     borderRadius: 16,
-    padding: 12,
+    padding: 14,
     marginTop: 10,
     borderWidth: 1,
     borderColor: "#FCD34D",
-    alignItems: "center",
-  },
-  insightEmoji: {
-    fontSize: 18,
-    marginRight: 10,
   },
   insightText: {
-    flex: 1,
-    fontSize: 12,
+    fontSize: 13,
     color: "#78350F",
-    lineHeight: 17,
+    lineHeight: 18,
     fontWeight: "500",
   },
 });
