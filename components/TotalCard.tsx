@@ -43,7 +43,7 @@ export function TotalCard({
   }
 
   const handleShareWhatsApp = () => {
-    const text = `Halo Sayang! ⚓❤️\nBerikut rekap pengeluaran rumah tangga kita bulan ${namaBulan(month)} ${year}:\n\n💸 Total Pengeluaran: ${formatRupiah(monthlyTotal)}\n✨ Sisa Jatah Bulanan: ${formatRupiah(sisaJatah)} (${percentage}% terpakai)\n💡 Transaksi Kecil: ${microCount} transaksi (< Rp 50rb)\n\nSemua tercatat rapi di Bocor Halus App. Jaga kesehatan di laut ya! 🥰`;
+    const text = `Halo! 👋\nBerikut rekap pengeluaran bulanan (Bocor Halus) bulan ${namaBulan(month)} ${year}:\n\n💸 Total Pengeluaran: ${formatRupiah(monthlyTotal)}\n✨ Sisa Jatah Bulanan: ${formatRupiah(sisaJatah)} (${percentage}% terpakai)\n💡 Transaksi Kecil (< Rp 50k): ${microCount} transaksi\n\nDicatat rapi dengan Bocor Halus App ✨`;
     const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
     Linking.openURL(url).catch(() => {});
   };
@@ -85,13 +85,13 @@ export function TotalCard({
 
         <Text style={styles.statusNote}>{statusMsg}</Text>
 
-        {/* Action Share WA */}
+        {/* Action Share WA General */}
         <TouchableOpacity
           style={styles.shareWaBtn}
           onPress={handleShareWhatsApp}
           activeOpacity={0.8}
         >
-          <Text style={styles.shareWaBtnText}>📱  Kirim Rekap Bulanan ke WA Suami</Text>
+          <Text style={styles.shareWaBtnText}>📱  Bagikan Rekap Bulanan ke WhatsApp</Text>
         </TouchableOpacity>
 
         <View style={styles.divider} />
@@ -102,12 +102,12 @@ export function TotalCard({
         </View>
       </View>
 
-      {/* Emotional Encouragement Chip (LDR Connection) */}
+      {/* General Encouragement Chip */}
       {ratio <= 0.8 && (
         <View style={styles.ldrEncouragementChip}>
-          <Text style={styles.ldrEmoji}>⚓</Text>
+          <Text style={styles.ldrEmoji}>🌱</Text>
           <Text style={styles.ldrText}>
-            Semangat LDR-nya! Kamu berhasil mengelola keuangan dengan bijak bulan ini. Semakin dekat untuk momen kebersamaan saat Suami bersandar nanti ✨
+            Kerja bagus! Pengeluaran bulananmu terkendali dengan baik. Tetap konsisten menjaga keuanganmu tetap sehat ✨
           </Text>
         </View>
       )}
