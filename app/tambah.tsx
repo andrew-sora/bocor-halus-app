@@ -232,7 +232,7 @@ export default function TambahScreen() {
               onSelectionChange={(e) => {
                 selectionRef.current = e.nativeEvent.selection;
               }}
-              keyboardType="default"
+              keyboardType="numeric"
               autoCorrect={false}
               autoCapitalize="none"
               placeholder="Mis. 17.000+75.000"
