@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   View,
   Text,
+  TextInput,
   TouchableOpacity,
   Alert,
   ScrollView,
@@ -11,12 +12,33 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Constants from "expo-constants";
 import { exportBackup, importBackup } from "@/lib/backup";
+import { getBudgetLimit, setBudgetLimit } from "@/lib/db";
+import { formatRupiah } from "@/lib/format";
 import { strings } from "@/constants/strings";
 import { C } from "@/constants/Colors";
 
 export default function PengaturanScreen() {
   const insets = useSafeAreaInsets();
   const [loading, setLoading] = useState<"export" | "import" | null>(null);
+  const [budgetInput, setBudgetInput] = useState("3000000");
+  const [budgetSaved, setBudgetSaved] = useState(false);
+
+  useEffect(() => {
+    getBudgetLimit().then((limit) => {
+      setBudgetInput(limit.toString());
+    });
+  }, []);
+
+  const handleSaveBudget = async () => {
+    const val = parseInt(budgetInput.replace(/\D/g, ""), 10);
+    if (isNaN(val) || val <= 0) {
+      Alert.alert("Gagal", "Batas budget harus angka positif.");
+      return;
+    }
+    await setBudgetLimit(val);
+    setBudgetSaved(true);
+    setTimeout(() => setBudgetSaved(false), 2000);
+  };
 
   const handleExport = async () => {
     setLoading("export");
@@ -84,8 +106,31 @@ export default function PengaturanScreen() {
         { paddingBottom: insets.bottom + 24 },
       ]}
     >
+      {/* Target Budget Manager */}
+      <Text style={styles.sectionTitle}>{strings.targetBudgetTitle}</Text>
+      <View style={styles.card}>
+        <Text style={styles.infoText}>{strings.targetBudgetDesc}</Text>
+        <TextInput
+          style={styles.budgetInput}
+          value={budgetInput}
+          onChangeText={setBudgetInput}
+          keyboardType="numeric"
+          placeholder="3000000"
+          placeholderTextColor={C.muted}
+        />
+        <TouchableOpacity
+          style={styles.saveBudgetBtn}
+          onPress={handleSaveBudget}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.saveBudgetBtnText}>
+            {budgetSaved ? "✓ Tersimpan!" : strings.simpanBudget}
+          </Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Bagian Cadangan */}
-      <Text style={styles.sectionTitle}>Data & Cadangan</Text>
+      <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Data & Cadangan</Text>
       <View style={styles.card}>
         <Text style={styles.infoText}>{strings.bantuanBackup}</Text>
       </View>
@@ -117,7 +162,7 @@ export default function PengaturanScreen() {
       </TouchableOpacity>
 
       {/* Tentang */}
-      <Text style={[styles.sectionTitle, { marginTop: 32 }]}>
+      <Text style={[styles.sectionTitle, { marginTop: 28 }]}>
         {strings.tentang}
       </Text>
       <View style={styles.card}>
@@ -146,16 +191,45 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: C.white,
-    borderRadius: 14,
+    borderRadius: 16,
     padding: 16,
     marginBottom: 12,
     borderWidth: 1,
     borderColor: C.border,
+    shadowColor: C.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
+    elevation: 2,
   },
   infoText: {
-    fontSize: 15,
+    fontSize: 14,
     color: C.muted,
-    lineHeight: 22,
+    lineHeight: 21,
+    marginBottom: 10,
+  },
+  budgetInput: {
+    backgroundColor: C.cream,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: C.border,
+    paddingHorizontal: 14,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: C.ink,
+    fontWeight: "700",
+    marginBottom: 12,
+  },
+  saveBudgetBtn: {
+    backgroundColor: C.greenDark,
+    borderRadius: 12,
+    paddingVertical: 14,
+    alignItems: "center",
+  },
+  saveBudgetBtnText: {
+    color: C.white,
+    fontSize: 15,
+    fontWeight: "700",
   },
   appName: {
     fontSize: 20,
@@ -169,11 +243,11 @@ const styles = StyleSheet.create({
     marginBottom: 10,
   },
   btn: {
-    borderRadius: 12,
+    borderRadius: 14,
     paddingVertical: 16,
     alignItems: "center",
     marginBottom: 10,
-    minHeight: 54,
+    minHeight: 52,
     justifyContent: "center",
   },
   btnPrimary: {

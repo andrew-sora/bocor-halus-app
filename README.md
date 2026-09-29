@@ -1,4 +1,4 @@
-# 💸 Bocor Halus — Minimalist Expense Tracker
+# 💸 Bocor Halus — Gen Z Minimalist Expense Tracker
 
 [![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB?logo=react&logoColor=black)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-SDK_57-000000?logo=expo&logoColor=white)](https://expo.dev/)
@@ -6,24 +6,40 @@
 [![SQLite](https://img.shields.io/badge/Storage-Expo_SQLite-003B57?logo=sqlite&logoColor=white)](https://docs.expo.dev/versions/latest/sdk/sqlite/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-> **A User-Centric Mobile Expense Tracking Solution for Daily Micro-Expenses.**  
-> Built with React Native & Expo SDK 57, tailored specifically for effortless daily record-keeping without financial complexity or chart fatigue.
+> **A Product Case Study in Empathy & Creative Technology for ParagonTech Selection.**  
+> Built for young mothers, housewives, and remote workers struggling with untracked micro-expenses ("bocor halus"). Clean, Gen Z aesthetic, 100% offline, and zero financial complexity.
 
 ---
 
-## 🎯 Case Study & Product Vision
+## 🎯 Problem Statement & Product Vision
 
-### The Problem
-Most personal finance applications overload non-technical users with charts, mandatory categorization, cloud synchronization, and login paywalls. For everyday users—such as teachers or remote workers managing tight daily budgets—opening a separate calculator app to sum up daily market receipts (`17.000 + 75.000`) introduces unnecessary friction.
+### 🥊 The Problem
+For everyday users—such as young mothers, housewives, and remote workers managing tight household or living budgets—existing personal finance apps suffer from 3 major flaws:
+1. **Financial Anxiety & Complexity:** Overwhelmed by corporate charts, mandatory accounts, and multi-layered category forms.
+2. **Untracked Micro-Leakages ("Bocor Halus"):** Small, repeated daily purchases (e.g. Rp 15.000 coffee, snacks, or market add-ons) go unrecorded because opening a separate calculator app to sum up receipts (`17.000 + 75.000`) creates high friction.
+3. **Budget Blindness:** No immediate visual feedback on remaining monthly allowance ("Sisa Jatah Bulanan").
 
-### The Solution: *Bocor Halus*
-*Bocor Halus* (Indonesian for "minor hidden financial leaks") focuses on **frictionless micro-entry**, **100% offline data privacy**, and **instant mathematical evaluation**.
+### ✨ The Solution: *Bocor Halus (Gen Z Edition)*
+Designed with a **Clean, Soft & Modern Aesthetic** (Earth Tone Palette: Soft Warm Cream `#FAF7F2`, Deep Emerald `#064E3B`, and Soft Mint `#D1FAE5`) and 4 core empathy-driven features:
 
-#### Core Design Pillars
-1. **Inline Math Expression Evaluation:** Input values directly using expression syntax like `17.000+75.000` or `3*15000`. Evaluated safely on-the-fly without dangerous `eval()` or external libraries.
-2. **12-Month Clean Audit Trail:** Tabular monthly recap of all expenses without overwhelming graphs or multi-currency setup.
-3. **100% Offline & Local Privacy:** Powered by `expo-sqlite` with zero tracking, zero external network requests, and zero cloud dependency.
-4. **Platform-Agnostic Excellence:** Runs seamlessly on both Android & iOS using modern React Native Expo Router architecture.
+```
+┌──────────────────────────────────────────────────────────┐
+│                  Bocor Halus Dashboard                   │
+├──────────────────────────────────────────────────────────┤
+│  [Total Bulan Ini]  Rp 1.250.000                         │
+│  [Sisa Jatah]       Rp 1.750.000 (42% Terpakai)         │
+│  [Progress Bar]     ████████░░░░░░░░░░ (Status: Aman ✨) │
+│                                                          │
+│  💡 Insight: Bulan ini ada 8 transaksi kecil (< Rp 50k) │
+│     senilai Rp 240.000. Sering tak terasa!               │
+└──────────────────────────────────────────────────────────┘
+```
+
+#### 🌟 4 Core Empathy Pillars
+1. **In-App Expression Evaluator (`17.000+75.000`):** Type complex receipts directly without leaving the app. Computed on-the-fly safely without `eval()`.
+2. **Empathy Budget Limit Meter ("Sisa Jatah"):** Real-time visual progress bar indicating budget health (*Aman*, *Waspada*, *Overbudget*).
+3. **1-Tap Emoji Tagging:** Instant category chips (`🛒 Dapur`, `🍼 Anak`, `☕ Jajan`, `⚡ Listrik`, `🛵 Transport`, `✨ Lainnya`).
+4. **Bocor Halus Micro-Leakage Chip:** Smart highlight summarizing small purchases (< Rp 50.000) to build financial awareness.
 
 ---
 
@@ -35,28 +51,30 @@ bocor-halus-app/
 │   ├── (tabs)/               # Bottom Tab Navigator (Beranda, Rekap, Pengaturan)
 │   │   ├── index.tsx         # Dashboard total & recent transaction stream
 │   │   ├── rekap.tsx         # 12-month summary breakdown
-│   │   └── pengaturan.tsx    # Local database backup/restore & app details
+│   │   └── pengaturan.tsx    # Budget limit configuration & local backup/restore
 │   ├── rekap/[ym].tsx        # Monthly detail view (e.g. 2026-09)
-│   └── tambah.tsx            # Expense modal (Create / Edit with Math Operator Bar)
+│   └── tambah.tsx            # Expense modal (Category Chips + Operator Bar)
 ├── components/               # Specialized UI Components
-│   ├── OperatorBar.tsx       # Custom math operator keyboard extension (+ − × ÷)
-│   ├── TotalCard.tsx         # Prominent top total display
-│   ├── ExpenseRow.tsx        # Optimized expense list row
+│   ├── OperatorBar.tsx       # Custom math operator keyboard (+ − × ÷)
+│   ├── TotalCard.tsx         # Empathy Budget & Micro-Insight Display
+│   ├── ExpenseRow.tsx        # Category Tag Badges & Transaction Row
 │   └── MoneyText.tsx         # Locale-aware Indonesian Rupiah formatter
 ├── lib/                      # Core Logic & Utilities
 │   ├── evalExpr.ts           # Custom AST math expression tokenizer & parser (Zero-eval)
-│   ├── db.ts                 # Asynchronous SQLite database layer with parameter binding
+│   ├── db.ts                 # Database layer with parameter binding & micro-insight queries
+│   ├── dbEngine.native.ts    # Native Expo SQLite engine (iOS/Android)
+│   ├── dbEngine.web.ts       # Web LocalStorage fallback engine (Browser Preview)
 │   ├── date.ts               # Local timezone date helpers (prevents UTC drift)
 │   ├── format.ts             # Currency & display formatters
-│   └── backup.ts             # JSON export/import backup engine via Expo FileSystem & Sharing
-└── constants/                # UI strings & color tokens
+│   └── backup.ts             # JSON export/import backup engine
+└── constants/                # UI strings & Gen Z aesthetic color tokens
 ```
 
 ### 💡 High-Rigor Engineering Practices
-- **Safe Math Tokenizer & Parser (`lib/evalExpr.ts`):** Evaluates arithmetic string expressions safely using a recursive descent parser. Completely avoids JS `eval()` or `Function()` constructors to maintain security.
+- **Safe Math Tokenizer & Parser (`lib/evalExpr.ts`):** Evaluates arithmetic string expressions safely using a recursive descent parser. Completely avoids JS `eval()` or `Function()` constructors.
+- **Cross-Platform Engine Isolation (`dbEngine.native.ts` vs `dbEngine.web.ts`):** Employs Metro platform extensions so native SQLite runs on iOS/Android while a zero-dependency LocalStorage engine powers web previews smoothly.
 - **Local Timezone Guard (`lib/date.ts`):** Standard `toISOString()` shifts dates in UTC+7 (Indonesia WIB) leading to wrong transaction dates for midnight records. Custom helpers ensure strict local date formatting (`YYYY-MM-DD`).
-- **Async SQLite Parameter Binding (`lib/db.ts`):** Utilizes `expo-sqlite` async APIs (`getAllAsync`, `runAsync`) with strict parameter binding (`?`) to guarantee zero SQL injection risks.
-- **Strict TypeScript & Testing:** 100% type safety with `strict: true` and unit-tested core modules using `jest-expo` and `@testing-library/react-native`.
+- **Strict TypeScript & 100% Test Pass Rate:** 100% type safety with `strict: true` and 51 unit tests passed using `jest-expo` and `@testing-library/react-native`.
 
 ---
 
@@ -67,7 +85,7 @@ bocor-halus-app/
 | **Framework** | [React Native 0.86](https://reactnative.dev/) + [Expo SDK 57](https://expo.dev/) |
 | **Language** | [TypeScript](https://www.typescriptlang.org/) (Strict Mode) |
 | **Routing** | [Expo Router](https://docs.expo.dev/router/introduction/) (File-based navigation) |
-| **Database** | [Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/) (`openDatabaseAsync`) |
+| **Database** | [Expo SQLite](https://docs.expo.dev/versions/latest/sdk/sqlite/) (`openDatabaseAsync`) + LocalStorage Web Fallback |
 | **Styling** | [NativeWind v4](https://www.nativewind.dev/) / React Native `StyleSheet` |
 | **Date Picker** | `@react-native-community/datetimepicker` |
 | **File I/O & Backup** | `expo-file-system`, `expo-sharing`, `expo-document-picker` |
@@ -80,7 +98,6 @@ bocor-halus-app/
 ### Prerequisites
 - Node.js (v18+ recommended)
 - npm or yarn
-- Expo Go app on iOS/Android device OR Android Emulator / iOS Simulator
 
 ### Installation
 
@@ -101,9 +118,9 @@ bocor-halus-app/
    npm run test
    ```
 
-4. **Start local dev server:**
+4. **Start local dev server (Web or Mobile):**
    ```bash
-   npx expo start
+   npx expo start --web
    ```
 
 ---
@@ -120,4 +137,4 @@ Distributed under the MIT License. See [LICENSE](LICENSE) for more details.
 
 ---
 
-<p center>Crafted with precision by <strong>Andrew</strong> (Soradev Studio)</p>
+<p center>Crafted with Empathy & Precision by <strong>Andrew</strong> (Soradev Studio)</p>

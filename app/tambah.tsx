@@ -27,7 +27,7 @@ import { formatRupiah } from "@/lib/format";
 import { toLocalDateString, todayLocal, parseLocalDate, formatTanggalId } from "@/lib/date";
 import { OperatorBar } from "@/components/OperatorBar";
 import { strings } from "@/constants/strings";
-import { C } from "@/constants/Colors";
+import { C, CATEGORIES } from "@/constants/Colors";
 
 export default function TambahScreen() {
   const router = useRouter();
@@ -37,14 +37,14 @@ export default function TambahScreen() {
 
   const [inputValue, setInputValue] = useState("");
   const [note, setNote] = useState("");
+  const [category, setCategory] = useState("lainnya");
   const [spentAt, setSpentAt] = useState(todayLocal());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
 
-  // Track cursor position via ref (tidak pakai state agar tidak re-render berlebih)
+  // Track cursor position via ref
   const selectionRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
-  // Controlled selection untuk programmatic cursor movement
   const [controlledSelection, setControlledSelection] = useState<
     { start: number; end: number } | undefined
   >(undefined);
@@ -57,13 +57,13 @@ export default function TambahScreen() {
         if (!exp) return;
         setInputValue(exp.expression);
         setNote(exp.note);
+        setCategory(exp.category || "lainnya");
         setSpentAt(exp.spentAt);
       })
       .catch(console.error)
       .finally(() => setLoading(false));
   }, [id]);
 
-  // Bersihkan controlled selection setelah diaplikasikan
   useEffect(() => {
     if (!controlledSelection) return;
     const timer = setTimeout(() => setControlledSelection(undefined), 100);
@@ -128,6 +128,7 @@ export default function TambahScreen() {
           amount: evalResult,
           expression: inputValue.trim(),
           note: note.trim(),
+          category,
           spentAt,
         });
       } else {
@@ -135,6 +136,7 @@ export default function TambahScreen() {
           amount: evalResult,
           expression: inputValue.trim(),
           note: note.trim(),
+          category,
           spentAt,
         });
       }
@@ -204,41 +206,66 @@ export default function TambahScreen() {
           keyboardShouldPersistTaps="handled"
         >
           {/* Field Nominal */}
-          <Text style={styles.label}>{strings.nominal}</Text>
-          <TextInput
-            style={styles.input}
-            value={inputValue}
-            onChangeText={setInputValue}
-            selection={controlledSelection}
-            onSelectionChange={(e) => {
-              selectionRef.current = e.nativeEvent.selection;
-            }}
-            keyboardType="default"
-            autoCorrect={false}
-            autoCapitalize="none"
-            placeholder="Mis. 17.000+75.000"
-            placeholderTextColor={C.muted}
-            returnKeyType="done"
-            accessibilityLabel={strings.nominal}
-          />
+          <View style={styles.formSectionTop}>
+            <Text style={styles.label}>{strings.nominal}</Text>
+            <TextInput
+              style={styles.input}
+              value={inputValue}
+              onChangeText={setInputValue}
+              selection={controlledSelection}
+              onSelectionChange={(e) => {
+                selectionRef.current = e.nativeEvent.selection;
+              }}
+              keyboardType="default"
+              autoCorrect={false}
+              autoCapitalize="none"
+              placeholder="Mis. 17.000+75.000"
+              placeholderTextColor={C.muted}
+              returnKeyType="done"
+              accessibilityLabel={strings.nominal}
+            />
 
-          {/* Live preview ekspresi */}
-          <View style={styles.preview}>
-            {inputValue.trim() === "" ? null : isValid && evalResult !== null ? (
-              <Text style={styles.previewValid}>
-                = {formatRupiah(evalResult)}
-              </Text>
-            ) : (
-              <Text style={styles.previewInvalid}>
-                {strings.ekspresiTidakLengkap}
-              </Text>
-            )}
+            {/* Live preview ekspresi */}
+            <View style={styles.preview}>
+              {inputValue.trim() === "" ? null : isValid && evalResult !== null ? (
+                <Text style={styles.previewValid}>
+                  = {formatRupiah(evalResult)}
+                </Text>
+              ) : (
+                <Text style={styles.previewInvalid}>
+                  {strings.ekspresiTidakLengkap}
+                </Text>
+              )}
+            </View>
           </View>
 
-          {/* Operator bar selalu tampil */}
+          {/* Operator bar */}
           <OperatorBar onInsert={handleInsert} onBackspace={handleBackspace} />
 
           <View style={styles.formSection}>
+            {/* Quick 1-Tap Category Tags */}
+            <Text style={styles.label}>{strings.kategori}</Text>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.catScrollView}>
+              {CATEGORIES.map((cat) => {
+                const isSelected = category === cat.id;
+                return (
+                  <TouchableOpacity
+                    key={cat.id}
+                    style={[
+                      styles.catChip,
+                      { backgroundColor: cat.bg },
+                      isSelected && styles.catChipSelected,
+                    ]}
+                    onPress={() => setCategory(cat.id)}
+                    activeOpacity={0.8}
+                  >
+                    <Text style={styles.catEmoji}>{cat.emoji}</Text>
+                    <Text style={[styles.catLabel, { color: cat.color }]}>{cat.label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </ScrollView>
+
             {/* Field Tanggal */}
             <Text style={styles.label}>{strings.tanggal}</Text>
             <TouchableOpacity
@@ -298,7 +325,7 @@ export default function TambahScreen() {
               )}
             </TouchableOpacity>
 
-            {/* Tombol Hapus (hanya mode edit) */}
+            {/* Tombol Hapus (mode edit) */}
             {isEdit && (
               <TouchableOpacity
                 style={styles.deleteBtn}
@@ -335,7 +362,7 @@ const styles = StyleSheet.create({
     backgroundColor: C.cream,
   },
   headerBtn: { width: 70 },
-  headerBtnText: { fontSize: 16, color: C.greenDark, fontWeight: "500" },
+  headerBtnText: { fontSize: 16, color: C.greenDark, fontWeight: "600" },
   headerTitle: {
     flex: 1,
     textAlign: "center",
@@ -344,31 +371,32 @@ const styles = StyleSheet.create({
     color: C.ink,
   },
   scrollContent: { flexGrow: 1 },
-  formSection: { paddingHorizontal: 16, paddingTop: 16 },
+  formSectionTop: { paddingHorizontal: 16, paddingTop: 12 },
+  formSection: { paddingHorizontal: 16, paddingTop: 8 },
   label: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
     color: C.muted,
     textTransform: "uppercase",
     letterSpacing: 0.5,
     marginBottom: 8,
-    marginTop: 16,
+    marginTop: 14,
   },
   input: {
     backgroundColor: C.white,
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1.5,
     borderColor: C.border,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    fontSize: 18,
+    fontSize: 17,
     color: C.ink,
-    minHeight: 54,
+    minHeight: 52,
   },
   preview: {
     paddingHorizontal: 16,
-    paddingVertical: 10,
-    minHeight: 38,
+    paddingVertical: 8,
+    minHeight: 36,
   },
   previewValid: {
     fontSize: 20,
@@ -376,21 +404,47 @@ const styles = StyleSheet.create({
     color: C.greenDark,
   },
   previewInvalid: {
-    fontSize: 15,
+    fontSize: 14,
     color: C.muted,
     fontStyle: "italic",
   },
+  catScrollView: {
+    flexDirection: "row",
+    marginBottom: 4,
+  },
+  catChip: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: 14,
+    paddingVertical: 10,
+    borderRadius: 16,
+    marginRight: 8,
+    borderWidth: 1.5,
+    borderColor: "transparent",
+  },
+  catChipSelected: {
+    borderColor: C.greenDark,
+    transform: [{ scale: 1.03 }],
+  },
+  catEmoji: {
+    fontSize: 16,
+    marginRight: 6,
+  },
+  catLabel: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
   dateBtn: {
     backgroundColor: C.white,
-    borderRadius: 12,
+    borderRadius: 14,
     borderWidth: 1.5,
     borderColor: C.border,
     paddingHorizontal: 16,
     paddingVertical: 14,
-    minHeight: 54,
+    minHeight: 52,
     justifyContent: "center",
   },
-  dateBtnText: { fontSize: 17, color: C.ink, fontWeight: "500" },
+  dateBtnText: { fontSize: 16, color: C.ink, fontWeight: "500" },
   dateDoneBtn: {
     alignSelf: "flex-end",
     paddingVertical: 8,
@@ -400,24 +454,24 @@ const styles = StyleSheet.create({
   dateDoneBtnText: { fontSize: 16, color: C.greenDark, fontWeight: "600" },
   saveBtn: {
     backgroundColor: C.greenDark,
-    borderRadius: 14,
-    paddingVertical: 18,
-    alignItems: "center",
-    marginTop: 28,
-    minHeight: 58,
-    justifyContent: "center",
-  },
-  saveBtnDisabled: { backgroundColor: C.mutedBg },
-  saveBtnText: { color: C.white, fontSize: 18, fontWeight: "700" },
-  deleteBtn: {
-    borderRadius: 14,
+    borderRadius: 16,
     paddingVertical: 16,
     alignItems: "center",
-    marginTop: 12,
-    borderWidth: 2,
-    borderColor: C.danger,
+    marginTop: 24,
     minHeight: 54,
     justifyContent: "center",
   },
-  deleteBtnText: { color: C.danger, fontSize: 16, fontWeight: "700" },
+  saveBtnDisabled: { backgroundColor: C.mutedBg },
+  saveBtnText: { color: C.white, fontSize: 17, fontWeight: "700" },
+  deleteBtn: {
+    borderRadius: 16,
+    paddingVertical: 14,
+    alignItems: "center",
+    marginTop: 12,
+    borderWidth: 1.5,
+    borderColor: C.danger,
+    minHeight: 50,
+    justifyContent: "center",
+  },
+  deleteBtnText: { color: C.danger, fontSize: 15, fontWeight: "700" },
 });

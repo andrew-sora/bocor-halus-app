@@ -11,6 +11,7 @@ type ExpenseRow = {
   amount: number;
   expression: string;
   note: string;
+  category?: string;
   spent_at: string;
   created_at: string;
 };
@@ -48,11 +49,19 @@ class WebMockDb implements DbClient {
 
   async getFirstAsync<T>(sql: string, params: any[] = []): Promise<T | null> {
     if (sql.includes("PRAGMA user_version")) {
-      return { user_version: 1 } as T;
+      return { user_version: 2 } as T;
     }
     if (sql.includes("WHERE id = ?")) {
       const found = this.expenses.find((e) => e.id === params[0]);
       return (found as T) ?? null;
+    }
+    if (sql.includes("SUM(amount)") && sql.includes("amount < 50000")) {
+      const ym = params[0]?.replace("%", "");
+      const filtered = this.expenses.filter(
+        (e) => e.spent_at.startsWith(ym) && e.amount < 50000
+      );
+      const total = filtered.reduce((acc, curr) => acc + curr.amount, 0);
+      return { total, count: filtered.length } as T;
     }
     if (sql.includes("SUM(amount)")) {
       const ym = params[0]?.replace("%", "");
@@ -104,14 +113,14 @@ class WebMockDb implements DbClient {
 
   async runAsync(sql: string, params: any[] = []): Promise<void> {
     if (sql.startsWith("INSERT INTO expenses")) {
-      const [id, amount, expression, note, spent_at, created_at] = params;
-      this.expenses.push({ id, amount, expression, note, spent_at, created_at });
+      const [id, amount, expression, note, category, spent_at, created_at] = params;
+      this.expenses.push({ id, amount, expression, note, category, spent_at, created_at });
       this.saveToStorage();
     } else if (sql.startsWith("UPDATE expenses")) {
-      const [amount, expression, note, spent_at, id] = params;
+      const [amount, expression, note, category, spent_at, id] = params;
       const index = this.expenses.findIndex((e) => e.id === id);
       if (index !== -1) {
-        this.expenses[index] = { ...this.expenses[index], amount, expression, note, spent_at };
+        this.expenses[index] = { ...this.expenses[index], amount, expression, note, category, spent_at };
         this.saveToStorage();
       }
     } else if (sql.startsWith("DELETE FROM expenses WHERE id = ?")) {

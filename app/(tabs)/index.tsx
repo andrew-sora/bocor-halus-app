@@ -10,7 +10,13 @@ import {
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import type { Expense } from "@/lib/db";
-import { listRecent, totalByMonth, totalByYear } from "@/lib/db";
+import {
+  listRecent,
+  totalByMonth,
+  totalByYear,
+  getMicroExpensesSummary,
+  getBudgetLimit,
+} from "@/lib/db";
 import { TotalCard } from "@/components/TotalCard";
 import { ExpenseRow } from "@/components/ExpenseRow";
 import { strings } from "@/constants/strings";
@@ -25,6 +31,8 @@ export default function BerandaScreen() {
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [monthlyTotal, setMonthlyTotal] = useState(0);
   const [yearlyTotal, setYearlyTotal] = useState(0);
+  const [budgetLimit, setBudgetLimitState] = useState(3000000);
+  const [microSummary, setMicroSummary] = useState({ total: 0, count: 0 });
   const [refreshing, setRefreshing] = useState(false);
 
   const now = new Date();
@@ -33,14 +41,18 @@ export default function BerandaScreen() {
   const ym = currentYearMonth();
 
   const load = useCallback(async () => {
-    const [exps, mt, yt] = await Promise.all([
+    const [exps, mt, yt, micro, bLimit] = await Promise.all([
       listRecent(100),
       totalByMonth(ym),
       totalByYear(currentYear),
+      getMicroExpensesSummary(ym),
+      getBudgetLimit(),
     ]);
     setExpenses(exps);
     setMonthlyTotal(mt);
     setYearlyTotal(yt);
+    setMicroSummary(micro);
+    setBudgetLimitState(bLimit);
   }, [ym, currentYear]);
 
   // Reload setiap layar mendapat fokus
@@ -86,6 +98,9 @@ export default function BerandaScreen() {
             yearlyTotal={yearlyTotal}
             month={currentMonth}
             year={currentYear}
+            budgetLimit={budgetLimit}
+            microTotal={microSummary.total}
+            microCount={microSummary.count}
           />
         }
         renderSectionHeader={({ section }) => (
@@ -112,7 +127,7 @@ export default function BerandaScreen() {
         contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
       />
 
-      {/* Tombol utama - selalu terlihat */}
+      {/* Tombol utama */}
       <View style={[styles.fabContainer, { bottom: insets.bottom + 16 }]}>
         <TouchableOpacity
           style={styles.fab}
@@ -132,13 +147,11 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: C.cream },
   sectionHeader: {
     backgroundColor: C.cream,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderBottomWidth: 1,
-    borderBottomColor: C.border,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
   },
   sectionHeaderText: {
-    fontSize: 14,
+    fontSize: 13,
     fontWeight: "700",
     color: C.muted,
     textTransform: "uppercase",
@@ -146,18 +159,18 @@ const styles = StyleSheet.create({
   },
   empty: {
     alignItems: "center",
-    paddingTop: 60,
+    paddingTop: 50,
     paddingHorizontal: 32,
   },
   emptyTitle: {
     fontSize: 18,
-    fontWeight: "600",
+    fontWeight: "700",
     color: C.ink,
     textAlign: "center",
     marginBottom: 8,
   },
   emptySubtitle: {
-    fontSize: 15,
+    fontSize: 14,
     color: C.muted,
     textAlign: "center",
     lineHeight: 22,
@@ -169,13 +182,13 @@ const styles = StyleSheet.create({
   },
   fab: {
     backgroundColor: C.greenDark,
-    borderRadius: 14,
+    borderRadius: 18,
     paddingVertical: 16,
     alignItems: "center",
     shadowColor: C.greenDark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
-    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.35,
+    shadowRadius: 12,
     elevation: 8,
   },
   fabText: {

@@ -10,6 +10,7 @@ export type Expense = {
   amount: number;       // integer rupiah > 0
   expression: string;
   note: string;
+  category?: string;    // Optional tag id (e.g. 'dapur', 'jajan')
   spentAt: string;      // 'YYYY-MM-DD'
   createdAt: string;
 };
@@ -33,6 +34,7 @@ type ExpenseRow = {
   amount: number;
   expression: string;
   note: string;
+  category?: string;
   spent_at: string;
   created_at: string;
 };
@@ -47,6 +49,7 @@ function rowToExpense(row: ExpenseRow): Expense {
     amount: row.amount,
     expression: row.expression,
     note: row.note,
+    category: row.category || "lainnya",
     spentAt: row.spent_at,
     createdAt: row.created_at,
   };
@@ -62,6 +65,7 @@ export async function initDb(): Promise<void> {
       amount      INTEGER NOT NULL CHECK (amount > 0),
       expression  TEXT NOT NULL,
       note        TEXT NOT NULL DEFAULT '',
+      category    TEXT DEFAULT 'lainnya',
       spent_at    TEXT NOT NULL,
       created_at  TEXT NOT NULL
     );
@@ -81,26 +85,29 @@ export async function addExpense(input: {
   amount: number;
   expression: string;
   note: string;
+  category?: string;
   spentAt: string;
 }): Promise<Expense> {
   const db = await getDb();
   const id = Crypto.randomUUID();
   const createdAt = new Date().toISOString();
+  const category = input.category || "lainnya";
   await db.runAsync(
-    "INSERT INTO expenses (id, amount, expression, note, spent_at, created_at) VALUES (?, ?, ?, ?, ?, ?)",
-    [id, input.amount, input.expression, input.note, input.spentAt, createdAt]
+    "INSERT INTO expenses (id, amount, expression, note, category, spent_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
+    [id, input.amount, input.expression, input.note, category, input.spentAt, createdAt]
   );
-  return { id, ...input, createdAt };
+  return { id, ...input, category, createdAt };
 }
 
 export async function updateExpense(
   id: string,
-  input: { amount: number; expression: string; note: string; spentAt: string }
+  input: { amount: number; expression: string; note: string; category?: string; spentAt: string }
 ): Promise<void> {
   const db = await getDb();
+  const category = input.category || "lainnya";
   await db.runAsync(
-    "UPDATE expenses SET amount = ?, expression = ?, note = ?, spent_at = ? WHERE id = ?",
-    [input.amount, input.expression, input.note, input.spentAt, id]
+    "UPDATE expenses SET amount = ?, expression = ?, note = ?, category = ?, spent_at = ? WHERE id = ?",
+    [input.amount, input.expression, input.note, category, input.spentAt, id]
   );
 }
 
@@ -145,6 +152,16 @@ export async function totalByMonth(ym: string): Promise<number> {
     [`${ym}-%`]
   );
   return row?.total ?? 0;
+}
+
+/** Insight Bocor Halus: Menghitung transaksi mikro (< Rp 50.000) bulan ini */
+export async function getMicroExpensesSummary(ym: string): Promise<{ total: number; count: number }> {
+  const db = await getDb();
+  const row = await db.getFirstAsync<{ total: number; count: number }>(
+    "SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count FROM expenses WHERE spent_at LIKE ? AND amount < 50000",
+    [`${ym}-%`]
+  );
+  return { total: row?.total ?? 0, count: row?.count ?? 0 };
 }
 
 export async function totalByYear(year: number): Promise<number> {
@@ -273,13 +290,15 @@ export async function importAll(
         }
       }
 
+      const category = expense.category || "lainnya";
       await db.runAsync(
-        "INSERT INTO expenses (id, amount, expression, note, spent_at, created_at) VALUES (?, ?, ?, ?, ?, ?)",
+        "INSERT INTO expenses (id, amount, expression, note, category, spent_at, created_at) VALUES (?, ?, ?, ?, ?, ?, ?)",
         [
           expense.id,
           expense.amount,
           expense.expression,
           expense.note,
+          category,
           expense.spentAt,
           expense.createdAt,
         ]
@@ -289,6 +308,28 @@ export async function importAll(
   });
 
   return { added, skipped };
+}
+
+/** Budget Preference Management */
+let cachedBudgetLimit = 3000000; // Default Rp 3.000.000
+
+export async function getBudgetLimit(): Promise<number> {
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      const stored = localStorage.getItem("bocor_halus_budget_limit");
+      if (stored) return parseInt(stored, 10);
+    }
+  } catch {}
+  return cachedBudgetLimit;
+}
+
+export async function setBudgetLimit(limit: number): Promise<void> {
+  cachedBudgetLimit = limit;
+  try {
+    if (typeof window !== "undefined" && window.localStorage) {
+      localStorage.setItem("bocor_halus_budget_limit", limit.toString());
+    }
+  } catch {}
 }
 
 // Untuk testing: reset instance DB (dipakai oleh mock)
