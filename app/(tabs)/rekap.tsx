@@ -52,12 +52,7 @@ export default function RekapScreen() {
   };
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
-      {/* Header Title */}
-      <View style={styles.topHeader}>
-        <Text style={styles.headerTitle}>{strings.rekap}</Text>
-        <Text style={styles.headerSubtitle}>Pantau tren pengeluaran bulananmu</Text>
-      </View>
+    <View style={[styles.container, { paddingBottom: insets.bottom }]}>
 
       {/* Selector Tahun */}
       <View style={styles.yearRow}>

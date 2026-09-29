@@ -1,3 +1,4 @@
+import { View, Text, StyleSheet } from "react-native";
 import { Tabs } from "expo-router";
 import { SymbolView } from "expo-symbols";
 import { strings } from "@/constants/strings";
@@ -7,7 +8,11 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        headerShown: false,
+        headerShown: true,
+        headerStyle: { backgroundColor: C.cream },
+        headerShadowVisible: false,
+        headerTintColor: C.greenDark,
+        headerTitleStyle: { fontWeight: "800", fontSize: 20, color: C.ink },
         tabBarActiveTintColor: C.greenDark,
         tabBarInactiveTintColor: C.muted,
         tabBarStyle: {
@@ -26,6 +31,13 @@ export default function TabLayout() {
         options={{
           title: strings.tabBeranda,
           headerTitle: "Bocor Halus",
+          headerRight: () => (
+            <View style={{ marginRight: 16 }}>
+              <View style={styles.avatarCircle}>
+                <Text style={styles.avatarText}>BH</Text>
+              </View>
+            </View>
+          ),
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{ ios: "house.fill", android: "home", web: "home" }}
@@ -39,6 +51,7 @@ export default function TabLayout() {
         name="rekap"
         options={{
           title: strings.tabRekap,
+          headerTitle: strings.rekap,
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{
@@ -56,6 +69,7 @@ export default function TabLayout() {
         name="pengaturan"
         options={{
           title: strings.tabPengaturan,
+          headerTitle: strings.tabPengaturan,
           tabBarIcon: ({ color }) => (
             <SymbolView
               name={{
@@ -72,3 +86,21 @@ export default function TabLayout() {
     </Tabs>
   );
 }
+
+const styles = StyleSheet.create({
+  avatarCircle: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: C.greenSoft,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "#A7F3D0",
+  },
+  avatarText: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: C.greenDark,
+  },
+});

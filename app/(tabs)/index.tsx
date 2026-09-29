@@ -25,14 +25,6 @@ import { C } from "@/constants/Colors";
 
 type Section = { title: string; data: Expense[] };
 
-function getGreeting(): string {
-  const hour = new Date().getHours();
-  if (hour < 11) return "Selamat Pagi";
-  if (hour < 15) return "Selamat Siang";
-  if (hour < 18) return "Selamat Sore";
-  return "Selamat Malam";
-}
-
 export default function BerandaScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -86,7 +78,7 @@ export default function BerandaScreen() {
   }, [expenses]);
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={styles.container}>
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
@@ -99,28 +91,15 @@ export default function BerandaScreen() {
           />
         }
         ListHeaderComponent={
-          <View>
-            {/* Top Bar Greeting */}
-            <View style={styles.topBar}>
-              <View>
-                <Text style={styles.appName}>Bocor Halus</Text>
-                <Text style={styles.greetingText}>{getGreeting()} 👋</Text>
-              </View>
-              <View style={styles.avatarCircle}>
-                <Text style={styles.avatarText}>BH</Text>
-              </View>
-            </View>
-
-            <TotalCard
-              monthlyTotal={monthlyTotal}
-              yearlyTotal={yearlyTotal}
-              month={currentMonth}
-              year={currentYear}
-              budgetLimit={budgetLimit}
-              microTotal={microSummary.total}
-              microCount={microSummary.count}
-            />
-          </View>
+          <TotalCard
+            monthlyTotal={monthlyTotal}
+            yearlyTotal={yearlyTotal}
+            month={currentMonth}
+            year={currentYear}
+            budgetLimit={budgetLimit}
+            microTotal={microSummary.total}
+            microCount={microSummary.count}
+          />
         }
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeader}>
@@ -167,41 +146,6 @@ export default function BerandaScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: C.cream },
-  topBar: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 4,
-  },
-  appName: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: C.ink,
-    letterSpacing: -0.5,
-  },
-  greetingText: {
-    fontSize: 13,
-    color: C.muted,
-    fontWeight: "600",
-    marginTop: 2,
-  },
-  avatarCircle: {
-    width: 38,
-    height: 38,
-    borderRadius: 19,
-    backgroundColor: C.greenSoft,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: "#A7F3D0",
-  },
-  avatarText: {
-    fontSize: 14,
-    fontWeight: "800",
-    color: C.greenDark,
-  },
   sectionHeader: {
     backgroundColor: C.cream,
     paddingHorizontal: 20,

@@ -100,12 +100,7 @@ export default function PengaturanScreen() {
   const version = Constants.expoConfig?.version ?? "1.0.0";
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
-      {/* Top Header */}
-      <View style={styles.topHeader}>
-        <Text style={styles.headerTitle}>{strings.tabPengaturan}</Text>
-        <Text style={styles.headerSubtitle}>Kelola target budget dan cadangan data</Text>
-      </View>
+    <View style={styles.container}>
 
       <ScrollView
         style={styles.flex}
