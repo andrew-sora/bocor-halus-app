@@ -38,7 +38,7 @@ Designed with a **Clean, Soft & Modern Aesthetic** (Earth Tone Palette: Soft War
 #### 🌟 4 Core Empathy Pillars
 1. **In-App Expression Evaluator (`17.000+75.000`):** Type complex receipts directly without leaving the app. Computed on-the-fly safely without `eval()`.
 2. **Empathy Budget Limit Meter ("Sisa Jatah"):** Real-time visual progress bar indicating budget health (*Aman*, *Waspada*, *Overbudget*).
-3. **1-Tap Emoji Tagging:** Instant category chips (`🛒 Dapur`, `🍼 Anak`, `☕ Jajan`, `⚡ Listrik`, `🛵 Transport`, `✨ Lainnya`).
+3. **1-Tap Emoji Tagging:** Instant category chips (`🛒 Dapur`, `🍼 Anak`, `☕ Jajan`, `⚡ Listrik`, `🛵 Transport`, `📦 Lainnya`).
 4. **Bocor Halus Micro-Leakage Chip:** Smart highlight summarizing small purchases (< Rp 50.000) to build financial awareness.
 
 ---

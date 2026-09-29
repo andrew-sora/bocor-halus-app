@@ -34,7 +34,7 @@ export const CATEGORIES: CategoryTag[] = [
   { id: "anak", label: "Susu & Anak", emoji: "🍼", bg: "#FCE7F3", color: "#9D174D" },
   { id: "tagihan", label: "Listrik & Rutin", emoji: "⚡", bg: "#E0E7FF", color: "#3730A3" },
   { id: "transport", label: "Bensin & Ojol", emoji: "🛵", bg: "#E0F2FE", color: "#075985" },
-  { id: "lainnya", label: "Lain-lain", emoji: "✨", bg: "#ECFDF5", color: "#065F46" },
+  { id: "lainnya", label: "Lain-lain", emoji: "📦", bg: "#ECFDF5", color: "#065F46" },
 ];
 
 export function getCategoryById(id?: string): CategoryTag {
