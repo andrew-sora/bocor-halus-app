@@ -29,6 +29,8 @@ import { OperatorBar } from "@/components/OperatorBar";
 import { strings } from "@/constants/strings";
 import { C, CATEGORIES } from "@/constants/Colors";
 
+const PRESET_AMOUNTS = [10000, 20000, 50000, 100000];
+
 export default function TambahScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -43,13 +45,11 @@ export default function TambahScreen() {
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
 
-  // Track cursor position via ref
   const selectionRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
   const [controlledSelection, setControlledSelection] = useState<
     { start: number; end: number } | undefined
   >(undefined);
 
-  // Load data jika mode edit
   useEffect(() => {
     if (!id) return;
     getExpense(id)
@@ -83,6 +83,14 @@ export default function TambahScreen() {
     },
     [inputValue]
   );
+
+  const handleAddPreset = (amount: number) => {
+    if (!inputValue.trim()) {
+      setInputValue(String(amount));
+    } else {
+      setInputValue(`${inputValue}+${amount}`);
+    }
+  };
 
   const handleBackspace = useCallback(() => {
     const sel = selectionRef.current;
@@ -224,6 +232,20 @@ export default function TambahScreen() {
               returnKeyType="done"
               accessibilityLabel={strings.nominal}
             />
+
+            {/* Quick Nominal Presets */}
+            <View style={styles.presetRow}>
+              {PRESET_AMOUNTS.map((amt) => (
+                <TouchableOpacity
+                  key={amt}
+                  style={styles.presetChip}
+                  onPress={() => handleAddPreset(amt)}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.presetChipText}>+{amt / 1000}rb</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
             {/* Live preview ekspresi */}
             <View style={styles.preview}>
@@ -392,6 +414,25 @@ const styles = StyleSheet.create({
     fontSize: 17,
     color: C.ink,
     minHeight: 52,
+  },
+  presetRow: {
+    flexDirection: "row",
+    marginTop: 8,
+    marginBottom: 4,
+  },
+  presetChip: {
+    backgroundColor: C.white,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 12,
+    marginRight: 6,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  presetChipText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: C.greenDark,
   },
   preview: {
     paddingHorizontal: 16,

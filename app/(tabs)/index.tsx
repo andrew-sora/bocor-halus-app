@@ -25,6 +25,14 @@ import { C } from "@/constants/Colors";
 
 type Section = { title: string; data: Expense[] };
 
+function getGreeting(): string {
+  const hour = new Date().getHours();
+  if (hour < 11) return "Selamat Pagi";
+  if (hour < 15) return "Selamat Siang";
+  if (hour < 18) return "Selamat Sore";
+  return "Selamat Malam";
+}
+
 export default function BerandaScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
@@ -55,7 +63,6 @@ export default function BerandaScreen() {
     setBudgetLimitState(bLimit);
   }, [ym, currentYear]);
 
-  // Reload setiap layar mendapat fokus
   useFocusEffect(
     useCallback(() => {
       load().catch(console.error);
@@ -68,7 +75,6 @@ export default function BerandaScreen() {
     setRefreshing(false);
   }, [load]);
 
-  // Kelompokkan transaksi per tanggal
   const sections: Section[] = useMemo(() => {
     const map = new Map<string, Expense[]>();
     for (const exp of expenses) {
@@ -80,7 +86,7 @@ export default function BerandaScreen() {
   }, [expenses]);
 
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { paddingTop: insets.top }]}>
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
@@ -93,15 +99,28 @@ export default function BerandaScreen() {
           />
         }
         ListHeaderComponent={
-          <TotalCard
-            monthlyTotal={monthlyTotal}
-            yearlyTotal={yearlyTotal}
-            month={currentMonth}
-            year={currentYear}
-            budgetLimit={budgetLimit}
-            microTotal={microSummary.total}
-            microCount={microSummary.count}
-          />
+          <View>
+            {/* Top Bar Greeting */}
+            <View style={styles.topBar}>
+              <View>
+                <Text style={styles.appName}>Bocor Halus</Text>
+                <Text style={styles.greetingText}>{getGreeting()} 👋</Text>
+              </View>
+              <View style={styles.avatarCircle}>
+                <Text style={styles.avatarText}>BH</Text>
+              </View>
+            </View>
+
+            <TotalCard
+              monthlyTotal={monthlyTotal}
+              yearlyTotal={yearlyTotal}
+              month={currentMonth}
+              year={currentYear}
+              budgetLimit={budgetLimit}
+              microTotal={microSummary.total}
+              microCount={microSummary.count}
+            />
+          </View>
         }
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeader}>
@@ -119,7 +138,10 @@ export default function BerandaScreen() {
           />
         )}
         ListEmptyComponent={
-          <View style={styles.empty}>
+          <View style={styles.emptyCard}>
+            <View style={styles.emptyIconCircle}>
+              <Text style={styles.emptyIconText}>📋</Text>
+            </View>
             <Text style={styles.emptyTitle}>{strings.belumAdaData}</Text>
             <Text style={styles.emptySubtitle}>{strings.belumAdaDataDetail}</Text>
           </View>
@@ -136,7 +158,7 @@ export default function BerandaScreen() {
           accessibilityRole="button"
           accessibilityLabel={strings.catatPengeluaran}
         >
-          <Text style={styles.fabText}>＋  {strings.catatPengeluaran}</Text>
+          <Text style={styles.fabText}>+ {strings.catatPengeluaran}</Text>
         </TouchableOpacity>
       </View>
     </View>
@@ -145,35 +167,92 @@ export default function BerandaScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: C.cream },
+  topBar: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 20,
+    paddingTop: 14,
+    paddingBottom: 4,
+  },
+  appName: {
+    fontSize: 22,
+    fontWeight: "800",
+    color: C.ink,
+    letterSpacing: -0.5,
+  },
+  greetingText: {
+    fontSize: 13,
+    color: C.muted,
+    fontWeight: "600",
+    marginTop: 2,
+  },
+  avatarCircle: {
+    width: 38,
+    height: 38,
+    borderRadius: 19,
+    backgroundColor: C.greenSoft,
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1.5,
+    borderColor: "#A7F3D0",
+  },
+  avatarText: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: C.greenDark,
+  },
   sectionHeader: {
     backgroundColor: C.cream,
     paddingHorizontal: 20,
     paddingVertical: 10,
   },
   sectionHeaderText: {
-    fontSize: 13,
+    fontSize: 12,
     fontWeight: "700",
     color: C.muted,
     textTransform: "uppercase",
-    letterSpacing: 0.5,
+    letterSpacing: 0.6,
   },
-  empty: {
+  emptyCard: {
+    backgroundColor: C.white,
+    borderRadius: 20,
+    padding: 24,
+    marginHorizontal: 16,
+    marginTop: 16,
     alignItems: "center",
-    paddingTop: 50,
-    paddingHorizontal: 32,
+    borderWidth: 1,
+    borderColor: C.border,
+    shadowColor: C.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  emptyIconCircle: {
+    width: 52,
+    height: 52,
+    borderRadius: 26,
+    backgroundColor: C.cream,
+    justifyContent: "center",
+    alignItems: "center",
+    marginBottom: 12,
+  },
+  emptyIconText: {
+    fontSize: 24,
   },
   emptyTitle: {
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: "700",
     color: C.ink,
     textAlign: "center",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   emptySubtitle: {
-    fontSize: 14,
+    fontSize: 13,
     color: C.muted,
     textAlign: "center",
-    lineHeight: 22,
+    lineHeight: 20,
   },
   fabContainer: {
     position: "absolute",
@@ -193,7 +272,7 @@ const styles = StyleSheet.create({
   },
   fabText: {
     color: C.white,
-    fontSize: 17,
+    fontSize: 16,
     fontWeight: "700",
     letterSpacing: 0.3,
   },
