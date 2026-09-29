@@ -1,12 +1,11 @@
 import "../global.css";
 import { useEffect, useState } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, Platform, StyleSheet } from "react-native";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { initDb } from "@/lib/db";
 import { C } from "@/constants/Colors";
-
 
 SplashScreen.preventAutoHideAsync();
 
@@ -37,7 +36,7 @@ export default function RootLayout() {
     );
   }
 
-  return (
+  const content = (
     <SafeAreaProvider>
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
@@ -61,4 +60,41 @@ export default function RootLayout() {
       </Stack>
     </SafeAreaProvider>
   );
+
+  if (Platform.OS === "web") {
+    return (
+      <View style={styles.webOuter}>
+        <View style={styles.webInner}>{content}</View>
+      </View>
+    );
+  }
+
+  return content;
 }
+
+const styles = StyleSheet.create({
+  webOuter: {
+    flex: 1,
+    backgroundColor: "#0f172a",
+    justifyContent: "center",
+    alignItems: "center",
+    height: "100vh" as any,
+    width: "100vw" as any,
+  },
+  webInner: {
+    width: "100%",
+    maxWidth: 440,
+    height: "100%",
+    maxHeight: 880,
+    backgroundColor: C.cream,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.35,
+    shadowRadius: 24,
+    borderRadius: 20,
+    overflow: "hidden",
+    borderWidth: 1,
+    borderColor: "#334155",
+  },
+});
+
