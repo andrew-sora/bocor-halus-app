@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, Linking } from "react-native";
 import { MoneyText } from "./MoneyText";
 import { strings } from "@/constants/strings";
 import { namaBulan } from "@/lib/date";
@@ -42,13 +42,18 @@ export function TotalCard({
     statusMsg = strings.budgetMepet;
   }
 
+  const handleShareWhatsApp = () => {
+    const text = `Halo Sayang! ⚓❤️\nBerikut rekap pengeluaran rumah tangga kita bulan ${namaBulan(month)} ${year}:\n\n💸 Total Pengeluaran: ${formatRupiah(monthlyTotal)}\n✨ Sisa Jatah Bulanan: ${formatRupiah(sisaJatah)} (${percentage}% terpakai)\n💡 Transaksi Kecil: ${microCount} transaksi (< Rp 50rb)\n\nSemua tercatat rapi di Bocor Halus App. Jaga kesehatan di laut ya! 🥰`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    Linking.openURL(url).catch(() => {});
+  };
+
   return (
     <View style={styles.container}>
       <View style={styles.card}>
         <View style={styles.headerRow}>
           <View>
             <Text style={styles.label}>{strings.totalBulanIni}</Text>
-
             <Text style={styles.period}>
               {namaBulan(month)} {year}
             </Text>
@@ -80,6 +85,15 @@ export function TotalCard({
 
         <Text style={styles.statusNote}>{statusMsg}</Text>
 
+        {/* Action Share WA */}
+        <TouchableOpacity
+          style={styles.shareWaBtn}
+          onPress={handleShareWhatsApp}
+          activeOpacity={0.8}
+        >
+          <Text style={styles.shareWaBtnText}>📱  Kirim Rekap Bulanan ke WA Suami</Text>
+        </TouchableOpacity>
+
         <View style={styles.divider} />
 
         <View style={styles.yearRow}>
@@ -87,6 +101,16 @@ export function TotalCard({
           <MoneyText amount={yearlyTotal} size="sm" color={C.white} />
         </View>
       </View>
+
+      {/* Emotional Encouragement Chip (LDR Connection) */}
+      {ratio <= 0.8 && (
+        <View style={styles.ldrEncouragementChip}>
+          <Text style={styles.ldrEmoji}>⚓</Text>
+          <Text style={styles.ldrText}>
+            Semangat LDR-nya! Kamu berhasil mengelola keuangan dengan bijak bulan ini. Semakin dekat untuk momen kebersamaan saat Suami bersandar nanti ✨
+          </Text>
+        </View>
+      )}
 
       {/* Bocor Halus Micro-Insight Chip */}
       {microCount > 0 && (
@@ -179,6 +203,21 @@ const styles = StyleSheet.create({
     marginTop: 2,
     marginBottom: 12,
   },
+  shareWaBtn: {
+    backgroundColor: "rgba(255,255,255,0.15)",
+    borderRadius: 14,
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    alignItems: "center",
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: "rgba(255,255,255,0.25)",
+  },
+  shareWaBtnText: {
+    color: C.white,
+    fontSize: 13,
+    fontWeight: "700",
+  },
   divider: {
     height: 1,
     backgroundColor: "rgba(255,255,255,0.15)",
@@ -192,6 +231,27 @@ const styles = StyleSheet.create({
   yearLabel: {
     fontSize: 13,
     color: "rgba(255,255,255,0.75)",
+  },
+  ldrEncouragementChip: {
+    flexDirection: "row",
+    backgroundColor: "#ECFDF5",
+    borderRadius: 16,
+    padding: 12,
+    marginTop: 10,
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
+    alignItems: "center",
+  },
+  ldrEmoji: {
+    fontSize: 18,
+    marginRight: 10,
+  },
+  ldrText: {
+    flex: 1,
+    fontSize: 12,
+    color: "#065F46",
+    lineHeight: 17,
+    fontWeight: "600",
   },
   insightChip: {
     flexDirection: "row",
