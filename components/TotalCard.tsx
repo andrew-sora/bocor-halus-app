@@ -15,15 +15,7 @@ type Props = {
   microCount?: number;
 };
 
-export function TotalCard({
-  monthlyTotal,
-  yearlyTotal,
-  month,
-  year,
-  budgetLimit = 3000000,
-  microTotal = 0,
-  microCount = 0,
-}: Props) {
+export function calculateBudgetStatus(monthlyTotal: number, budgetLimit: number = 3000000) {
   const sisaJatah = Math.max(0, budgetLimit - monthlyTotal);
   const ratio = Math.min(1, monthlyTotal / Math.max(1, budgetLimit));
   const percentage = Math.round(ratio * 100);
@@ -41,6 +33,21 @@ export function TotalCard({
     statusBadgeText = "#FDE68A";
     statusMsg = strings.budgetMepet;
   }
+
+  return { sisaJatah, ratio, percentage, statusBadgeBg, statusBadgeText, statusMsg };
+}
+
+export function TotalCard({
+  monthlyTotal,
+  yearlyTotal,
+  month,
+  year,
+  budgetLimit = 3000000,
+  microTotal = 0,
+  microCount = 0,
+}: Props) {
+  const { sisaJatah, ratio, percentage, statusBadgeBg, statusBadgeText, statusMsg } =
+    calculateBudgetStatus(monthlyTotal, budgetLimit);
 
   const handleShareWhatsApp = () => {
     const text = `Rekap Pengeluaran ${namaBulan(month)} ${year}\n\nTotal: ${formatRupiah(monthlyTotal)}\nSisa Jatah: ${formatRupiah(sisaJatah)} (${percentage}% terpakai)\nTransaksi Kecil (< Rp 50k): ${microCount} transaksi\n\nDicatat via Bocor Halus App`;
