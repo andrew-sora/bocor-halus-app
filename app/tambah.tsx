@@ -28,6 +28,7 @@ import { toLocalDateString, todayLocal, parseLocalDate, formatTanggalId } from "
 import { OperatorBar } from "@/components/OperatorBar";
 import { strings } from "@/constants/strings";
 import { C, CATEGORIES } from "@/constants/Colors";
+import { addPresetAmount, insertChar, backspaceChar } from "@/lib/expenseInput";
 
 const PRESET_AMOUNTS = [10000, 20000, 50000, 100000];
 
@@ -73,10 +74,7 @@ export default function TambahScreen() {
   const handleInsert = useCallback(
     (char: string) => {
       const sel = selectionRef.current;
-      const before = inputValue.slice(0, sel.start);
-      const after = inputValue.slice(sel.end);
-      const newValue = before + char + after;
-      const newPos = sel.start + char.length;
+      const { newValue, newPos } = insertChar(inputValue, char, sel.start, sel.end);
       setInputValue(newValue);
       selectionRef.current = { start: newPos, end: newPos };
       setControlledSelection({ start: newPos, end: newPos });
@@ -85,30 +83,13 @@ export default function TambahScreen() {
   );
 
   const handleAddPreset = (amount: number) => {
-    if (!inputValue.trim()) {
-      setInputValue(String(amount));
-    } else {
-      setInputValue(`${inputValue}+${amount}`);
-    }
+    setInputValue(addPresetAmount(inputValue, amount));
   };
 
   const handleBackspace = useCallback(() => {
     const sel = selectionRef.current;
-    let newValue: string;
-    let newPos: number;
-    if (sel.start !== sel.end) {
-      const before = inputValue.slice(0, sel.start);
-      const after = inputValue.slice(sel.end);
-      newValue = before + after;
-      newPos = sel.start;
-    } else if (sel.start > 0) {
-      const before = inputValue.slice(0, sel.start - 1);
-      const after = inputValue.slice(sel.start);
-      newValue = before + after;
-      newPos = before.length;
-    } else {
-      return;
-    }
+    if (sel.start === 0 && sel.end === 0) return;
+    const { newValue, newPos } = backspaceChar(inputValue, sel.start, sel.end);
     setInputValue(newValue);
     selectionRef.current = { start: newPos, end: newPos };
     setControlledSelection({ start: newPos, end: newPos });

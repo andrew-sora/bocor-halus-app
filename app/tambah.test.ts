@@ -1,5 +1,6 @@
 import { evalExpr } from "@/lib/evalExpr";
 import { formatRupiah } from "@/lib/format";
+import { addPresetAmount, insertChar, backspaceChar } from "@/lib/expenseInput";
 
 describe("Tambah Screen Calculation & Input Helpers", () => {
   test("evaluates complex expression input like 17.000+75.000 to correct total", () => {
@@ -10,36 +11,27 @@ describe("Tambah Screen Calculation & Input Helpers", () => {
   });
 
   test("handles preset amount addition when input is empty vs when input exists", () => {
-    const addPreset = (current: string, amount: number) => {
-      if (!current.trim()) return String(amount);
-      return `${current}+${amount}`;
-    };
-
-    expect(addPreset("", 50000)).toBe("50000");
-    expect(addPreset("17.000", 20000)).toBe("17.000+20000");
+    expect(addPresetAmount("", 50000)).toBe("50000");
+    expect(addPresetAmount("17.000", 20000)).toBe("17.000+20000");
   });
 
   test("inserts operator char at selection position", () => {
-    const insertChar = (current: string, char: string, selStart: number, selEnd: number) => {
-      const before = current.slice(0, selStart);
-      const after = current.slice(selEnd);
-      return before + char + after;
-    };
+    const res1 = insertChar("17000", "+", 5, 5);
+    expect(res1.newValue).toBe("17000+");
+    expect(res1.newPos).toBe(6);
 
-    expect(insertChar("17000", "+", 5, 5)).toBe("17000+");
-    expect(insertChar("10000+50000", "*", 5, 5)).toBe("10000*+50000");
+    const res2 = insertChar("10000+50000", "*", 5, 5);
+    expect(res2.newValue).toBe("10000*+50000");
+    expect(res2.newPos).toBe(6);
   });
 
   test("handles backspace deletion at cursor selection", () => {
-    const backspace = (current: string, selStart: number, selEnd: number) => {
-      if (selStart !== selEnd) {
-        return current.slice(0, selStart) + current.slice(selEnd);
-      }
-      if (selStart === 0) return current;
-      return current.slice(0, selStart - 1) + current.slice(selStart);
-    };
+    const res1 = backspaceChar("17000+", 6, 6);
+    expect(res1.newValue).toBe("17000");
+    expect(res1.newPos).toBe(5);
 
-    expect(backspace("17000+", 6, 6)).toBe("17000");
-    expect(backspace("12345", 2, 4)).toBe("125");
+    const res2 = backspaceChar("12345", 2, 4);
+    expect(res2.newValue).toBe("125");
+    expect(res2.newPos).toBe(2);
   });
 });
