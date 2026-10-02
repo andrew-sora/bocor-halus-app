@@ -121,7 +121,7 @@ class WebMockDb implements DbClient {
   }
 
   async runAsync(sql: string, params: unknown[] = []): Promise<void> {
-    if (sql.includes("INSERT INTO settings") || sql.includes("settings")) {
+    if (sql.includes("INTO settings")) {
       const [key, value] = params as [string, string];
       if (key && value) {
         this.settings[key] = value;

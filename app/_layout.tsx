@@ -122,7 +122,7 @@ const styles = StyleSheet.create({
     paddingVertical: 16,
     height: "100vh" as unknown as DimensionValue,
     width: "100vw" as unknown as DimensionValue,
-    boxSizing: "border-box" as unknown as undefined,
+    boxSizing: "border-box" as unknown as "border-box",
   },
   webInner: {
     width: "100%",
