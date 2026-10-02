@@ -76,7 +76,7 @@ bocor-halus-app/
 - **Safe Math Tokenizer & Parser (`lib/evalExpr.ts`):** Evaluates arithmetic string expressions safely using a recursive descent parser. Completely avoids JS `eval()` or `Function()` constructors.
 - **Cross-Platform Engine Isolation (`dbEngine.native.ts` vs `dbEngine.web.ts`):** Employs Metro platform extensions so native SQLite runs on iOS/Android while a zero-dependency LocalStorage engine powers web previews smoothly.
 - **Local Timezone Guard (`lib/date.ts`):** Standard `toISOString()` shifts dates in UTC+7 (Indonesia WIB) leading to wrong transaction dates for midnight records. Custom helpers ensure strict local date formatting (`YYYY-MM-DD`).
-- **Automated CI Pipeline & Zero Lint Errors:** Enforced via GitHub Actions CI (`typecheck`, `eslint` clean with 0 errors, and 55 unit tests across 5 test suites passed with 100% pass rate).
+- **Automated CI Pipeline & Zero Lint Errors:** Enforced via GitHub Actions CI (`typecheck`, `eslint` clean with 0 errors, and 59 unit tests across 6 test suites passed with 100% pass rate).
 
 ---
 
