@@ -6,6 +6,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { initDb } from "@/lib/db";
 import { C } from "@/constants/Colors";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -78,28 +79,30 @@ export default function RootLayout() {
   }
 
   const content = (
-    <SafeAreaProvider>
-      <Stack>
-        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-        <Stack.Screen
-          name="tambah"
-          options={{
-            presentation: "modal",
-            headerShown: false,
-          }}
-        />
-        <Stack.Screen
-          name="rekap/[ym]"
-          options={{
-            title: "Detail Bulan",
-            headerStyle: { backgroundColor: C.cream },
-            headerTintColor: C.greenDark,
-            headerTitleStyle: { fontWeight: "700", color: C.ink },
-            headerShadowVisible: false,
-          }}
-        />
-      </Stack>
-    </SafeAreaProvider>
+    <ErrorBoundary>
+      <SafeAreaProvider>
+        <Stack>
+          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+          <Stack.Screen
+            name="tambah"
+            options={{
+              presentation: "modal",
+              headerShown: false,
+            }}
+          />
+          <Stack.Screen
+            name="rekap/[ym]"
+            options={{
+              title: "Detail Bulan",
+              headerStyle: { backgroundColor: C.cream },
+              headerTintColor: C.greenDark,
+              headerTitleStyle: { fontWeight: "700", color: C.ink },
+              headerShadowVisible: false,
+            }}
+          />
+        </Stack>
+      </SafeAreaProvider>
+    </ErrorBoundary>
   );
 
   if (Platform.OS === "web") {

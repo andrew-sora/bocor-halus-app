@@ -64,10 +64,11 @@ class WebMockDb implements DbClient {
       const found = this.expenses.find((e) => e.id === params[0]);
       return (found as T) ?? null;
     }
-    if (sql.includes("SUM(amount)") && sql.includes("amount < 50000")) {
+    if (sql.includes("SUM(amount)") && sql.includes("amount < ?")) {
       const ym = (params[0] as string)?.replace("%", "");
+      const threshold = (params[1] as number) ?? 50000;
       const filtered = this.expenses.filter(
-        (e) => e.spent_at.startsWith(ym) && e.amount < 50000
+        (e) => e.spent_at.startsWith(ym) && e.amount < threshold
       );
       const total = filtered.reduce((acc, curr) => acc + curr.amount, 0);
       return { total, count: filtered.length } as T;

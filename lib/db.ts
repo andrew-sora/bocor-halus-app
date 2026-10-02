@@ -161,12 +161,15 @@ export async function totalByMonth(ym: string): Promise<number> {
   return row?.total ?? 0;
 }
 
+/** Batas nominal transaksi mikro ("bocor halus") dalam Rupiah */
+export const MICRO_EXPENSE_THRESHOLD = 50000;
+
 /** Insight Bocor Halus: Menghitung transaksi mikro (< Rp 50.000) bulan ini */
 export async function getMicroExpensesSummary(ym: string): Promise<{ total: number; count: number }> {
   const db = await getDb();
   const row = await db.getFirstAsync<{ total: number; count: number }>(
-    "SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count FROM expenses WHERE spent_at LIKE ? AND amount < 50000",
-    [`${ym}-%`]
+    "SELECT COALESCE(SUM(amount), 0) as total, COUNT(*) as count FROM expenses WHERE spent_at LIKE ? AND amount < ?",
+    [`${ym}-%`, MICRO_EXPENSE_THRESHOLD]
   );
   return { total: row?.total ?? 0, count: row?.count ?? 0 };
 }
