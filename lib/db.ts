@@ -70,6 +70,10 @@ export async function initDb(): Promise<void> {
       created_at  TEXT NOT NULL
     );
     CREATE INDEX IF NOT EXISTS idx_expenses_spent_at ON expenses(spent_at);
+    CREATE TABLE IF NOT EXISTS settings (
+      key   TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
   `);
 
   // Migrasi otomatis jika kolom category belum ada di HP pengguna versi lama
@@ -318,9 +322,17 @@ let cachedBudgetLimit = 3000000; // Default Rp 3.000.000
 
 export async function getBudgetLimit(): Promise<number> {
   try {
-    if (typeof window !== "undefined" && window.localStorage) {
-      const stored = localStorage.getItem("bocor_halus_budget_limit");
-      if (stored) return parseInt(stored, 10);
+    const db = await getDb();
+    const row = await db.getFirstAsync<{ value: string }>(
+      "SELECT value FROM settings WHERE key = ?",
+      ["budget_limit"]
+    );
+    if (row && row.value) {
+      const parsed = parseInt(row.value, 10);
+      if (!isNaN(parsed) && parsed > 0) {
+        cachedBudgetLimit = parsed;
+        return parsed;
+      }
     }
   } catch {}
   return cachedBudgetLimit;
@@ -329,9 +341,11 @@ export async function getBudgetLimit(): Promise<number> {
 export async function setBudgetLimit(limit: number): Promise<void> {
   cachedBudgetLimit = limit;
   try {
-    if (typeof window !== "undefined" && window.localStorage) {
-      localStorage.setItem("bocor_halus_budget_limit", limit.toString());
-    }
+    const db = await getDb();
+    await db.runAsync(
+      "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+      ["budget_limit", limit.toString()]
+    );
   } catch {}
 }
 

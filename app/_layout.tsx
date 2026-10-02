@@ -1,6 +1,6 @@
 import "../global.css";
 import { useEffect, useState } from "react";
-import { View, ActivityIndicator, Platform, StyleSheet } from "react-native";
+import { View, Text, ActivityIndicator, Platform, StyleSheet, Pressable, DimensionValue } from "react-native";
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
@@ -11,15 +11,56 @@ SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [dbReady, setDbReady] = useState(false);
+  const [dbError, setDbError] = useState<string | null>(null);
 
-  useEffect(() => {
+  const startDb = () => {
+    setDbError(null);
     initDb()
       .then(() => setDbReady(true))
-      .catch((err) => console.error("DB init error:", err))
+      .catch((err) => {
+        console.error("DB init error:", err);
+        setDbError(err?.message || "Gagal menginisialisasi database.");
+      })
       .finally(() => {
         SplashScreen.hideAsync().catch(() => {});
       });
+  };
+
+  useEffect(() => {
+    startDb();
   }, []);
+
+  if (dbError) {
+    return (
+      <View
+        style={{
+          flex: 1,
+          justifyContent: "center",
+          alignItems: "center",
+          backgroundColor: C.cream,
+          padding: 24,
+        }}
+      >
+        <Text style={{ fontSize: 18, fontWeight: "700", color: C.ink, marginBottom: 8, textAlign: "center" }}>
+          Gagal Memuat Aplikasi
+        </Text>
+        <Text style={{ fontSize: 14, color: "#64748B", marginBottom: 20, textAlign: "center" }}>
+          {dbError}
+        </Text>
+        <Pressable
+          onPress={startDb}
+          style={{
+            backgroundColor: C.greenDark,
+            paddingHorizontal: 20,
+            paddingVertical: 12,
+            borderRadius: 12,
+          }}
+        >
+          <Text style={{ color: "#FFFFFF", fontWeight: "600" }}>Coba Lagi</Text>
+        </Pressable>
+      </View>
+    );
+  }
 
   if (!dbReady) {
     return (
@@ -79,14 +120,14 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     paddingVertical: 16,
-    height: "100vh" as any,
-    width: "100vw" as any,
-    boxSizing: "border-box" as any,
+    height: "100vh" as unknown as DimensionValue,
+    width: "100vw" as unknown as DimensionValue,
+    boxSizing: "border-box" as unknown as undefined,
   },
   webInner: {
     width: "100%",
     maxWidth: 430,
-    height: "94vh" as any,
+    height: "94vh" as unknown as DimensionValue,
     maxHeight: 860,
     backgroundColor: C.cream,
     shadowColor: "#000",
@@ -99,4 +140,3 @@ const styles = StyleSheet.create({
     borderColor: "#334155",
   },
 });
-

@@ -3,7 +3,9 @@
 [![React Native](https://img.shields.io/badge/React_Native-0.86-61DAFB?logo=react&logoColor=black)](https://reactnative.dev/)
 [![Expo](https://img.shields.io/badge/Expo-SDK_57-000000?logo=expo&logoColor=white)](https://expo.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![ESLint](https://img.shields.io/badge/ESLint-Clean-4B32C3?logo=eslint&logoColor=white)](https://eslint.org/)
 [![SQLite](https://img.shields.io/badge/Storage-Expo_SQLite-003B57?logo=sqlite&logoColor=white)](https://docs.expo.dev/versions/latest/sdk/sqlite/)
+[![CI](https://github.com/andrew-sora/bocor-halus-app/actions/workflows/ci.yml/badge.svg)](https://github.com/andrew-sora/bocor-halus-app/actions)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 > **A Product Case Study in Empathy & Creative Technology for ParagonTech Selection.**  
@@ -74,7 +76,7 @@ bocor-halus-app/
 - **Safe Math Tokenizer & Parser (`lib/evalExpr.ts`):** Evaluates arithmetic string expressions safely using a recursive descent parser. Completely avoids JS `eval()` or `Function()` constructors.
 - **Cross-Platform Engine Isolation (`dbEngine.native.ts` vs `dbEngine.web.ts`):** Employs Metro platform extensions so native SQLite runs on iOS/Android while a zero-dependency LocalStorage engine powers web previews smoothly.
 - **Local Timezone Guard (`lib/date.ts`):** Standard `toISOString()` shifts dates in UTC+7 (Indonesia WIB) leading to wrong transaction dates for midnight records. Custom helpers ensure strict local date formatting (`YYYY-MM-DD`).
-- **Strict TypeScript & 100% Test Pass Rate:** 100% type safety with `strict: true` and 51 unit tests passed using `jest-expo` and `@testing-library/react-native`.
+- **Automated CI Pipeline & Zero Lint Errors:** Enforced via GitHub Actions CI (`typecheck`, `eslint` clean with 0 errors, and 51 unit tests passed with 100% pass rate).
 
 ---
 
