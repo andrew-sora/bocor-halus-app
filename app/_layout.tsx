@@ -141,41 +141,28 @@ export default function RootLayout() {
       </ErrorBoundary>
     );
 
+  const currentView = !isActivated ? (
+    <LicenseGateModal
+      visible={true}
+      onActivated={() => setIsActivated(true)}
+    />
+  ) : (
+    content
+  );
+
   if (Platform.OS === "web") {
     if (isMobileWeb) {
-      return (
-        <View style={styles.webMobileOuter}>
-          {content}
-          <LicenseGateModal
-            visible={!isActivated}
-            onActivated={() => setIsActivated(true)}
-          />
-        </View>
-      );
+      return <View style={styles.webMobileOuter}>{currentView}</View>;
     }
 
     return (
       <View style={styles.webOuter}>
-        <View style={styles.webInner}>
-          {content}
-          <LicenseGateModal
-            visible={!isActivated}
-            onActivated={() => setIsActivated(true)}
-          />
-        </View>
+        <View style={styles.webInner}>{currentView}</View>
       </View>
     );
   }
 
-  return (
-    <>
-      {content}
-      <LicenseGateModal
-        visible={!isActivated}
-        onActivated={() => setIsActivated(true)}
-      />
-    </>
-  );
+  return currentView;
 }
 
 const styles = StyleSheet.create({

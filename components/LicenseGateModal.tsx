@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import {
-  Modal,
   View,
   Text,
   TextInput,
@@ -28,6 +27,8 @@ export function LicenseGateModal({
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
 
+  if (!visible) return null;
+
   const handleActivate = async () => {
     if (!code.trim()) {
       setErrorMsg("Silakan masukkan kode lisensi Anda.");
@@ -51,6 +52,21 @@ export function LicenseGateModal({
     }
   };
 
+  const handlePaste = async () => {
+    try {
+      if (typeof navigator !== "undefined" && navigator.clipboard?.readText) {
+        const text = await navigator.clipboard.readText();
+        if (text) {
+          setCode(text.trim().toUpperCase());
+          if (errorMsg) setErrorMsg(null);
+          return;
+        }
+      }
+    } catch {
+      // Fallback jika browser membatasi akses clipboard otomatis
+    }
+  };
+
   const handleBuy = () => {
     if (Platform.OS === "web") {
       window.open(checkoutUrl, "_blank");
@@ -60,26 +76,27 @@ export function LicenseGateModal({
   };
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View style={styles.overlay}>
-        <View style={styles.card}>
-          {/* Header */}
-          <View style={styles.header}>
-            <View style={styles.tag}>
-              <Text style={styles.tagText}>Aktivasi Aplikasi</Text>
-            </View>
-            <Text style={styles.title}>Bocor Halus</Text>
-            <Text style={styles.subtitle}>
-              Pencatat keuangan rumah tangga bebas langganan bulanan. Cukup sekali beli, miliki seumur hidup.
-            </Text>
+    <View style={styles.overlay}>
+      <View style={styles.card}>
+        {/* Header */}
+        <View style={styles.header}>
+          <View style={styles.tag}>
+            <Text style={styles.tagText}>Aktivasi Aplikasi</Text>
           </View>
+          <Text style={styles.title}>Bocor Halus</Text>
+          <Text style={styles.subtitle}>
+            Pencatat keuangan rumah tangga bebas langganan bulanan. Cukup sekali beli, miliki seumur hidup.
+          </Text>
+        </View>
 
-          {/* Form Input */}
-          <View style={styles.form}>
-            <Text style={styles.inputLabel}>Masukkan Kode Lisensi</Text>
+        {/* Form Input */}
+        <View style={styles.form}>
+          <Text style={styles.inputLabel}>Masukkan Kode Lisensi</Text>
+          
+          <View style={styles.inputRow}>
             <TextInput
               style={[styles.input, !!errorMsg && styles.inputError]}
-              placeholder="Contoh: BH-8921-A7K2"
+              placeholder="BH-XXXX-XXXX"
               placeholderTextColor={C.muted}
               value={code}
               onChangeText={(text) => {
@@ -88,60 +105,73 @@ export function LicenseGateModal({
               }}
               autoCapitalize="characters"
               autoCorrect={false}
+              autoFocus={true}
+              selectTextOnFocus={true}
               returnKeyType="done"
               onSubmitEditing={handleActivate}
             />
 
-            {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
-
             <TouchableOpacity
-              style={[styles.activateBtn, loading && styles.disabledBtn]}
-              onPress={handleActivate}
-              disabled={loading}
-              activeOpacity={0.85}
+              style={styles.pasteBtn}
+              onPress={handlePaste}
+              activeOpacity={0.75}
+              accessibilityRole="button"
+              accessibilityLabel="Tempel kode dari papan klip"
             >
-              {loading ? (
-                <ActivityIndicator color={C.white} size="small" />
-              ) : (
-                <Text style={styles.activateBtnText}>Aktifkan Sekarang</Text>
-              )}
+              <Text style={styles.pasteBtnText}>Tempel</Text>
             </TouchableOpacity>
           </View>
 
-          {/* Pembatas */}
-          <View style={styles.dividerContainer}>
-            <View style={styles.dividerLine} />
-            <Text style={styles.dividerText}>atau</Text>
-            <View style={styles.dividerLine} />
-          </View>
+          {errorMsg ? <Text style={styles.errorText}>{errorMsg}</Text> : null}
 
-          {/* Beli Lisensi Baru */}
-          <View style={styles.buySection}>
-            <Text style={styles.buyHelp}>Belum memiliki kode lisensi?</Text>
-            <TouchableOpacity
-              style={styles.buyBtn}
-              onPress={handleBuy}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.buyBtnText}>Beli Akses Seumur Hidup (Rp 15.000)</Text>
-            </TouchableOpacity>
-            <Text style={styles.privacyNote}>
-              Kode langsung dikirim otomatis setelah pembayaran QRIS/Transfer.
-            </Text>
-          </View>
+          <TouchableOpacity
+            style={[styles.activateBtn, loading && styles.disabledBtn]}
+            onPress={handleActivate}
+            disabled={loading}
+            activeOpacity={0.85}
+          >
+            {loading ? (
+              <ActivityIndicator color={C.white} size="small" />
+            ) : (
+              <Text style={styles.activateBtnText}>Aktifkan Sekarang</Text>
+            )}
+          </TouchableOpacity>
+        </View>
+
+        {/* Pembatas */}
+        <View style={styles.dividerContainer}>
+          <View style={styles.dividerLine} />
+          <Text style={styles.dividerText}>atau</Text>
+          <View style={styles.dividerLine} />
+        </View>
+
+        {/* Beli Lisensi Baru */}
+        <View style={styles.buySection}>
+          <Text style={styles.buyHelp}>Belum memiliki kode lisensi?</Text>
+          <TouchableOpacity
+            style={styles.buyBtn}
+            onPress={handleBuy}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.buyBtnText}>Beli Akses Seumur Hidup (Rp 15.000)</Text>
+          </TouchableOpacity>
+          <Text style={styles.privacyNote}>
+            Kode langsung dikirim otomatis setelah pembayaran QRIS/Transfer.
+          </Text>
         </View>
       </View>
-    </Modal>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: "rgba(15, 23, 42, 0.75)",
+    width: "100%",
+    backgroundColor: C.cream,
     justifyContent: "center",
     alignItems: "center",
-    padding: 20,
+    padding: 16,
   },
   card: {
     width: "100%",
@@ -193,7 +223,13 @@ const styles = StyleSheet.create({
     color: C.inkLight,
     marginBottom: 6,
   },
+  inputRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
   input: {
+    flex: 1,
     height: 48,
     borderWidth: 1.5,
     borderColor: C.border,
@@ -205,6 +241,21 @@ const styles = StyleSheet.create({
     backgroundColor: "#F8FAFC",
     letterSpacing: 1.5,
     textAlign: "center",
+  },
+  pasteBtn: {
+    height: 48,
+    paddingHorizontal: 14,
+    backgroundColor: C.creamDark,
+    borderRadius: 12,
+    borderWidth: 1.5,
+    borderColor: C.border,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  pasteBtnText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: C.ink,
   },
   inputError: {
     borderColor: C.danger,
