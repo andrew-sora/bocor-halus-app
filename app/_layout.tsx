@@ -19,8 +19,8 @@ export default function RootLayout() {
   const [appPin, setAppPin] = useState<string | null>(null);
   const [isUnlocked, setIsUnlocked] = useState(true);
   const [isActivated, setIsActivated] = useState(true);
-  const [isTrialMode, setIsTrialMode] = useState(false);
   const [isMobileWeb, setIsMobileWeb] = useState(false);
+
 
   const startDb = () => {
     setDbError(null);
@@ -142,15 +142,15 @@ export default function RootLayout() {
       </ErrorBoundary>
     );
 
-  const currentView = !isActivated && !isTrialMode ? (
+  const currentView = !isActivated ? (
     <LicenseGateModal
       visible={true}
       onActivated={() => setIsActivated(true)}
-      onTrial={() => setIsTrialMode(true)}
     />
   ) : (
     content
   );
+
 
   if (Platform.OS === "web") {
     if (isMobileWeb) {

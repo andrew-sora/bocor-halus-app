@@ -15,16 +15,15 @@ import { activateLicense } from "@/lib/license";
 type LicenseGateModalProps = {
   visible: boolean;
   onActivated: () => void;
-  onTrial?: () => void;
   checkoutUrl?: string;
 };
 
 export function LicenseGateModal({
   visible,
   onActivated,
-  onTrial,
   checkoutUrl = "https://lynk.id/soradev/bocor-halus",
 }: LicenseGateModalProps) {
+
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -158,22 +157,10 @@ export function LicenseGateModal({
             <Text style={styles.buyBtnText}>Beli Akses Seumur Hidup (Rp 15.000)</Text>
           </TouchableOpacity>
 
-          {/* Tombol Coba Gratis Dulu */}
-          {Boolean(onTrial) && (
-            <TouchableOpacity
-              style={styles.trialBtn}
-              onPress={onTrial}
-              activeOpacity={0.8}
-              accessibilityRole="button"
-              accessibilityLabel="Coba Gratis Dulu"
-            >
-              <Text style={styles.trialBtnText}>✨ Coba Gratis Dulu (Eksplorasi Aplikasi)</Text>
-            </TouchableOpacity>
-          )}
-
           <Text style={styles.privacyNote}>
             Kode langsung dikirim otomatis setelah pembayaran QRIS/Transfer.
           </Text>
+
 
           <View style={styles.supportContainer}>
             <Text style={styles.supportLabel}>Butuh bantuan aktivasi atau kendala pembayaran?</Text>
@@ -360,23 +347,8 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 15,
   },
-  trialBtn: {
-    backgroundColor: C.greenSoft,
-    borderWidth: 1.5,
-    borderColor: "#A7F3D0",
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 12,
-    width: "100%",
-    alignItems: "center",
-    marginBottom: 8,
-  },
-  trialBtnText: {
-    color: C.greenDark,
-    fontSize: 13,
-    fontWeight: "700",
-  },
   supportContainer: {
+
     marginTop: 14,
     paddingTop: 12,
     borderTopWidth: 1,
