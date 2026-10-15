@@ -1,6 +1,6 @@
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Platform } from "react-native";
 import { Tabs } from "expo-router";
-import { SymbolView } from "expo-symbols";
+import { TabIcon } from "@/components/TabIcon";
 import { strings } from "@/constants/strings";
 import { C } from "@/constants/Colors";
 
@@ -19,8 +19,8 @@ export default function TabLayout() {
           backgroundColor: C.cream,
           borderTopColor: C.border,
           borderTopWidth: 1,
-          height: 64,
-          paddingBottom: 8,
+          height: Platform.OS === "web" ? 68 : 64,
+          paddingBottom: Platform.OS === "web" ? 10 : 8,
           paddingTop: 6,
         },
         tabBarLabelStyle: { fontSize: 12, fontWeight: "600", marginTop: 2 },
@@ -39,11 +39,7 @@ export default function TabLayout() {
             </View>
           ),
           tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{ ios: "house.fill", android: "home", web: "home" }}
-              tintColor={color}
-              size={24}
-            />
+            <TabIcon name="beranda" color={color} size={22} />
           ),
         }}
       />
@@ -53,15 +49,7 @@ export default function TabLayout() {
           title: strings.tabRekap,
           headerTitle: strings.rekap,
           tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: "list.bullet.rectangle",
-                android: "list",
-                web: "list",
-              }}
-              tintColor={color}
-              size={24}
-            />
+            <TabIcon name="rekap" color={color} size={22} />
           ),
         }}
       />
@@ -71,15 +59,7 @@ export default function TabLayout() {
           title: strings.tabPengaturan,
           headerTitle: strings.tabPengaturan,
           tabBarIcon: ({ color }) => (
-            <SymbolView
-              name={{
-                ios: "gearshape.fill",
-                android: "settings",
-                web: "settings",
-              }}
-              tintColor={color}
-              size={24}
-            />
+            <TabIcon name="pengaturan" color={color} size={22} />
           ),
         }}
       />
