@@ -1,10 +1,35 @@
 import { View, Text, StyleSheet, Platform } from "react-native";
 import { Tabs } from "expo-router";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TabIcon } from "@/components/TabIcon";
 import { strings } from "@/constants/strings";
 import { C } from "@/constants/Colors";
 
 export default function TabLayout() {
+  const insets = useSafeAreaInsets();
+
+  // Deteksi lingkungan device secara dinamis (iPhone, Android, Desktop)
+  const isWeb = Platform.OS === "web";
+  const isIosWeb =
+    isWeb &&
+    typeof window !== "undefined" &&
+    /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+
+  const isStandalone =
+    isWeb &&
+    typeof window !== "undefined" &&
+    (window.matchMedia("(display-mode: standalone)").matches ||
+      (window.navigator as unknown as { standalone?: boolean }).standalone === true);
+
+  // Jika iPhone standalone (PWA yang dipasang di layar utama), home indicator memerlukan ruang minimal 32-34px
+  const bottomInset = Math.max(
+    insets.bottom,
+    isIosWeb ? (isStandalone ? 32 : 16) : 0
+  );
+
+  const bottomPadding = bottomInset > 0 ? bottomInset + 4 : 8;
+  const tabHeight = 52 + bottomPadding;
+
   return (
     <Tabs
       screenOptions={{
@@ -19,11 +44,11 @@ export default function TabLayout() {
           backgroundColor: C.cream,
           borderTopColor: C.border,
           borderTopWidth: 1,
-          height: Platform.OS === "web" ? 68 : 64,
-          paddingBottom: Platform.OS === "web" ? 10 : 8,
+          height: tabHeight,
+          paddingBottom: bottomPadding,
           paddingTop: 6,
         },
-        tabBarLabelStyle: { fontSize: 12, fontWeight: "600", marginTop: 2 },
+        tabBarLabelStyle: { fontSize: 11, fontWeight: "600", marginTop: 2 },
       }}
     >
       <Tabs.Screen
