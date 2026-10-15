@@ -50,6 +50,8 @@ export function AddExtraBudgetModal({
     onClose();
   };
 
+  const inputRef = React.useRef<TextInput>(null);
+
   return (
     <Modal
       visible={visible}
@@ -57,80 +59,83 @@ export function AddExtraBudgetModal({
       animationType="fade"
       onRequestClose={onClose}
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.overlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.keyboardAvoid}
-          >
-            <View style={styles.card}>
-              <Text style={styles.title}>Tambah Jatah Bulan Ini</Text>
-              <Text style={styles.subtitle}>
-                Tambahkan anggaran belanja ekstra untuk periode {monthName}.
-              </Text>
+      <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={styles.keyboardAvoid}
+        >
+          <View style={styles.card}>
+            <Text style={styles.title}>Tambah Jatah Bulan Ini</Text>
+            <Text style={styles.subtitle}>
+              Tambahkan anggaran belanja ekstra untuk periode {monthName}.
+            </Text>
 
-              {/* Info Jatah Saat Ini */}
-              <View style={styles.currentInfoBox}>
-                <Text style={styles.currentLabel}>Total Jatah Saat Ini:</Text>
-                <Text style={styles.currentVal}>{formatRupiah(currentBudget)}</Text>
-              </View>
-
-              {/* Input Nominal Tambahan */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.prefix}>+ Rp</Text>
-                <TextInput
-                  style={styles.input}
-                  keyboardType="numeric"
-                  value={val}
-                  onChangeText={handleTextChange}
-                  placeholder="500.000"
-                  placeholderTextColor={C.muted}
-                  autoFocus
-                />
-              </View>
-
-              {/* Presets */}
-              <View style={styles.presetRow}>
-                {PRESETS.map((amt) => (
-                  <TouchableOpacity
-                    key={amt}
-                    style={styles.presetChip}
-                    onPress={() => handleSelectPreset(amt)}
-                    activeOpacity={0.7}
-                  >
-                    <Text style={styles.presetChipText}>+{amt / 1000}rb</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              {/* Action Buttons */}
-              <TouchableOpacity
-                style={[
-                  styles.confirmBtn,
-                  numericVal <= 0 && styles.confirmBtnDisabled,
-                ]}
-                onPress={handleConfirm}
-                disabled={numericVal <= 0}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.confirmBtnText}>
-                  {numericVal > 0
-                    ? `Tambahkan ${formatRupiah(numericVal)}`
-                    : "Masukkan Nominal"}
-                </Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.cancelBtn}
-                onPress={onClose}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.cancelBtnText}>Batal</Text>
-              </TouchableOpacity>
+            {/* Info Jatah Saat Ini */}
+            <View style={styles.currentInfoBox}>
+              <Text style={styles.currentLabel}>Total Jatah Saat Ini:</Text>
+              <Text style={styles.currentVal}>{formatRupiah(currentBudget)}</Text>
             </View>
-          </KeyboardAvoidingView>
-        </View>
-      </TouchableWithoutFeedback>
+
+            {/* Input Nominal Tambahan */}
+            <TouchableOpacity
+              style={styles.inputContainer}
+              activeOpacity={1}
+              onPress={() => inputRef.current?.focus()}
+            >
+              <Text style={styles.prefix}>+ Rp</Text>
+              <TextInput
+                ref={inputRef}
+                style={styles.input}
+                keyboardType="numeric"
+                value={val}
+                onChangeText={handleTextChange}
+                placeholder="500.000"
+                placeholderTextColor={C.muted}
+                autoFocus
+              />
+            </TouchableOpacity>
+
+            {/* Presets */}
+            <View style={styles.presetRow}>
+              {PRESETS.map((amt) => (
+                <TouchableOpacity
+                  key={amt}
+                  style={styles.presetChip}
+                  onPress={() => handleSelectPreset(amt)}
+                  activeOpacity={0.7}
+                >
+                  <Text style={styles.presetChipText}>+{amt / 1000}rb</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Action Buttons */}
+            <TouchableOpacity
+              style={[
+                styles.confirmBtn,
+                numericVal <= 0 && styles.confirmBtnDisabled,
+              ]}
+              onPress={handleConfirm}
+              disabled={numericVal <= 0}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.confirmBtnText}>
+                {numericVal > 0
+                  ? `Tambahkan ${formatRupiah(numericVal)}`
+                  : "Masukkan Nominal"}
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.cancelBtn}
+              onPress={onClose}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.cancelBtnText}>Batal</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }

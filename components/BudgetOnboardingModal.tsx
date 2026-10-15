@@ -54,6 +54,8 @@ export function BudgetOnboardingModal({ visible, onSave, onDismiss }: Props) {
     }
   };
 
+  const inputRef = React.useRef<TextInput>(null);
+
   return (
     <Modal
       visible={visible}
@@ -61,92 +63,95 @@ export function BudgetOnboardingModal({ visible, onSave, onDismiss }: Props) {
       animationType="fade"
       statusBarTranslucent
     >
-      <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-        <View style={styles.overlay}>
-          <KeyboardAvoidingView
-            behavior={Platform.OS === "ios" ? "padding" : "height"}
-            style={styles.keyboardAvoid}
-          >
-            <View style={styles.card}>
-              <Text style={styles.title}>Tentukan Anggaran Belanja</Text>
-              <Text style={styles.subtitle}>
-                Atur perkiraan jatah belanja bulanan yang ingin Anda pantau.
+      <View style={styles.overlay}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === "ios" ? "padding" : undefined}
+          style={styles.keyboardAvoid}
+        >
+          <View style={styles.card}>
+            <Text style={styles.title}>Tentukan Anggaran Belanja</Text>
+            <Text style={styles.subtitle}>
+              Atur perkiraan jatah belanja bulanan yang ingin Anda pantau.
+            </Text>
+
+            {/* Display Formatted Amount */}
+            <View style={styles.displayBox}>
+              <Text style={styles.displayLabel}>Target Jatah Bulanan</Text>
+              <Text style={styles.displayAmount}>
+                {formatRupiah(numericValue)}
               </Text>
-
-              {/* Display Formatted Amount */}
-              <View style={styles.displayBox}>
-                <Text style={styles.displayLabel}>Target Jatah Bulanan</Text>
-                <Text style={styles.displayAmount}>
-                  {formatRupiah(numericValue)}
-                </Text>
-              </View>
-
-              {/* Input Field */}
-              <View style={styles.inputContainer}>
-                <Text style={styles.rpPrefix}>Rp</Text>
-                <TextInput
-                  style={styles.textInput}
-                  keyboardType="numeric"
-                  value={budgetVal}
-                  onChangeText={handleTextChange}
-                  placeholder="3000000"
-                  placeholderTextColor={C.muted}
-                  selectTextOnFocus
-                />
-              </View>
-
-              {/* Preset Chips */}
-              <Text style={styles.presetHeading}>Pilihan Cepat:</Text>
-              <View style={styles.presetRow}>
-                {PRESET_BUDGETS.map((preset) => {
-                  const isSelected = numericValue === preset.value;
-                  return (
-                    <TouchableOpacity
-                      key={preset.value}
-                      style={[
-                        styles.presetChip,
-                        isSelected && styles.presetChipActive,
-                      ]}
-                      onPress={() => handleSelectPreset(preset.value)}
-                      activeOpacity={0.7}
-                    >
-                      <Text
-                        style={[
-                          styles.presetChipText,
-                          isSelected && styles.presetChipTextActive,
-                        ]}
-                      >
-                        {preset.label}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              <Text style={styles.note}>
-                Angka ini dapat diubah sewaktu-waktu melalui menu Pengaturan.
-              </Text>
-
-              {/* Action Buttons */}
-              <TouchableOpacity
-                style={styles.saveBtn}
-                onPress={handleConfirm}
-                activeOpacity={0.85}
-              >
-                <Text style={styles.saveBtnText}>Simpan & Mulai Catat</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.defaultBtn}
-                onPress={handleUseDefault}
-                activeOpacity={0.7}
-              >
-                <Text style={styles.defaultBtnText}>Gunakan Rp 3.000.000 Dulu</Text>
-              </TouchableOpacity>
             </View>
-          </KeyboardAvoidingView>
-        </View>
-      </TouchableWithoutFeedback>
+
+            {/* Input Field */}
+            <TouchableOpacity
+              style={styles.inputContainer}
+              activeOpacity={1}
+              onPress={() => inputRef.current?.focus()}
+            >
+              <Text style={styles.rpPrefix}>Rp</Text>
+              <TextInput
+                ref={inputRef}
+                style={styles.textInput}
+                keyboardType="numeric"
+                value={budgetVal}
+                onChangeText={handleTextChange}
+                placeholder="3000000"
+                placeholderTextColor={C.muted}
+                selectTextOnFocus
+              />
+            </TouchableOpacity>
+
+            {/* Preset Chips */}
+            <Text style={styles.presetHeading}>Pilihan Cepat:</Text>
+            <View style={styles.presetRow}>
+              {PRESET_BUDGETS.map((preset) => {
+                const isSelected = numericValue === preset.value;
+                return (
+                  <TouchableOpacity
+                    key={preset.value}
+                    style={[
+                      styles.presetChip,
+                      isSelected && styles.presetChipActive,
+                    ]}
+                    onPress={() => handleSelectPreset(preset.value)}
+                    activeOpacity={0.7}
+                  >
+                    <Text
+                      style={[
+                        styles.presetChipText,
+                        isSelected && styles.presetChipTextActive,
+                      ]}
+                    >
+                      {preset.label}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+
+            <Text style={styles.note}>
+              Angka ini dapat diubah sewaktu-waktu melalui menu Pengaturan.
+            </Text>
+
+            {/* Action Buttons */}
+            <TouchableOpacity
+              style={styles.saveBtn}
+              onPress={handleConfirm}
+              activeOpacity={0.85}
+            >
+              <Text style={styles.saveBtnText}>Simpan & Mulai Catat</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.defaultBtn}
+              onPress={handleUseDefault}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.defaultBtnText}>Gunakan Rp 3.000.000 Dulu</Text>
+            </TouchableOpacity>
+          </View>
+        </KeyboardAvoidingView>
+      </View>
     </Modal>
   );
 }
