@@ -21,14 +21,14 @@ export default function TabLayout() {
     (window.matchMedia("(display-mode: standalone)").matches ||
       (window.navigator as unknown as { standalone?: boolean }).standalone === true);
 
-  // Jika iPhone standalone (PWA yang dipasang di layar utama), home indicator memerlukan ruang minimal 32-34px
-  const bottomInset = Math.max(
+  // Jika iPhone standalone (PWA yang dipasang di layar utama), home indicator memerlukan ruang 34px
+  const safeBottom = Math.max(
     insets.bottom,
-    isIosWeb ? (isStandalone ? 32 : 16) : 0
+    isIosWeb ? (isStandalone ? 34 : 16) : (insets.bottom > 0 ? insets.bottom : 8)
   );
 
-  const bottomPadding = bottomInset > 0 ? bottomInset + 4 : 8;
-  const tabHeight = 52 + bottomPadding;
+  const bottomPadding = safeBottom;
+  const tabHeight = 64 + safeBottom;
 
   return (
     <Tabs
@@ -46,9 +46,18 @@ export default function TabLayout() {
           borderTopWidth: 1,
           height: tabHeight,
           paddingBottom: bottomPadding,
-          paddingTop: 6,
+          paddingTop: 4,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: "600", marginTop: 2 },
+        tabBarItemStyle: {
+          overflow: "visible",
+          paddingVertical: 2,
+        },
+        tabBarLabelStyle: {
+          fontSize: 11,
+          fontWeight: "600",
+          marginTop: 2,
+          lineHeight: 14,
+        },
       }}
     >
       <Tabs.Screen
