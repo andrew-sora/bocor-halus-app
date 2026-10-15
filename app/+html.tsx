@@ -23,7 +23,24 @@ export default function Root({ children }: { children: ReactNode }) {
           name="description"
           content="Bocor Halus — Aplikasi pencatat keuangan minimalis & pengatur uang belanja rumah tangga 100% privat dan offline."
         />
+        <link rel="icon" type="image/png" href="/favicon.png" />
+        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="manifest" href="/manifest.json" />
+
+        {/* Register PWA Service Worker */}
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+                window.addEventListener('load', function() {
+                  navigator.serviceWorker.register('/sw.js').catch(function(err) {
+                    console.log('ServiceWorker registration failed:', err);
+                  });
+                });
+              }
+            `,
+          }}
+        />
 
         {/*
           Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.

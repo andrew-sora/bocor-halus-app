@@ -2,9 +2,15 @@ import React, { useState, useEffect } from "react";
 import { View, Text, TouchableOpacity, StyleSheet, Platform } from "react-native";
 import { C } from "@/constants/Colors";
 
+interface BeforeInstallPromptEvent extends Event {
+  prompt: () => Promise<void>;
+  userChoice: Promise<{ outcome: "accepted" | "dismissed"; platform: string }>;
+}
+
 export function PwaInstallBanner() {
   const [visible, setVisible] = useState(false);
   const [deviceType, setDeviceType] = useState<"ios" | "android" | "other">("other");
+  const [installPrompt, setInstallPrompt] = useState<BeforeInstallPromptEvent | null>(null);
 
   useEffect(() => {
     if (Platform.OS !== "web") return;
@@ -17,6 +23,10 @@ export function PwaInstallBanner() {
 
       if (isStandalone) return;
 
+      // Cek apakah user menutup banner pada sesi ini
+      const isDismissed = sessionStorage.getItem("bh_pwa_banner_dismissed");
+      if (isDismissed) return;
+
       const ua = window.navigator.userAgent.toLowerCase();
       const isIos = /iphone|ipad|ipod/.test(ua);
       const isAndroid = /android/.test(ua);
@@ -28,29 +38,88 @@ export function PwaInstallBanner() {
         setDeviceType("android");
         setVisible(true);
       }
+
+      // Tangkap event instalasi PWA di Android / Chromium
+      const handleBeforeInstallPrompt = (e: Event) => {
+        e.preventDefault();
+        setInstallPrompt(e as BeforeInstallPromptEvent);
+        setVisible(true);
+      };
+
+      const handleAppInstalled = () => {
+        setVisible(false);
+        setInstallPrompt(null);
+      };
+
+      window.addEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+      window.addEventListener("appinstalled", handleAppInstalled);
+
+      return () => {
+        window.removeEventListener("beforeinstallprompt", handleBeforeInstallPrompt);
+        window.removeEventListener("appinstalled", handleAppInstalled);
+      };
     }
   }, []);
+
+  const handleInstallClick = async () => {
+    if (installPrompt) {
+      try {
+        await installPrompt.prompt();
+        const choice = await installPrompt.userChoice;
+        if (choice.outcome === "accepted") {
+          setVisible(false);
+        }
+        setInstallPrompt(null);
+      } catch (err) {
+        console.error("Install prompt error:", err);
+      }
+    }
+  };
+
+  const handleDismiss = () => {
+    setVisible(false);
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("bh_pwa_banner_dismissed", "true");
+    }
+  };
 
   if (!visible) return null;
 
   return (
     <View style={styles.container}>
-      <View style={styles.textContainer}>
-        <Text style={styles.title}>Pasang di Layar Utama HP</Text>
-        <Text style={styles.desc}>
-          {deviceType === "ios"
-            ? "Ketuk tombol Bagikan (ikon kotak panah ke atas) di bawah, lalu pilih 'Tambahkan ke Layar Utama'."
-            : "Ketuk menu titik tiga (⋮) di Chrome, lalu pilih 'Tambahkan ke Layar Utama'."}
-        </Text>
+      <View style={styles.contentRow}>
+        <View style={styles.textContainer}>
+          <Text style={styles.title}>Pasang di Layar Utama HP</Text>
+          <Text style={styles.desc}>
+            {installPrompt
+              ? "Klik tombol di bawah untuk memasang aplikasi Bocor Halus langsung ke HP Anda."
+              : deviceType === "ios"
+              ? "Ketuk tombol Bagikan ⎋ di Safari, lalu pilih 'Tambahkan ke Layar Utama'."
+              : "Ketuk menu titik tiga (⋮) di pojok atas Chrome, lalu pilih 'Pasang aplikasi' atau 'Tambahkan ke Layar Utama'."}
+          </Text>
+
+          {installPrompt && (
+            <TouchableOpacity
+              onPress={handleInstallClick}
+              style={styles.installBtn}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Pasang Aplikasi Sekarang"
+            >
+              <Text style={styles.installBtnText}>📲 Pasang Aplikasi Sekarang</Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        <TouchableOpacity
+          onPress={handleDismiss}
+          style={styles.closeBtn}
+          accessibilityRole="button"
+          accessibilityLabel="Tutup pemberitahuan"
+        >
+          <Text style={styles.closeText}>✕</Text>
+        </TouchableOpacity>
       </View>
-      <TouchableOpacity
-        onPress={() => setVisible(false)}
-        style={styles.closeBtn}
-        accessibilityRole="button"
-        accessibilityLabel="Tutup pemberitahuan"
-      >
-        <Text style={styles.closeText}>✕</Text>
-      </TouchableOpacity>
     </View>
   );
 }
@@ -59,9 +128,13 @@ const styles = StyleSheet.create({
   container: {
     backgroundColor: C.greenDark,
     paddingHorizontal: 16,
-    paddingVertical: 10,
+    paddingVertical: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: "rgba(255, 255, 255, 0.12)",
+  },
+  contentRow: {
     flexDirection: "row",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
   },
   textContainer: {
@@ -69,15 +142,29 @@ const styles = StyleSheet.create({
     marginRight: 10,
   },
   title: {
-    fontSize: 12,
+    fontSize: 13,
     fontWeight: "700",
     color: C.greenSoft,
-    marginBottom: 2,
+    marginBottom: 3,
   },
   desc: {
     fontSize: 11,
     color: C.white,
-    lineHeight: 15,
+    lineHeight: 16,
+    opacity: 0.95,
+  },
+  installBtn: {
+    marginTop: 8,
+    backgroundColor: C.greenLight,
+    paddingVertical: 7,
+    paddingHorizontal: 12,
+    borderRadius: 8,
+    alignSelf: "flex-start",
+  },
+  installBtnText: {
+    color: C.white,
+    fontSize: 12,
+    fontWeight: "700",
   },
   closeBtn: {
     width: 24,
@@ -86,6 +173,7 @@ const styles = StyleSheet.create({
     backgroundColor: "rgba(255, 255, 255, 0.2)",
     justifyContent: "center",
     alignItems: "center",
+    marginTop: 2,
   },
   closeText: {
     color: C.white,
