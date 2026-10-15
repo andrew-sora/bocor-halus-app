@@ -1,18 +1,24 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
   SectionList,
+  TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { useLocalSearchParams, useRouter, useNavigation } from "expo-router";
+import { useLocalSearchParams, useRouter, useNavigation, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { listByMonth, totalByMonth } from "@/lib/db";
+import {
+  listByMonth,
+  totalByMonth,
+  getBudgetLimit,
+  getMonthlyExtraBudget,
+} from "@/lib/db";
 import type { Expense } from "@/lib/db";
 import { ExpenseRow } from "@/components/ExpenseRow";
 import { formatRupiah } from "@/lib/format";
-import { formatTanggalId, namaBulan } from "@/lib/date";
+import { formatTanggalId, namaBulan, todayLocal } from "@/lib/date";
 import { C, getCategoryById } from "@/constants/Colors";
 
 type Section = { title: string; data: Expense[] };
@@ -25,6 +31,8 @@ export default function RekapDetailScreen() {
 
   const [expenses, setExpenses] = useState<Expense[]>([]);
   const [total, setTotal] = useState(0);
+  const [budgetLimit, setBudgetLimit] = useState(3000000);
+  const [extraBudget, setExtraBudget] = useState(0);
   const [loading, setLoading] = useState(true);
 
   // Update title header dengan nama bulan
@@ -36,16 +44,49 @@ export default function RekapDetailScreen() {
     });
   }, [ym, navigation]);
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     if (!ym) return;
-    Promise.all([listByMonth(ym), totalByMonth(ym)])
-      .then(([exps, t]) => {
-        setExpenses(exps);
-        setTotal(t);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    try {
+      const [exps, t, bLimit, extra] = await Promise.all([
+        listByMonth(ym),
+        totalByMonth(ym),
+        getBudgetLimit(),
+        getMonthlyExtraBudget(ym),
+      ]);
+      setExpenses(exps);
+      setTotal(t);
+      setBudgetLimit(bLimit);
+      setExtraBudget(extra);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [ym]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
+
+  const totalBudget = budgetLimit + extraBudget;
+  const sisa = totalBudget - total;
+
+  // Catat pengeluaran susulan khusus untuk bulan ini
+  const handleAddExpenseThisMonth = () => {
+    if (!ym) return;
+    const [year, month] = ym.split("-").map(Number);
+    const now = new Date();
+    let defaultDate = `${ym}-01`;
+    if (year === now.getFullYear() && month === now.getMonth() + 1) {
+      defaultDate = todayLocal();
+    } else {
+      const daysInMonth = new Date(year, month, 0).getDate();
+      defaultDate = `${ym}-${String(Math.min(25, daysInMonth)).padStart(2, "0")}`;
+    }
+    router.push({ pathname: "/tambah", params: { defaultDate } });
+  };
 
   // Hitung komposisi per kategori
   const categoryBreakdown = useMemo(() => {
@@ -110,7 +151,33 @@ export default function RekapDetailScreen() {
             <View style={styles.totalHeader}>
               <Text style={styles.totalLabel}>Total Pengeluaran Bulan Ini</Text>
               <Text style={styles.totalAmount}>{formatRupiah(total)}</Text>
-              <Text style={styles.txCount}>{expenses.length} transaksi</Text>
+              <Text style={styles.txCount}>{expenses.length} transaksi tercatat</Text>
+
+              {/* Status Sisa Uang / Uang Terselamatkan */}
+              <View style={styles.balanceContainer}>
+                <View style={styles.balanceRow}>
+                  <Text style={styles.balanceSubtext}>Pemasukan / Jatah Belanja:</Text>
+                  <Text style={styles.balanceSubval}>{formatRupiah(totalBudget)}</Text>
+                </View>
+                <View style={[styles.balanceBadge, sisa >= 0 ? styles.balanceSafe : styles.balanceOver]}>
+                  <Text style={[styles.balanceBadgeText, sisa >= 0 ? styles.balanceSafeText : styles.balanceOverText]}>
+                    {sisa >= 0
+                      ? `🎉 Sisa Uang Hemat: +${formatRupiah(sisa)}`
+                      : `⚠️ Melebihi Jatah: -${formatRupiah(Math.abs(sisa))}`}
+                  </Text>
+                </View>
+              </View>
+
+              {/* Tombol Catat Pengeluaran Susulan di Bulan Ini */}
+              <TouchableOpacity
+                style={styles.addMonthBtn}
+                onPress={handleAddExpenseThisMonth}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel="Catat pengeluaran di bulan ini"
+              >
+                <Text style={styles.addMonthBtnText}>+ Catat Pengeluaran Bulan Ini</Text>
+              </TouchableOpacity>
             </View>
 
             {/* Komposisi Kategori */}
@@ -179,7 +246,13 @@ export default function RekapDetailScreen() {
         )}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Text style={styles.emptyText}>Tidak ada transaksi bulan ini.</Text>
+            <Text style={styles.emptyText}>Tidak ada transaksi di bulan ini.</Text>
+            <TouchableOpacity
+              style={styles.emptyAddBtn}
+              onPress={handleAddExpenseThisMonth}
+            >
+              <Text style={styles.emptyAddBtnText}>+ Catat Transaksi Sekarang</Text>
+            </TouchableOpacity>
           </View>
         }
         contentContainerStyle={{ paddingBottom: insets.bottom + 24 }}
@@ -202,20 +275,87 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   totalLabel: {
-    fontSize: 14,
+    fontSize: 13,
     color: "rgba(255,255,255,0.75)",
     fontWeight: "500",
-    marginBottom: 4,
+    marginBottom: 2,
   },
   totalAmount: {
     fontSize: 30,
-    fontWeight: "700",
+    fontWeight: "800",
     color: C.white,
-    marginBottom: 4,
+    marginBottom: 2,
   },
   txCount: {
-    fontSize: 14,
+    fontSize: 13,
     color: "rgba(255,255,255,0.7)",
+  },
+  balanceContainer: {
+    marginTop: 14,
+    width: "100%",
+    backgroundColor: "rgba(255, 255, 255, 0.08)",
+    borderRadius: 14,
+    padding: 12,
+    alignItems: "center",
+  },
+  balanceRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+    marginBottom: 8,
+    paddingHorizontal: 4,
+  },
+  balanceSubtext: {
+    fontSize: 12,
+    color: "rgba(255, 255, 255, 0.8)",
+    fontWeight: "500",
+  },
+  balanceSubval: {
+    fontSize: 13,
+    color: C.white,
+    fontWeight: "700",
+  },
+  balanceBadge: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    width: "100%",
+    alignItems: "center",
+  },
+  balanceSafe: {
+    backgroundColor: "rgba(16, 185, 129, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.4)",
+  },
+  balanceOver: {
+    backgroundColor: "rgba(225, 29, 72, 0.2)",
+    borderWidth: 1,
+    borderColor: "rgba(225, 29, 72, 0.4)",
+  },
+  balanceBadgeText: {
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  balanceSafeText: {
+    color: "#6EE7B7",
+  },
+  balanceOverText: {
+    color: "#FDA4AF",
+  },
+  addMonthBtn: {
+    marginTop: 14,
+    backgroundColor: C.greenLight,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 12,
+    alignItems: "center",
+    width: "100%",
+  },
+  addMonthBtnText: {
+    color: C.white,
+    fontSize: 13,
+    fontWeight: "700",
   },
   sectionHeader: {
     backgroundColor: C.cream,
@@ -236,8 +376,20 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   emptyText: {
-    fontSize: 16,
+    fontSize: 15,
     color: C.muted,
+    marginBottom: 12,
+  },
+  emptyAddBtn: {
+    backgroundColor: C.greenDark,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 12,
+  },
+  emptyAddBtnText: {
+    color: C.white,
+    fontSize: 13,
+    fontWeight: "700",
   },
   breakdownCard: {
     backgroundColor: C.white,
@@ -248,28 +400,23 @@ const styles = StyleSheet.create({
     marginBottom: 8,
     borderWidth: 1,
     borderColor: C.border,
-    shadowColor: C.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 6,
-    elevation: 2,
   },
   breakdownTitle: {
     fontSize: 15,
-    fontWeight: "800",
+    fontWeight: "700",
     color: C.ink,
     marginBottom: 12,
   },
   multiProgressBar: {
     height: 10,
-    borderRadius: 99,
+    borderRadius: 5,
     flexDirection: "row",
     overflow: "hidden",
     backgroundColor: C.mutedBg,
     marginBottom: 16,
   },
   categoryList: {
-    gap: 10,
+    gap: 12,
   },
   categoryRow: {
     flexDirection: "row",
@@ -285,46 +432,42 @@ const styles = StyleSheet.create({
     width: 36,
     height: 36,
     borderRadius: 18,
-    justifyContent: "center",
     alignItems: "center",
+    justifyContent: "center",
   },
   catEmojiText: {
-    fontSize: 18,
+    fontSize: 16,
   },
   categoryName: {
-    fontSize: 13,
-    fontWeight: "700",
+    fontSize: 14,
+    fontWeight: "600",
     color: C.ink,
   },
   categoryCount: {
-    fontSize: 11,
+    fontSize: 12,
     color: C.muted,
-    marginTop: 1,
   },
   categoryRight: {
     alignItems: "flex-end",
   },
   categoryAmount: {
-    fontSize: 13,
+    fontSize: 14,
     fontWeight: "700",
     color: C.ink,
   },
   categoryPercent: {
-    fontSize: 11,
-    fontWeight: "700",
-    color: C.greenDark,
-    marginTop: 1,
+    fontSize: 12,
+    color: C.muted,
+    fontWeight: "500",
   },
   transactionListHeader: {
-    paddingHorizontal: 20,
+    paddingHorizontal: 16,
     paddingTop: 16,
-    paddingBottom: 6,
+    paddingBottom: 4,
   },
   transactionListTitle: {
-    fontSize: 12,
+    fontSize: 14,
     fontWeight: "700",
-    color: C.muted,
-    textTransform: "uppercase",
-    letterSpacing: 0.6,
+    color: C.inkLight,
   },
 });

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   View,
   Text,
@@ -7,9 +7,14 @@ import {
   StyleSheet,
   ActivityIndicator,
 } from "react-native";
-import { useRouter } from "expo-router";
+import { useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { monthlyTotals, availableYears, totalByYear } from "@/lib/db";
+import {
+  monthlyTotals,
+  availableYears,
+  totalByYear,
+  getBudgetLimit,
+} from "@/lib/db";
 import { namaBulan } from "@/lib/date";
 import { formatRupiah } from "@/lib/format";
 import { strings } from "@/constants/strings";
@@ -24,6 +29,7 @@ export default function RekapScreen() {
   const [years, setYears] = useState<number[]>([]);
   const [rows, setRows] = useState<MonthRow[]>([]);
   const [yearTotal, setYearTotal] = useState(0);
+  const [budgetLimit, setBudgetLimit] = useState(3000000);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -32,16 +38,38 @@ export default function RekapScreen() {
       .catch(console.error);
   }, []);
 
-  useEffect(() => {
+  const loadData = useCallback(async () => {
     setLoading(true);
-    Promise.all([monthlyTotals(year), totalByYear(year)])
-      .then(([mt, yt]) => {
-        setRows(mt);
-        setYearTotal(yt);
-      })
-      .catch(console.error)
-      .finally(() => setLoading(false));
+    try {
+      const [mt, yt, bLimit] = await Promise.all([
+        monthlyTotals(year),
+        totalByYear(year),
+        getBudgetLimit(),
+      ]);
+      setRows(mt);
+      setYearTotal(yt);
+      setBudgetLimit(bLimit);
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setLoading(false);
+    }
   }, [year]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData();
+    }, [loadData])
+  );
+
+  const totalSavedYear = useMemo(() => {
+    return rows.reduce((acc, row) => {
+      if (row.total > 0 && row.total < budgetLimit) {
+        return acc + (budgetLimit - row.total);
+      }
+      return acc;
+    }, 0);
+  }, [rows, budgetLimit]);
 
   const canPrev = years.length === 0 || year > Math.min(...years);
   const canNext = years.length === 0 || year < Math.max(...years);
@@ -53,7 +81,6 @@ export default function RekapScreen() {
 
   return (
     <View style={[styles.container, { paddingBottom: insets.bottom }]}>
-
       {/* Selector Tahun */}
       <View style={styles.yearRow}>
         <TouchableOpacity
@@ -90,6 +117,9 @@ export default function RekapScreen() {
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 24 }}
           renderItem={({ item }) => {
             const hasData = item.total > 0;
+            const isSaved = item.total <= budgetLimit;
+            const diff = Math.abs(budgetLimit - item.total);
+
             return (
               <TouchableOpacity
                 style={[styles.monthCard, !hasData && styles.monthCardEmpty]}
@@ -107,16 +137,46 @@ export default function RekapScreen() {
                   </View>
                 </View>
 
-                <Text style={[styles.monthTotal, !hasData && styles.mutedTotal]}>
-                  {formatRupiah(item.total)}
-                </Text>
+                <View style={styles.monthAmountRow}>
+                  <Text style={[styles.monthTotal, !hasData && styles.mutedTotal]}>
+                    {formatRupiah(item.total)}
+                  </Text>
+                  {hasData && (
+                    <View
+                      style={[
+                        styles.savingsBadge,
+                        isSaved ? styles.savingsSafeBg : styles.savingsOverBg,
+                      ]}
+                    >
+                      <Text
+                        style={[
+                          styles.savingsBadgeText,
+                          isSaved ? styles.savingsSafeText : styles.savingsOverText,
+                        ]}
+                      >
+                        {isSaved
+                          ? `+${formatRupiah(diff)} hemat`
+                          : `-${formatRupiah(diff)} bocor`}
+                      </Text>
+                    </View>
+                  )}
+                </View>
               </TouchableOpacity>
             );
           }}
           ListFooterComponent={
             <View style={styles.totalCard}>
-              <Text style={styles.totalLabel}>{strings.totalSetahun} ({year})</Text>
-              <Text style={styles.totalAmount}>{formatRupiah(yearTotal)}</Text>
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>{strings.totalSetahun} ({year})</Text>
+                <Text style={styles.totalAmount}>{formatRupiah(yearTotal)}</Text>
+              </View>
+
+              {totalSavedYear > 0 && (
+                <View style={styles.savedYearContainer}>
+                  <Text style={styles.savedYearLabel}>🎉 Uang Berhasil Dihemat Tahun Ini:</Text>
+                  <Text style={styles.savedYearAmount}>+{formatRupiah(totalSavedYear)}</Text>
+                </View>
+              )}
             </View>
           }
         />
@@ -127,22 +187,6 @@ export default function RekapScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: C.cream },
-  topHeader: {
-    paddingHorizontal: 20,
-    paddingTop: 14,
-    paddingBottom: 6,
-  },
-  headerTitle: {
-    fontSize: 22,
-    fontWeight: "800",
-    color: C.ink,
-    letterSpacing: -0.5,
-  },
-  headerSubtitle: {
-    fontSize: 13,
-    color: C.muted,
-    marginTop: 2,
-  },
   yearRow: {
     flexDirection: "row",
     alignItems: "center",
@@ -161,17 +205,15 @@ const styles = StyleSheet.create({
     borderColor: C.border,
   },
   arrowDisabled: { opacity: 0.3 },
-  arrowText: { fontSize: 24, fontWeight: "600", color: C.greenDark },
+  arrowText: { fontSize: 24, color: C.ink, lineHeight: 28 },
   yearBadge: {
-    backgroundColor: C.white,
-    paddingHorizontal: 24,
-    paddingVertical: 10,
+    marginHorizontal: 16,
+    paddingHorizontal: 20,
+    paddingVertical: 8,
     borderRadius: 20,
-    marginHorizontal: 12,
-    borderWidth: 1,
-    borderColor: C.border,
+    backgroundColor: C.greenSoft,
   },
-  yearText: { fontSize: 18, fontWeight: "700", color: C.ink },
+  yearText: { fontSize: 18, fontWeight: "700", color: C.greenDark },
   monthCard: {
     backgroundColor: C.white,
     borderRadius: 16,
@@ -179,51 +221,81 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     borderWidth: 1,
     borderColor: C.border,
-    shadowColor: C.shadow,
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 1,
-    shadowRadius: 6,
-    elevation: 2,
   },
-  monthCardEmpty: {
-    backgroundColor: "rgba(255, 255, 255, 0.6)",
-    borderColor: "#E2E8F0",
-  },
+  monthCardEmpty: { opacity: 0.6 },
   monthHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: 8,
+    marginBottom: 6,
   },
   monthName: { fontSize: 16, fontWeight: "700", color: C.ink },
-  monthTotal: { fontSize: 18, fontWeight: "800", color: C.greenDark },
   mutedText: { color: C.muted },
-  mutedTotal: { color: C.muted, fontWeight: "500" },
-  badge: {
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 10,
-  },
+  badge: { paddingHorizontal: 8, paddingVertical: 3, borderRadius: 8 },
   badgeActive: { backgroundColor: C.greenSoft },
   badgeMuted: { backgroundColor: C.mutedBg },
   badgeText: { fontSize: 12, fontWeight: "600" },
   badgeActiveText: { color: C.greenDark },
   badgeMutedText: { color: C.muted },
-  totalCard: {
-    backgroundColor: C.greenDark,
-    borderRadius: 20,
-    padding: 20,
-    marginTop: 12,
-    marginBottom: 20,
+  monthAmountRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    shadowColor: C.shadowStrong,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 1,
-    shadowRadius: 10,
-    elevation: 6,
   },
-  totalLabel: { fontSize: 14, fontWeight: "600", color: "rgba(255,255,255,0.85)" },
+  monthTotal: { fontSize: 18, fontWeight: "700", color: C.greenDark },
+  mutedTotal: { color: C.muted, fontWeight: "400", fontSize: 15 },
+  savingsBadge: {
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 8,
+  },
+  savingsSafeBg: {
+    backgroundColor: "rgba(16, 185, 129, 0.12)",
+  },
+  savingsOverBg: {
+    backgroundColor: "rgba(225, 29, 72, 0.12)",
+  },
+  savingsBadgeText: {
+    fontSize: 12,
+    fontWeight: "700",
+  },
+  savingsSafeText: {
+    color: "#059669",
+  },
+  savingsOverText: {
+    color: "#E11D48",
+  },
+  totalCard: {
+    backgroundColor: C.greenDark,
+    borderRadius: 18,
+    padding: 18,
+    marginTop: 8,
+    marginBottom: 16,
+  },
+  totalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  totalLabel: { fontSize: 14, color: "rgba(255,255,255,0.8)", fontWeight: "500" },
   totalAmount: { fontSize: 20, fontWeight: "800", color: C.white },
+  savedYearContainer: {
+    marginTop: 12,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.15)",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+  },
+  savedYearLabel: {
+    fontSize: 12,
+    color: "#A7F3D0",
+    fontWeight: "600",
+  },
+  savedYearAmount: {
+    fontSize: 14,
+    color: "#A7F3D0",
+    fontWeight: "800",
+  },
 });

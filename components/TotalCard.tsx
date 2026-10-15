@@ -93,10 +93,10 @@ export function TotalCard({
 
         <View style={styles.budgetRow}>
           <View>
-            <Text style={styles.budgetSublabel}>{strings.sisaJatah}:</Text>
+            <Text style={styles.budgetSublabel}>Sisa Jatah Belanja:</Text>
             {extraBudget > 0 && (
               <Text style={styles.extraBudgetNote}>
-                +{formatRupiah(extraBudget)} tambahan
+                +{formatRupiah(extraBudget)} uang masuk
               </Text>
             )}
           </View>
@@ -108,9 +108,9 @@ export function TotalCard({
                 onPress={onPressAddExtraBudget}
                 activeOpacity={0.75}
                 accessibilityRole="button"
-                accessibilityLabel="Tambah uang belanja"
+                accessibilityLabel="Catat uang masuk"
               >
-                <Text style={styles.addExtraBtnText}>+ Tambah</Text>
+                <Text style={styles.addExtraBtnText}>+ Uang Masuk</Text>
               </TouchableOpacity>
             )}
           </View>

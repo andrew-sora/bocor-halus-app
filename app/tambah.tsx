@@ -35,13 +35,13 @@ const PRESET_AMOUNTS = [10000, 20000, 50000, 100000];
 export default function TambahScreen() {
   const router = useRouter();
   const insets = useSafeAreaInsets();
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, defaultDate } = useLocalSearchParams<{ id?: string; defaultDate?: string }>();
   const isEdit = Boolean(id);
 
   const [inputValue, setInputValue] = useState("");
   const [note, setNote] = useState("");
   const [category, setCategory] = useState("lainnya");
-  const [spentAt, setSpentAt] = useState(todayLocal());
+  const [spentAt, setSpentAt] = useState(defaultDate || todayLocal());
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);

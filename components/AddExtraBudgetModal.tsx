@@ -65,14 +65,14 @@ export function AddExtraBudgetModal({
           style={styles.keyboardAvoid}
         >
           <View style={styles.card}>
-            <Text style={styles.title}>Tambah Jatah Bulan Ini</Text>
+            <Text style={styles.title}>Catat Pemasukan / Uang Masuk</Text>
             <Text style={styles.subtitle}>
-              Tambahkan anggaran belanja ekstra untuk periode {monthName}.
+              Dapat gaji, transferan, bonus, atau pemasukan tambahan di bulan {monthName}? Masukkan di sini agar sisa uang belanja Anda otomatis bertambah.
             </Text>
 
             {/* Info Jatah Saat Ini */}
             <View style={styles.currentInfoBox}>
-              <Text style={styles.currentLabel}>Total Jatah Saat Ini:</Text>
+              <Text style={styles.currentLabel}>Total Pemasukan / Jatah Saat Ini:</Text>
               <Text style={styles.currentVal}>{formatRupiah(currentBudget)}</Text>
             </View>
 
