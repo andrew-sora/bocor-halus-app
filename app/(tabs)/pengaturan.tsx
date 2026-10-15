@@ -8,6 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   ActivityIndicator,
+  Linking,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Constants from "expo-constants";
@@ -240,6 +241,46 @@ export default function PengaturanScreen() {
           </Text>
         </View>
 
+        {/* Bantuan & Masukan */}
+        <Text style={[styles.sectionTitle, { marginTop: 28 }]}>
+          Bantuan & Kritik Saran
+        </Text>
+        <View style={styles.card}>
+          <Text style={styles.infoTitle}>Ada Pertanyaan, Masukan, atau Keluhan?</Text>
+          <Text style={styles.infoText}>
+            Kami siap membantu dan sangat menghargai saran Anda. Hubungi kami langsung melalui WhatsApp atau Email resmi di bawah ini:
+          </Text>
+
+          {/* Tombol WhatsApp */}
+          <TouchableOpacity
+            style={styles.contactBtnWa}
+            onPress={() => {
+              const text = encodeURIComponent(
+                "Halo Tim Bocor Halus, saya ingin menyampaikan saran/keluhan mengenai aplikasi: "
+              );
+              Linking.openURL(`https://wa.me/6286373313646?text=${text}`).catch(() => {});
+            }}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Chat WhatsApp Pengembang"
+          >
+            <Text style={styles.contactBtnWaText}>💬 Chat WhatsApp: 0863-7331-3646</Text>
+          </TouchableOpacity>
+
+          {/* Tombol Email */}
+          <TouchableOpacity
+            style={styles.contactBtnEmail}
+            onPress={() => {
+              Linking.openURL("mailto:admin@soradev.id?subject=Kritik%20%26%20Saran%20Bocor%20Halus").catch(() => {});
+            }}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Kirim Email ke admin@soradev.id"
+          >
+            <Text style={styles.contactBtnEmailText}>✉️ Email: admin@soradev.id</Text>
+          </TouchableOpacity>
+        </View>
+
         {/* Tentang */}
         <Text style={[styles.sectionTitle, { marginTop: 28 }]}>
           {strings.tentang}
@@ -403,4 +444,33 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: "700",
   },
+  contactBtnWa: {
+    backgroundColor: "#25D366",
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: "center",
+    marginTop: 12,
+    marginBottom: 8,
+  },
+  contactBtnWaText: {
+    color: "#FFFFFF",
+    fontSize: 15,
+    fontWeight: "700",
+  },
+  contactBtnEmail: {
+    backgroundColor: C.cream,
+    borderWidth: 1.5,
+    borderColor: C.border,
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: "center",
+  },
+  contactBtnEmailText: {
+    color: C.ink,
+    fontSize: 15,
+    fontWeight: "600",
+  },
 });
+

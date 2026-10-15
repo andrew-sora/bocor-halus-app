@@ -15,12 +15,14 @@ import { activateLicense } from "@/lib/license";
 type LicenseGateModalProps = {
   visible: boolean;
   onActivated: () => void;
+  onTrial?: () => void;
   checkoutUrl?: string;
 };
 
 export function LicenseGateModal({
   visible,
   onActivated,
+  onTrial,
   checkoutUrl = "https://lynk.id/soradev/bocor-halus",
 }: LicenseGateModalProps) {
   const [code, setCode] = useState("");
@@ -155,14 +157,44 @@ export function LicenseGateModal({
           >
             <Text style={styles.buyBtnText}>Beli Akses Seumur Hidup (Rp 15.000)</Text>
           </TouchableOpacity>
+
+          {/* Tombol Coba Gratis Dulu */}
+          {Boolean(onTrial) && (
+            <TouchableOpacity
+              style={styles.trialBtn}
+              onPress={onTrial}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Coba Gratis Dulu"
+            >
+              <Text style={styles.trialBtnText}>✨ Coba Gratis Dulu (Eksplorasi Aplikasi)</Text>
+            </TouchableOpacity>
+          )}
+
           <Text style={styles.privacyNote}>
             Kode langsung dikirim otomatis setelah pembayaran QRIS/Transfer.
           </Text>
+
+          <View style={styles.supportContainer}>
+            <Text style={styles.supportLabel}>Butuh bantuan aktivasi atau kendala pembayaran?</Text>
+            <TouchableOpacity
+              onPress={() => {
+                const text = encodeURIComponent("Halo Tim Bocor Halus, saya butuh bantuan aktivasi/pembayaran lisensi:");
+                Linking.openURL(`https://wa.me/6286373313646?text=${text}`).catch(() => {});
+              }}
+              activeOpacity={0.7}
+              accessibilityRole="button"
+              accessibilityLabel="Hubungi WhatsApp Bantuan"
+            >
+              <Text style={styles.supportLink}>💬 WhatsApp CS: 0863-7331-3646</Text>
+            </TouchableOpacity>
+          </View>
         </View>
       </View>
     </View>
   );
 }
+
 
 const styles = StyleSheet.create({
   overlay: {
@@ -328,4 +360,41 @@ const styles = StyleSheet.create({
     textAlign: "center",
     lineHeight: 15,
   },
+  trialBtn: {
+    backgroundColor: C.greenSoft,
+    borderWidth: 1.5,
+    borderColor: "#A7F3D0",
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    width: "100%",
+    alignItems: "center",
+    marginBottom: 8,
+  },
+  trialBtnText: {
+    color: C.greenDark,
+    fontSize: 13,
+    fontWeight: "700",
+  },
+  supportContainer: {
+    marginTop: 14,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: C.border,
+    alignItems: "center",
+    width: "100%",
+  },
+  supportLabel: {
+    fontSize: 11,
+    color: C.muted,
+    marginBottom: 4,
+    textAlign: "center",
+  },
+  supportLink: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: "#059669",
+    textAlign: "center",
+  },
 });
+
