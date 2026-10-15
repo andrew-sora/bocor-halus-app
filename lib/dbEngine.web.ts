@@ -91,6 +91,10 @@ class WebMockDb implements DbClient {
         const ym = (params[0] as string)?.replace("%", "");
         list = list.filter((e) => e.spent_at.startsWith(ym));
       }
+      if (sql.includes("amount < ?")) {
+        const threshold = (params[1] as number) ?? 50000;
+        list = list.filter((e) => e.amount < threshold);
+      }
       if (params.length > 0 && typeof params[0] === "number") {
         list = list.slice(0, params[0]);
       }
@@ -122,7 +126,11 @@ class WebMockDb implements DbClient {
   }
 
   async runAsync(sql: string, params: unknown[] = []): Promise<void> {
-    if (sql.includes("INTO settings")) {
+    if (sql.includes("DELETE FROM settings WHERE key = ?")) {
+      const key = params[0] as string;
+      delete this.settings[key];
+      this.saveToStorage();
+    } else if (sql.includes("INTO settings")) {
       const [key, value] = params as [string, string];
       if (key && value) {
         this.settings[key] = value;

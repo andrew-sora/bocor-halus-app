@@ -13,6 +13,9 @@ type Props = {
   budgetLimit?: number;
   microTotal?: number;
   microCount?: number;
+  onPressMicroInsight?: () => void;
+  onPressAddExtraBudget?: () => void;
+  extraBudget?: number;
 };
 
 export function calculateBudgetStatus(monthlyTotal: number, budgetLimit: number = 3000000) {
@@ -45,6 +48,9 @@ export function TotalCard({
   budgetLimit = 3000000,
   microTotal = 0,
   microCount = 0,
+  onPressMicroInsight,
+  onPressAddExtraBudget,
+  extraBudget = 0,
 }: Props) {
   const { sisaJatah, ratio, percentage, statusBadgeBg, statusBadgeText, statusMsg } =
     calculateBudgetStatus(monthlyTotal, budgetLimit);
@@ -86,8 +92,28 @@ export function TotalCard({
         </View>
 
         <View style={styles.budgetRow}>
-          <Text style={styles.budgetSublabel}>{strings.sisaJatah}:</Text>
-          <Text style={styles.budgetVal}>{formatRupiah(sisaJatah)}</Text>
+          <View>
+            <Text style={styles.budgetSublabel}>{strings.sisaJatah}:</Text>
+            {extraBudget > 0 && (
+              <Text style={styles.extraBudgetNote}>
+                +{formatRupiah(extraBudget)} tambahan
+              </Text>
+            )}
+          </View>
+          <View style={styles.budgetRightRow}>
+            <Text style={styles.budgetVal}>{formatRupiah(sisaJatah)}</Text>
+            {Boolean(onPressAddExtraBudget) && (
+              <TouchableOpacity
+                style={styles.addExtraBtn}
+                onPress={onPressAddExtraBudget}
+                activeOpacity={0.75}
+                accessibilityRole="button"
+                accessibilityLabel="Tambah uang belanja"
+              >
+                <Text style={styles.addExtraBtnText}>+ Tambah</Text>
+              </TouchableOpacity>
+            )}
+          </View>
         </View>
 
         <Text style={styles.statusNote}>{statusMsg}</Text>
@@ -120,11 +146,27 @@ export function TotalCard({
 
       {/* Bocor Halus Micro-Insight Chip */}
       {microCount > 0 && (
-        <View style={styles.insightChip}>
-          <Text style={styles.insightText}>
-            {strings.bocorHalusInsightText(formatRupiah(microTotal), microCount)}
-          </Text>
-        </View>
+        <TouchableOpacity
+          style={styles.insightChip}
+          onPress={onPressMicroInsight}
+          activeOpacity={onPressMicroInsight ? 0.75 : 1}
+          disabled={!onPressMicroInsight}
+          accessibilityRole="button"
+          accessibilityLabel="Lihat rincian transaksi bocor halus"
+        >
+          <View style={styles.insightRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.insightText}>
+                {strings.bocorHalusInsightText(formatRupiah(microTotal), microCount)}
+              </Text>
+            </View>
+            {Boolean(onPressMicroInsight) && (
+              <View style={styles.insightCtaBadge}>
+                <Text style={styles.insightCtaText}>Rincian ›</Text>
+              </View>
+            )}
+          </View>
+        </TouchableOpacity>
       )}
     </View>
   );
@@ -264,5 +306,46 @@ const styles = StyleSheet.create({
     color: "#78350F",
     lineHeight: 18,
     fontWeight: "500",
+  },
+  insightRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: 8,
+  },
+  insightCtaBadge: {
+    backgroundColor: "rgba(120, 53, 15, 0.12)",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+  },
+  insightCtaText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: "#78350F",
+  },
+  extraBudgetNote: {
+    fontSize: 11,
+    color: C.greenSoft,
+    fontWeight: "600",
+    marginTop: 2,
+  },
+  budgetRightRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  addExtraBtn: {
+    backgroundColor: "rgba(209, 250, 229, 0.25)",
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: "rgba(209, 250, 229, 0.5)",
+  },
+  addExtraBtnText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: C.greenSoft,
   },
 });

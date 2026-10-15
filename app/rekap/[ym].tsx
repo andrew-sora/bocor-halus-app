@@ -13,7 +13,7 @@ import type { Expense } from "@/lib/db";
 import { ExpenseRow } from "@/components/ExpenseRow";
 import { formatRupiah } from "@/lib/format";
 import { formatTanggalId, namaBulan } from "@/lib/date";
-import { C } from "@/constants/Colors";
+import { C, getCategoryById } from "@/constants/Colors";
 
 type Section = { title: string; data: Expense[] };
 
@@ -47,6 +47,35 @@ export default function RekapDetailScreen() {
       .finally(() => setLoading(false));
   }, [ym]);
 
+  // Hitung komposisi per kategori
+  const categoryBreakdown = useMemo(() => {
+    if (total <= 0 || expenses.length === 0) return [];
+    const map = new Map<string, { total: number; count: number }>();
+    for (const exp of expenses) {
+      const catId = exp.category || "lainnya";
+      const current = map.get(catId) ?? { total: 0, count: 0 };
+      map.set(catId, {
+        total: current.total + exp.amount,
+        count: current.count + 1,
+      });
+    }
+
+    const items = Array.from(map.entries()).map(([catId, data]) => {
+      const cat = getCategoryById(catId);
+      const percentage = Math.round((data.total / total) * 100);
+      return {
+        catId,
+        cat,
+        total: data.total,
+        count: data.count,
+        percentage,
+      };
+    });
+
+    items.sort((a, b) => b.total - a.total);
+    return items;
+  }, [expenses, total]);
+
   // Kelompokkan per tanggal
   const sections: Section[] = useMemo(() => {
     const map = new Map<string, Expense[]>();
@@ -71,17 +100,68 @@ export default function RekapDetailScreen() {
 
   return (
     <View style={styles.container}>
-      {/* Header total bulan */}
-      <View style={styles.totalHeader}>
-        <Text style={styles.totalLabel}>Total Bulan Ini</Text>
-        <Text style={styles.totalAmount}>{formatRupiah(total)}</Text>
-        <Text style={styles.txCount}>{expenses.length} transaksi</Text>
-      </View>
-
       <SectionList
         sections={sections}
         keyExtractor={(item) => item.id}
         stickySectionHeadersEnabled={false}
+        ListHeaderComponent={
+          <View>
+            {/* Header total bulan */}
+            <View style={styles.totalHeader}>
+              <Text style={styles.totalLabel}>Total Pengeluaran Bulan Ini</Text>
+              <Text style={styles.totalAmount}>{formatRupiah(total)}</Text>
+              <Text style={styles.txCount}>{expenses.length} transaksi</Text>
+            </View>
+
+            {/* Komposisi Kategori */}
+            {categoryBreakdown.length > 0 && (
+              <View style={styles.breakdownCard}>
+                <Text style={styles.breakdownTitle}>Komposisi Pengeluaran</Text>
+
+                {/* Progress bar bertingkat */}
+                <View style={styles.multiProgressBar}>
+                  {categoryBreakdown.map((item) => (
+                    <View
+                      key={item.catId}
+                      style={{
+                        width: `${Math.max(item.percentage, 3)}%`,
+                        backgroundColor: item.cat.color,
+                        height: "100%",
+                      }}
+                    />
+                  ))}
+                </View>
+
+                {/* List Kategori */}
+                <View style={styles.categoryList}>
+                  {categoryBreakdown.map((item) => (
+                    <View key={item.catId} style={styles.categoryRow}>
+                      <View style={styles.categoryLeft}>
+                        <View style={[styles.catEmojiBadge, { backgroundColor: item.cat.bg }]}>
+                          <Text style={styles.catEmojiText}>{item.cat.emoji}</Text>
+                        </View>
+                        <View>
+                          <Text style={styles.categoryName}>{item.cat.label}</Text>
+                          <Text style={styles.categoryCount}>{item.count} transaksi</Text>
+                        </View>
+                      </View>
+                      <View style={styles.categoryRight}>
+                        <Text style={styles.categoryAmount}>{formatRupiah(item.total)}</Text>
+                        <Text style={styles.categoryPercent}>{item.percentage}%</Text>
+                      </View>
+                    </View>
+                  ))}
+                </View>
+              </View>
+            )}
+
+            {expenses.length > 0 && (
+              <View style={styles.transactionListHeader}>
+                <Text style={styles.transactionListTitle}>Riwayat Transaksi Harian</Text>
+              </View>
+            )}
+          </View>
+        }
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeader}>
             <Text style={styles.sectionHeaderText}>
@@ -158,5 +238,93 @@ const styles = StyleSheet.create({
   emptyText: {
     fontSize: 16,
     color: C.muted,
+  },
+  breakdownCard: {
+    backgroundColor: C.white,
+    borderRadius: 20,
+    padding: 18,
+    marginHorizontal: 16,
+    marginTop: 16,
+    marginBottom: 8,
+    borderWidth: 1,
+    borderColor: C.border,
+    shadowColor: C.shadow,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
+    elevation: 2,
+  },
+  breakdownTitle: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: C.ink,
+    marginBottom: 12,
+  },
+  multiProgressBar: {
+    height: 10,
+    borderRadius: 99,
+    flexDirection: "row",
+    overflow: "hidden",
+    backgroundColor: C.mutedBg,
+    marginBottom: 16,
+  },
+  categoryList: {
+    gap: 10,
+  },
+  categoryRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
+  categoryLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  catEmojiBadge: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  catEmojiText: {
+    fontSize: 18,
+  },
+  categoryName: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: C.ink,
+  },
+  categoryCount: {
+    fontSize: 11,
+    color: C.muted,
+    marginTop: 1,
+  },
+  categoryRight: {
+    alignItems: "flex-end",
+  },
+  categoryAmount: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: C.ink,
+  },
+  categoryPercent: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: C.greenDark,
+    marginTop: 1,
+  },
+  transactionListHeader: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 6,
+  },
+  transactionListTitle: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: C.muted,
+    textTransform: "uppercase",
+    letterSpacing: 0.6,
   },
 });

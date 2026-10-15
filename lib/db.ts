@@ -39,7 +39,7 @@ type ExpenseRow = {
   created_at: string;
 };
 
-async function getDb(): Promise<DbClient> {
+export async function getDb(): Promise<DbClient> {
   return getDbInstance();
 }
 
@@ -172,6 +172,16 @@ export async function getMicroExpensesSummary(ym: string): Promise<{ total: numb
     [`${ym}-%`, MICRO_EXPENSE_THRESHOLD]
   );
   return { total: row?.total ?? 0, count: row?.count ?? 0 };
+}
+
+/** Mengambil seluruh daftar transaksi mikro (< Rp 50.000) pada bulan tertentu (ym = 'YYYY-MM') */
+export async function listMicroExpenses(ym: string): Promise<Expense[]> {
+  const db = await getDb();
+  const rows = await db.getAllAsync<ExpenseRow>(
+    "SELECT * FROM expenses WHERE spent_at LIKE ? AND amount < ? ORDER BY spent_at DESC, created_at DESC",
+    [`${ym}-%`, MICRO_EXPENSE_THRESHOLD]
+  );
+  return rows.map(rowToExpense);
 }
 
 export async function totalByYear(year: number): Promise<number> {
@@ -323,6 +333,19 @@ export async function importAll(
 /** Budget Preference Management */
 let cachedBudgetLimit = 3000000; // Default Rp 3.000.000
 
+export async function hasBudgetLimitSet(): Promise<boolean> {
+  try {
+    const db = await getDb();
+    const row = await db.getFirstAsync<{ value: string }>(
+      "SELECT value FROM settings WHERE key = ?",
+      ["budget_limit"]
+    );
+    return Boolean(row && row.value);
+  } catch {
+    return false;
+  }
+}
+
 export async function getBudgetLimit(): Promise<number> {
   try {
     const db = await getDb();
@@ -349,6 +372,62 @@ export async function setBudgetLimit(limit: number): Promise<void> {
       "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
       ["budget_limit", limit.toString()]
     );
+  } catch {}
+}
+
+export async function getMonthlyExtraBudget(ym: string): Promise<number> {
+  try {
+    const db = await getDb();
+    const row = await db.getFirstAsync<{ value: string }>(
+      "SELECT value FROM settings WHERE key = ?",
+      [`budget_bonus_${ym}`]
+    );
+    if (row && row.value) {
+      const parsed = parseInt(row.value, 10);
+      if (!isNaN(parsed) && parsed > 0) return parsed;
+    }
+  } catch {}
+  return 0;
+}
+
+export async function addMonthlyExtraBudget(ym: string, addition: number): Promise<number> {
+  const current = await getMonthlyExtraBudget(ym);
+  const updated = current + addition;
+  try {
+    const db = await getDb();
+    await db.runAsync(
+      "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+      [`budget_bonus_${ym}`, updated.toString()]
+    );
+  } catch {}
+  return updated;
+}
+
+export async function getAppPin(): Promise<string | null> {
+  try {
+    const db = await getDb();
+    const row = await db.getFirstAsync<{ value: string }>(
+      "SELECT value FROM settings WHERE key = ?",
+      ["app_pin"]
+    );
+    if (row && row.value && row.value.length === 4) {
+      return row.value;
+    }
+  } catch {}
+  return null;
+}
+
+export async function setAppPin(pin: string | null): Promise<void> {
+  try {
+    const db = await getDb();
+    if (pin && pin.length === 4) {
+      await db.runAsync(
+        "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+        ["app_pin", pin]
+      );
+    } else {
+      await db.runAsync("DELETE FROM settings WHERE key = ?", ["app_pin"]);
+    }
   } catch {}
 }
 

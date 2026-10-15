@@ -4,20 +4,36 @@ import { View, Text, ActivityIndicator, Platform, StyleSheet, Pressable, Dimensi
 import { Stack } from "expo-router";
 import * as SplashScreen from "expo-splash-screen";
 import { SafeAreaProvider } from "react-native-safe-area-context";
-import { initDb } from "@/lib/db";
+import { initDb, getAppPin } from "@/lib/db";
+import { isAppActivated } from "@/lib/license";
 import { C } from "@/constants/Colors";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
+import { PinLockScreen } from "@/components/PinLockScreen";
+import { LicenseGateModal } from "@/components/LicenseGateModal";
 
 SplashScreen.preventAutoHideAsync();
 
 export default function RootLayout() {
   const [dbReady, setDbReady] = useState(false);
   const [dbError, setDbError] = useState<string | null>(null);
+  const [appPin, setAppPin] = useState<string | null>(null);
+  const [isUnlocked, setIsUnlocked] = useState(true);
+  const [isActivated, setIsActivated] = useState(true);
+  const [isMobileWeb, setIsMobileWeb] = useState(false);
 
   const startDb = () => {
     setDbError(null);
     initDb()
-      .then(() => setDbReady(true))
+      .then(async () => {
+        const [pin, activated] = await Promise.all([
+          getAppPin(),
+          isAppActivated(),
+        ]);
+        setAppPin(pin);
+        setIsUnlocked(!pin);
+        setIsActivated(activated);
+        setDbReady(true);
+      })
       .catch((err) => {
         console.error("DB init error:", err);
         setDbError(err?.message || "Gagal menginisialisasi database.");
@@ -29,6 +45,20 @@ export default function RootLayout() {
 
   useEffect(() => {
     startDb();
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS === "web" && typeof window !== "undefined") {
+      const updateSize = () => {
+        const isStandalone =
+          window.matchMedia("(display-mode: standalone)").matches ||
+          (window.navigator as unknown as { standalone?: boolean }).standalone === true;
+        setIsMobileWeb(window.innerWidth <= 480 || isStandalone);
+      };
+      updateSize();
+      window.addEventListener("resize", updateSize);
+      return () => window.removeEventListener("resize", updateSize);
+    }
   }, []);
 
   if (dbError) {
@@ -78,45 +108,84 @@ export default function RootLayout() {
     );
   }
 
-  const content = (
-    <ErrorBoundary>
-      <SafeAreaProvider>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="tambah"
-            options={{
-              presentation: "modal",
-              headerShown: false,
-            }}
-          />
-          <Stack.Screen
-            name="rekap/[ym]"
-            options={{
-              title: "Detail Bulan",
-              headerStyle: { backgroundColor: C.cream },
-              headerTintColor: C.greenDark,
-              headerTitleStyle: { fontWeight: "700", color: C.ink },
-              headerShadowVisible: false,
-            }}
-          />
-        </Stack>
-      </SafeAreaProvider>
-    </ErrorBoundary>
-  );
+  const content =
+    !isUnlocked && appPin ? (
+      <PinLockScreen
+        correctPin={appPin}
+        onUnlock={() => setIsUnlocked(true)}
+      />
+    ) : (
+      <ErrorBoundary>
+        <SafeAreaProvider>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="tambah"
+              options={{
+                presentation: "modal",
+                headerShown: false,
+              }}
+            />
+            <Stack.Screen
+              name="rekap/[ym]"
+              options={{
+                title: "Detail Bulan",
+                headerStyle: { backgroundColor: C.cream },
+                headerTintColor: C.greenDark,
+                headerTitleStyle: { fontWeight: "700", color: C.ink },
+                headerShadowVisible: false,
+              }}
+            />
+          </Stack>
+        </SafeAreaProvider>
+      </ErrorBoundary>
+    );
 
   if (Platform.OS === "web") {
+    if (isMobileWeb) {
+      return (
+        <View style={styles.webMobileOuter}>
+          {content}
+          <LicenseGateModal
+            visible={!isActivated}
+            onActivated={() => setIsActivated(true)}
+          />
+        </View>
+      );
+    }
+
     return (
       <View style={styles.webOuter}>
-        <View style={styles.webInner}>{content}</View>
+        <View style={styles.webInner}>
+          {content}
+          <LicenseGateModal
+            visible={!isActivated}
+            onActivated={() => setIsActivated(true)}
+          />
+        </View>
       </View>
     );
   }
 
-  return content;
+  return (
+    <>
+      {content}
+      <LicenseGateModal
+        visible={!isActivated}
+        onActivated={() => setIsActivated(true)}
+      />
+    </>
+  );
 }
 
 const styles = StyleSheet.create({
+  webMobileOuter: {
+    flex: 1,
+    backgroundColor: C.cream,
+    height: "100vh" as unknown as DimensionValue,
+    width: "100vw" as unknown as DimensionValue,
+    boxSizing: "border-box" as unknown as "border-box",
+  },
   webOuter: {
     flex: 1,
     backgroundColor: "#0f172a",

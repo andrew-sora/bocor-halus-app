@@ -34,9 +34,13 @@ export const CATEGORIES: CategoryTag[] = [
   { id: "anak", label: "Susu & Anak", emoji: "🍼", bg: "#FCE7F3", color: "#9D174D" },
   { id: "tagihan", label: "Listrik & Rutin", emoji: "⚡", bg: "#E0E7FF", color: "#3730A3" },
   { id: "transport", label: "Bensin & Ojol", emoji: "🛵", bg: "#E0F2FE", color: "#075985" },
+  { id: "kesehatan", label: "Obat & Dokter", emoji: "💊", bg: "#FFE4E6", color: "#9F1239" },
+  { id: "ibu", label: "Kebutuhan Ibu", emoji: "💄", bg: "#FDF2F8", color: "#9D174D" },
+  { id: "sosial", label: "Sedekah & Arisan", emoji: "🎁", bg: "#F5F3FF", color: "#5B21B6" },
+  { id: "pulsa", label: "Pulsa & Kuota", emoji: "📱", bg: "#ECFEFF", color: "#155E75" },
   { id: "lainnya", label: "Lain-lain", emoji: "📦", bg: "#ECFDF5", color: "#065F46" },
 ];
 
 export function getCategoryById(id?: string): CategoryTag {
-  return CATEGORIES.find((c) => c.id === id) || CATEGORIES[5]; // Default: Lain-lain
+  return CATEGORIES.find((c) => c.id === id) || CATEGORIES.find((c) => c.id === "lainnya") || CATEGORIES[0];
 }

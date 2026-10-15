@@ -1,0 +1,17 @@
+{
+  "short_name": "Bocor Halus",
+  "name": "Bocor Halus — Catatan Keuangan",
+  "description": "Aplikasi pencatat keuangan minimalis & pengatur uang belanja rumah tangga 100% privat dan offline.",
+  "icons": [
+    {
+      "src": "/favicon.png",
+      "sizes": "192x192 512x512",
+      "type": "image/png"
+    }
+  ],
+  "start_url": "/",
+  "display": "standalone",
+  "theme_color": "#FAF7F2",
+  "background_color": "#FAF7F2",
+  "orientation": "portrait"
+}

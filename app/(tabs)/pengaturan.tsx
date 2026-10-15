@@ -12,8 +12,10 @@ import {
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Constants from "expo-constants";
 import { exportBackup, importBackup } from "@/lib/backup";
-import { getBudgetLimit, setBudgetLimit } from "@/lib/db";
+import { getBudgetLimit, setBudgetLimit, getAppPin, setAppPin } from "@/lib/db";
+import { isAppActivated } from "@/lib/license";
 import { formatRupiah } from "@/lib/format";
+import { SetPinModal } from "@/components/SetPinModal";
 import { strings } from "@/constants/strings";
 import { C } from "@/constants/Colors";
 
@@ -22,12 +24,27 @@ export default function PengaturanScreen() {
   const [loading, setLoading] = useState<"export" | "import" | null>(null);
   const [budgetInput, setBudgetInput] = useState("3000000");
   const [budgetSaved, setBudgetSaved] = useState(false);
+  const [appPin, setAppPinState] = useState<string | null>(null);
+  const [showPinModal, setShowPinModal] = useState(false);
+
+  const [activated, setActivated] = useState(false);
 
   useEffect(() => {
     getBudgetLimit().then((limit) => {
       setBudgetInput(limit.toString());
     });
+    getAppPin().then((pin) => {
+      setAppPinState(pin);
+    });
+    isAppActivated().then((act) => {
+      setActivated(act);
+    });
   }, []);
+
+  const handleSavePin = async (newPin: string | null) => {
+    await setAppPin(newPin);
+    setAppPinState(newPin);
+  };
 
   const parsedBudgetVal = parseInt(budgetInput.replace(/\D/g, ""), 10) || 0;
 
@@ -137,10 +154,44 @@ export default function PengaturanScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Bagian Cadangan */}
-        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Data & Cadangan</Text>
+        {/* Kunci Aplikasi PIN */}
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Kunci Aplikasi (PIN 4 Angka)</Text>
         <View style={styles.card}>
-          <Text style={styles.infoText}>{strings.bantuanBackup}</Text>
+          <Text style={styles.infoTitle}>
+            {appPin ? "Status: Kunci PIN Aktif" : "Status: Kunci PIN Belum Aktif"}
+          </Text>
+          <Text style={styles.infoText}>
+            {appPin
+              ? "Aplikasi terkunci dengan 4 angka rahasia agar catatan belanja aman dan tidak diutak-atik saat HP dimainkan anak."
+              : "Lindungi catatan keuangan keluarga dengan 4 angka PIN rahasia saat membuka aplikasi."}
+          </Text>
+          <TouchableOpacity
+            style={[styles.saveBudgetBtn, { marginTop: 8 }]}
+            onPress={() => setShowPinModal(true)}
+            activeOpacity={0.8}
+          >
+            <Text style={styles.saveBudgetBtnText}>
+              {appPin ? "Ubah atau Hapus PIN" : "Aktifkan Kunci PIN"}
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* Bagian Cadangan */}
+        <Text style={[styles.sectionTitle, { marginTop: 24 }]}>Keamanan & Cadangan Data</Text>
+        
+        {/* Banner Penenang Privasi */}
+        <View style={styles.privacyBanner}>
+          <Text style={styles.privacyBannerTitle}>Data 100% Privat & Aman</Text>
+          <Text style={styles.privacyBannerText}>
+            Seluruh catatan belanja disimpan di memori HP Anda sendiri tanpa diunggah ke internet. Tidak ada pihak lain atau server luar yang bisa melihat keuangan rumah tangga Anda.
+          </Text>
+        </View>
+
+        <View style={styles.card}>
+          <Text style={styles.infoTitle}>Panduan Pencadangan</Text>
+          <Text style={styles.infoText}>
+            Ketuk tombol di bawah untuk menyimpan cadangan. Anda bisa langsung mengirimkan file cadangannya ke obrolan WhatsApp pribadi Anda atau Google Drive agar catatan Anda tidak pernah hilang.
+          </Text>
         </View>
 
         <TouchableOpacity
@@ -152,7 +203,7 @@ export default function PengaturanScreen() {
           {loading === "export" ? (
             <ActivityIndicator color={C.white} />
           ) : (
-            <Text style={styles.btnPrimaryText}>{strings.cadangkanData}</Text>
+            <Text style={styles.btnPrimaryText}>Simpan & Kirim Cadangan</Text>
           )}
         </TouchableOpacity>
 
@@ -165,9 +216,29 @@ export default function PengaturanScreen() {
           {loading === "import" ? (
             <ActivityIndicator color={C.greenDark} />
           ) : (
-            <Text style={styles.btnSecondaryText}>{strings.pulihkanData}</Text>
+            <Text style={styles.btnSecondaryText}>Pulihkan Catatan dari File</Text>
           )}
         </TouchableOpacity>
+
+        {/* Status Lisensi */}
+        <Text style={[styles.sectionTitle, { marginTop: 28 }]}>
+          Status Lisensi
+        </Text>
+        <View style={styles.card}>
+          <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginBottom: 8 }}>
+            <Text style={styles.infoTitle}>Kepemilikan Aplikasi</Text>
+            <View style={{ backgroundColor: activated ? C.greenSoft : C.warningBg, paddingHorizontal: 10, paddingVertical: 4, borderRadius: 8 }}>
+              <Text style={{ fontSize: 11, fontWeight: "700", color: activated ? C.greenDark : C.warning }}>
+                {activated ? "LISENSI AKTIF" : "BELUM AKTIF"}
+              </Text>
+            </View>
+          </View>
+          <Text style={styles.infoText}>
+            {activated
+              ? "Aplikasi aktif permanen (Bebas Biaya Langganan). Seluruh data aman dan hanya tersimpan di perangkat ini."
+              : "Aplikasi belum teraktivasi."}
+          </Text>
+        </View>
 
         {/* Tentang */}
         <Text style={[styles.sectionTitle, { marginTop: 28 }]}>
@@ -182,6 +253,13 @@ export default function PengaturanScreen() {
           </Text>
         </View>
       </ScrollView>
+
+      <SetPinModal
+        visible={showPinModal}
+        onClose={() => setShowPinModal(false)}
+        onSavePin={handleSavePin}
+        currentPin={appPin}
+      />
     </View>
   );
 }
@@ -228,11 +306,36 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
     elevation: 2,
   },
-  infoText: {
+  privacyBanner: {
+    backgroundColor: "#ECFDF5",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
+  },
+  privacyBannerTitle: {
     fontSize: 14,
-    color: C.muted,
-    lineHeight: 21,
-    marginBottom: 10,
+    fontWeight: "700",
+    color: "#065F46",
+    marginBottom: 6,
+  },
+  privacyBannerText: {
+    fontSize: 13,
+    color: "#047857",
+    lineHeight: 19,
+  },
+  infoTitle: {
+    fontSize: 14,
+    fontWeight: "700",
+    color: C.ink,
+    marginBottom: 6,
+  },
+  infoText: {
+    fontSize: 13,
+    color: C.inkLight,
+    lineHeight: 20,
+    marginBottom: 4,
   },
   budgetInput: {
     backgroundColor: C.cream,

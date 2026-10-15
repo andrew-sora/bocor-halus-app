@@ -13,6 +13,18 @@ export default function Root({ children }: { children: ReactNode }) {
         <meta httpEquiv="X-UA-Compatible" content="IE=edge" />
         <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
+        {/* Apple iOS PWA Meta Tags */}
+        <meta name="apple-mobile-web-app-capable" content="yes" />
+        <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+        <meta name="apple-mobile-web-app-title" content="Bocor Halus" />
+        <meta name="theme-color" content="#FAF7F2" />
+        <meta name="application-name" content="Bocor Halus" />
+        <meta
+          name="description"
+          content="Bocor Halus — Aplikasi pencatat keuangan minimalis & pengatur uang belanja rumah tangga 100% privat dan offline."
+        />
+        <link rel="manifest" href="/manifest.json" />
+
         {/*
           Disable body scrolling on web. This makes ScrollView components work closer to how they do on native.
           However, body scrolling is often nice to have for mobile web. If you want to enable it, remove this line.
@@ -21,7 +33,6 @@ export default function Root({ children }: { children: ReactNode }) {
 
         {/* Using raw CSS styles as an escape-hatch to ensure the background color never flickers in dark-mode. */}
         <style dangerouslySetInnerHTML={{ __html: responsiveBackground }} />
-        {/* Add any additional <head> elements that you want globally available on web... */}
       </head>
       <body>{children}</body>
     </html>

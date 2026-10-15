@@ -15,12 +15,21 @@ import {
   totalByMonth,
   totalByYear,
   getMicroExpensesSummary,
+  listMicroExpenses,
   getBudgetLimit,
+  setBudgetLimit,
+  hasBudgetLimitSet,
+  getMonthlyExtraBudget,
+  addMonthlyExtraBudget,
 } from "@/lib/db";
 import { TotalCard } from "@/components/TotalCard";
 import { ExpenseRow } from "@/components/ExpenseRow";
+import { BudgetOnboardingModal } from "@/components/BudgetOnboardingModal";
+import { MicroExpensesModal } from "@/components/MicroExpensesModal";
+import { AddExtraBudgetModal } from "@/components/AddExtraBudgetModal";
+import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { strings } from "@/constants/strings";
-import { formatTanggalId, currentYearMonth } from "@/lib/date";
+import { formatTanggalId, currentYearMonth, namaBulan } from "@/lib/date";
 import { C } from "@/constants/Colors";
 
 type Section = { title: string; data: Expense[] };
@@ -32,8 +41,13 @@ export default function BerandaScreen() {
   const [monthlyTotal, setMonthlyTotal] = useState(0);
   const [yearlyTotal, setYearlyTotal] = useState(0);
   const [budgetLimit, setBudgetLimitState] = useState(3000000);
+  const [extraBudget, setExtraBudget] = useState(0);
   const [microSummary, setMicroSummary] = useState({ total: 0, count: 0 });
   const [refreshing, setRefreshing] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const [showMicroModal, setShowMicroModal] = useState(false);
+  const [showAddExtraModal, setShowAddExtraModal] = useState(false);
+  const [microExpensesList, setMicroExpensesList] = useState<Expense[]>([]);
 
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
@@ -41,19 +55,42 @@ export default function BerandaScreen() {
   const ym = currentYearMonth();
 
   const load = useCallback(async () => {
-    const [exps, mt, yt, micro, bLimit] = await Promise.all([
+    const [exps, mt, yt, micro, bLimit, hasLimit, extra] = await Promise.all([
       listRecent(100),
       totalByMonth(ym),
       totalByYear(currentYear),
       getMicroExpensesSummary(ym),
       getBudgetLimit(),
+      hasBudgetLimitSet(),
+      getMonthlyExtraBudget(ym),
     ]);
     setExpenses(exps);
     setMonthlyTotal(mt);
     setYearlyTotal(yt);
     setMicroSummary(micro);
     setBudgetLimitState(bLimit);
+    setExtraBudget(extra);
+    if (!hasLimit) {
+      setShowOnboarding(true);
+    }
   }, [ym, currentYear]);
+
+  const handleSaveInitialBudget = async (newBudget: number) => {
+    await setBudgetLimit(newBudget);
+    setBudgetLimitState(newBudget);
+    setShowOnboarding(false);
+  };
+
+  const handleAddExtraBudget = async (amount: number) => {
+    const updated = await addMonthlyExtraBudget(ym, amount);
+    setExtraBudget(updated);
+  };
+
+  const handleOpenMicroModal = useCallback(async () => {
+    const list = await listMicroExpenses(ym);
+    setMicroExpensesList(list);
+    setShowMicroModal(true);
+  }, [ym]);
 
   useFocusEffect(
     useCallback(() => {
@@ -91,15 +128,21 @@ export default function BerandaScreen() {
           />
         }
         ListHeaderComponent={
-          <TotalCard
-            monthlyTotal={monthlyTotal}
-            yearlyTotal={yearlyTotal}
-            month={currentMonth}
-            year={currentYear}
-            budgetLimit={budgetLimit}
-            microTotal={microSummary.total}
-            microCount={microSummary.count}
-          />
+          <>
+            <PwaInstallBanner />
+            <TotalCard
+              monthlyTotal={monthlyTotal}
+              yearlyTotal={yearlyTotal}
+              month={currentMonth}
+              year={currentYear}
+              budgetLimit={budgetLimit + extraBudget}
+              extraBudget={extraBudget}
+              microTotal={microSummary.total}
+              microCount={microSummary.count}
+              onPressMicroInsight={handleOpenMicroModal}
+              onPressAddExtraBudget={() => setShowAddExtraModal(true)}
+            />
+          </>
         }
         renderSectionHeader={({ section }) => (
           <View style={styles.sectionHeader}>
@@ -140,6 +183,33 @@ export default function BerandaScreen() {
           <Text style={styles.fabText}>+ {strings.catatPengeluaran}</Text>
         </TouchableOpacity>
       </View>
+
+      <BudgetOnboardingModal
+        visible={showOnboarding}
+        onSave={handleSaveInitialBudget}
+        onDismiss={() => handleSaveInitialBudget(3000000)}
+      />
+
+      <MicroExpensesModal
+        visible={showMicroModal}
+        onClose={() => setShowMicroModal(false)}
+        monthName={namaBulan(currentMonth)}
+        microTotal={microSummary.total}
+        microCount={microSummary.count}
+        expenses={microExpensesList}
+        onSelectExpense={(id) => {
+          setShowMicroModal(false);
+          router.push({ pathname: "/tambah", params: { id } });
+        }}
+      />
+
+      <AddExtraBudgetModal
+        visible={showAddExtraModal}
+        onClose={() => setShowAddExtraModal(false)}
+        onAdd={handleAddExtraBudget}
+        monthName={namaBulan(currentMonth)}
+        currentBudget={budgetLimit + extraBudget}
+      />
     </View>
   );
 }
