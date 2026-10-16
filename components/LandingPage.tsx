@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,7 @@ import {
   Linking,
   TextInput,
   useWindowDimensions,
+  Animated,
 } from "react-native";
 import { C } from "../constants/Colors";
 import { LegalModal, LegalTab } from "./LegalModal";
@@ -20,6 +21,58 @@ interface LandingPageProps {
   supportPhone?: string;
   supportEmail?: string;
 }
+
+type ScenarioType = "pasar" | "bocor" | "kalap";
+
+interface ScenarioData {
+  id: ScenarioType;
+  title: string;
+  subtitle: string;
+  formula: string;
+  items: { category: string; expr: string; amount: number }[];
+  note: string;
+}
+
+const SCENARIOS: ScenarioData[] = [
+  {
+    id: "pasar",
+    title: "Belanja Pasar",
+    subtitle: "Kebutuhan Pokok Terkendali",
+    formula: "15000 + 35000 + 12000",
+    items: [
+      { category: "Belanja Dapur", expr: "Sayur bayam & tempe (15k)", amount: 15000 },
+      { category: "Belanja Dapur", expr: "Ayam potong 1kg (35k)", amount: 35000 },
+      { category: "Bumbu & Cabai", expr: "Cabai rawit & bawang (12k)", amount: 12000 },
+    ],
+    note: "Belanja dapur terencana rapi. Sisa jatah harian masih sangat aman.",
+  },
+  {
+    id: "bocor",
+    title: "Bocor Halus",
+    subtitle: "Jajan Receh Tanpa Sadar",
+    formula: "18000 + 12000 + 22000 + 9000 + 2000",
+    items: [
+      { category: "Jajan & Kopi", expr: "Es kopi susu kekinian", amount: 18000 },
+      { category: "Camilan Sore", expr: "Gorengan & tahu renyah", amount: 12000 },
+      { category: "Minuman Anak", expr: "Boba milk tea", amount: 22000 },
+      { category: "Ongkir Promo", expr: "Ongkir selisih promo", amount: 9000 },
+      { category: "Parkir Motor", expr: "Parkir 1x minimarket", amount: 2000 },
+    ],
+    note: "Waspada! 5 transaksi kecil di bawah 25 ribu telah memakan Rp 63.000 tanpa Anda sadari.",
+  },
+  {
+    id: "kalap",
+    title: "Belanja Kalap",
+    subtitle: "Over-Budget Minimarket",
+    formula: "45000 + 55000 + 25000",
+    items: [
+      { category: "Kebutuhan Anak", expr: "Popok celana sachet (45k)", amount: 45000 },
+      { category: "Peralatan Rumah", expr: "Deterjen & sabun cuci (55k)", amount: 55000 },
+      { category: "Camilan Tambahan", expr: "Snack & es krim (25k)", amount: 25000 },
+    ],
+    note: "Pengeluaran melebihi batas jatah Rp 25.000. Rekap bulanan otomatis memberi sinyal penghematan.",
+  },
+];
 
 export function LandingPage({
   onActivated,
@@ -35,8 +88,15 @@ export function LandingPage({
   const [legalModalVisible, setLegalModalVisible] = useState(false);
   const [legalTab, setLegalTab] = useState<LegalTab>("privacy");
 
-  // State simulasi interaktif kalkulator belanjaan asli Bocor Halus
-  const [simFormula, setSimFormula] = useState("15000 + 35000 + 8000");
+  // State skenario interaktif
+  const [activeScenario, setActiveScenario] = useState<ScenarioType>("pasar");
+  const [simFormula, setSimFormula] = useState(SCENARIOS[0].formula);
+
+  // Animasi progress bar & counter
+  const progressAnim = useRef(new Animated.Value(0.62)).current;
+
+  // State FAQ Accordion
+  const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
 
   const calculateSimTotal = (formula: string): number => {
     try {
@@ -44,13 +104,34 @@ export function LandingPage({
       const parts = clean.split("+").map((p) => parseInt(p.trim(), 10) || 0);
       return parts.reduce((a, b) => a + b, 0);
     } catch {
-      return 58000;
+      return 62000;
     }
   };
 
   const simTotal = calculateSimTotal(simFormula);
   const dailyBudget = 100000;
   const remainingBudget = Math.max(0, dailyBudget - simTotal);
+  const budgetRatio = Math.min(1.5, simTotal / dailyBudget);
+  const progressPercent = Math.min(100, Math.round(budgetRatio * 100));
+
+  // Animasi saat formula berubah
+  useEffect(() => {
+    Animated.spring(progressAnim, {
+      toValue: Math.min(1, budgetRatio),
+      friction: 8,
+      tension: 40,
+      useNativeDriver: false,
+    }).start();
+  }, [simFormula, budgetRatio]);
+
+  const selectScenario = (sc: ScenarioData) => {
+    setActiveScenario(sc.id);
+    setSimFormula(sc.formula);
+  };
+
+  const toggleFaq = (index: number) => {
+    setExpandedFaq(expandedFaq === index ? null : index);
+  };
 
   const handleOpenBuy = () => {
     if (Platform.OS === "web") {
@@ -74,6 +155,27 @@ export function LandingPage({
     setLegalModalVisible(true);
   };
 
+  // Status meter dinamis
+  let statusBadgeBg = "#DCFCE7";
+  let statusBadgeText = C.greenDark;
+  let statusLabel = "Optimal / Aman";
+  let barColor = C.greenLight;
+
+  if (simTotal > dailyBudget) {
+    statusBadgeBg = "#FFE4E6";
+    statusBadgeText = C.danger;
+    statusLabel = "Over Budget";
+    barColor = C.danger;
+  } else if (budgetRatio > 0.6) {
+    statusBadgeBg = "#FEF3C7";
+    statusBadgeText = "#92400E";
+    statusLabel = "Waspada Bocor";
+    barColor = C.warning;
+  }
+
+  const currentScenarioData =
+    SCENARIOS.find((s) => s.id === activeScenario) || SCENARIOS[0];
+
   return (
     <View style={styles.rootWrapper}>
       <ScrollView
@@ -84,11 +186,10 @@ export function LandingPage({
         ]}
         showsVerticalScrollIndicator={false}
       >
-        {/* 1. RESPONSIVE TOP APP BAR */}
+        {/* 1. TOP APP BAR */}
         <View style={[styles.topBar, isDesktop && styles.topBarDesktop]}>
           <View style={styles.brandRow}>
             <Text style={styles.brandTitle}>Bocor Halus</Text>
-            {/* Sembunyikan badge panjang di layar HP sempit agar tombol aktivasi tidak terpotong */}
             {!isNarrowMobile && (
               <View style={styles.brandBadge}>
                 <Text style={styles.brandBadgeText}>
@@ -111,9 +212,9 @@ export function LandingPage({
           </TouchableOpacity>
         </View>
 
-        {/* 2. RESPONSIVE HERO SECTION */}
+        {/* 2. HERO SECTION DENGAN TWO-COLUMN DI DESKTOP */}
         <View style={[styles.heroContainer, isDesktop && styles.heroContainerDesktop]}>
-          {/* Kolom Kiri / Teks Utama */}
+          {/* Kolom Teks Hero */}
           <View style={[styles.heroTextCol, isDesktop && styles.heroTextColDesktop]}>
             <View style={styles.eyebrowChip}>
               <Text style={styles.eyebrowChipText}>
@@ -121,7 +222,6 @@ export function LandingPage({
               </Text>
             </View>
 
-            {/* Headline Wajib yang Dipertahankan */}
             <Text
               style={[
                 styles.heroHeadline,
@@ -161,20 +261,44 @@ export function LandingPage({
             </View>
           </View>
 
-          {/* Kolom Kanan / Preview UI Produk Autentik */}
+          {/* Kolom Showcase Interaktif (Motion & Live Feedback) */}
           <View style={[styles.heroPreviewCol, isDesktop && styles.heroPreviewColDesktop]}>
             <View style={styles.appCardPreview}>
-              {/* Card Header Simulasi UI Nyata */}
+              {/* Header Preview */}
               <View style={styles.previewHeader}>
                 <View style={styles.previewDotRow}>
                   <View style={[styles.previewDot, { backgroundColor: "#EF4444" }]} />
                   <View style={[styles.previewDot, { backgroundColor: "#F59E0B" }]} />
                   <View style={[styles.previewDot, { backgroundColor: "#10B981" }]} />
                 </View>
-                <Text style={styles.previewHeaderLabel}>Tampilan Nyata Aplikasi</Text>
+                <Text style={styles.previewHeaderLabel}>Simulator Nyata Bocor Halus</Text>
               </View>
 
-              {/* Komponen TotalCard Asli: Sisa Jatah Belanja */}
+              {/* Skenario Selector Tabs */}
+              <View style={styles.scenarioTabRow}>
+                {SCENARIOS.map((sc) => {
+                  const isActive = activeScenario === sc.id;
+                  return (
+                    <TouchableOpacity
+                      key={sc.id}
+                      style={[styles.scenarioTab, isActive && styles.scenarioTabActive]}
+                      onPress={() => selectScenario(sc)}
+                      activeOpacity={0.75}
+                    >
+                      <Text
+                        style={[
+                          styles.scenarioTabText,
+                          isActive && styles.scenarioTabTextActive,
+                        ]}
+                      >
+                        {sc.title}
+                      </Text>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+
+              {/* Meter Sisa Jatah Belanja (Animated Spring) */}
               <View style={styles.totalCardMock}>
                 <View style={styles.totalCardTop}>
                   <View>
@@ -183,27 +307,42 @@ export function LandingPage({
                       Rp {remainingBudget.toLocaleString("id-ID")}
                     </Text>
                   </View>
-                  <View style={styles.statusPill}>
-                    <Text style={styles.statusPillText}>Optimal / Aman</Text>
+                  <View style={[styles.statusPill, { backgroundColor: statusBadgeBg }]}>
+                    <Text style={[styles.statusPillText, { color: statusBadgeText }]}>
+                      {statusLabel}
+                    </Text>
                   </View>
                 </View>
-                {/* Progress Bar Sisa Jatah */}
+
+                {/* Animated Progress Bar */}
                 <View style={styles.progressBarBg}>
-                  <View
+                  <Animated.View
                     style={[
                       styles.progressBarFill,
-                      { width: `${Math.min(100, Math.round((simTotal / dailyBudget) * 100))}%` },
+                      {
+                        backgroundColor: barColor,
+                        width: progressAnim.interpolate({
+                          inputRange: [0, 1],
+                          outputRange: ["0%", "100%"],
+                        }),
+                      },
                     ]}
                   />
                 </View>
-                <Text style={styles.totalCardDetails}>
-                  Batas Harian: Rp {dailyBudget.toLocaleString("id-ID")} • Terpakai: Rp {simTotal.toLocaleString("id-ID")}
-                </Text>
+
+                <View style={styles.meterDetailsRow}>
+                  <Text style={styles.totalCardDetails}>
+                    Jatah: Rp {dailyBudget.toLocaleString("id-ID")}
+                  </Text>
+                  <Text style={[styles.totalCardDetails, { fontWeight: "700" }]}>
+                    Belanja: Rp {simTotal.toLocaleString("id-ID")} ({progressPercent}%)
+                  </Text>
+                </View>
               </View>
 
-              {/* Komponen Input Kalkulator Nyata (Fitur Inti Aplikasi) */}
+              {/* Live Calculator Input Bar */}
               <View style={styles.calcWidget}>
-                <Text style={styles.calcWidgetLabel}>Smart Kalkulator Belanja Pasar:</Text>
+                <Text style={styles.calcWidgetLabel}>Formula Belanjaan (Bisa Diketik Langsung):</Text>
                 <TextInput
                   style={styles.calcWidgetInput}
                   value={simFormula}
@@ -213,49 +352,40 @@ export function LandingPage({
                 />
 
                 <View style={styles.calcWidgetResultRow}>
-                  <Text style={styles.calcWidgetResultLabel}>Hasil Perhitungan Langsung:</Text>
-                  <Text style={styles.calcWidgetResultValue}>Rp {simTotal.toLocaleString("id-ID")}</Text>
+                  <Text style={styles.calcWidgetResultLabel}>Hasil Perhitungan Instan:</Text>
+                  <Text style={styles.calcWidgetResultValue}>
+                    Rp {simTotal.toLocaleString("id-ID")}
+                  </Text>
                 </View>
 
-                {/* Preset Tombol Belanja Cepat */}
-                <View style={styles.presetChipRow}>
-                  <TouchableOpacity
-                    style={styles.presetChip}
-                    onPress={() => setSimFormula("15000 + 35000 + 8000")}
-                  >
-                    <Text style={styles.presetChipText}>Sayur & Ayam</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.presetChip}
-                    onPress={() => setSimFormula("18000 + 5000 + 4000")}
-                  >
-                    <Text style={styles.presetChipText}>Kopi & Jajan</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.presetChip}
-                    onPress={() => setSimFormula("45000 + 12000")}
-                  >
-                    <Text style={styles.presetChipText}>Popok & Susu</Text>
-                  </TouchableOpacity>
+                {/* Insight Catatan Dinamis */}
+                <View style={styles.insightBox}>
+                  <Text style={styles.insightText}>
+                    {currentScenarioData.note}
+                  </Text>
                 </View>
               </View>
 
               {/* Item Transaksi Terakhir Nyata */}
               <View style={styles.recentSampleBox}>
-                <Text style={styles.recentSampleTitle}>Contoh Transaksi Tersimpan:</Text>
-                <View style={styles.sampleRow}>
-                  <View style={styles.sampleCol}>
-                    <Text style={styles.sampleCategory}>Belanja Dapur</Text>
-                    <Text style={styles.sampleExpr}>15.000 + 35.000 + 8.000</Text>
+                <Text style={styles.recentSampleTitle}>Rincian Transaksi Skenario:</Text>
+                {currentScenarioData.items.map((item, idx) => (
+                  <View key={idx} style={styles.sampleRow}>
+                    <View style={styles.sampleCol}>
+                      <Text style={styles.sampleCategory}>{item.category}</Text>
+                      <Text style={styles.sampleExpr}>{item.expr}</Text>
+                    </View>
+                    <Text style={styles.sampleAmount}>
+                      Rp {item.amount.toLocaleString("id-ID")}
+                    </Text>
                   </View>
-                  <Text style={styles.sampleAmount}>Rp 58.000</Text>
-                </View>
+                ))}
               </View>
             </View>
           </View>
         </View>
 
-        {/* 3. PERBANDINGAN JUJUR (REALITY CHECK) */}
+        {/* 3. PERBANDINGAN REALISTIS (KENAPA BUKAN EXCEL / APLIKASI LAIN) */}
         <View style={[styles.sectionContainer, isDesktop && styles.sectionContainerDesktop]}>
           <Text style={styles.sectionEyebrow}>PERBANDINGAN NYATA</Text>
           <Text style={[styles.sectionHeading, isDesktop && styles.sectionHeadingDesktop]}>
@@ -268,7 +398,7 @@ export function LandingPage({
               <Text style={styles.compareTitleOld}>Aplikasi Keuangan Biasa & Excel</Text>
               <Text style={styles.compareItemOld}>• Wajib daftar akun, isi nomor HP, email & password</Text>
               <Text style={styles.compareItemOld}>• Repot buka kalkulator dulu baru catat manual satu-satu</Text>
-              <Text style={styles.compareItemOld}>• Data keuangan disimpan di server cloud luar</Text>
+              <Text style={styles.compareItemOld}>• Data keuangan disimpan di server cloud pihak lain</Text>
               <Text style={styles.compareItemOld}>• Tagihan langganan bulanan yang terus memotong saldo</Text>
             </View>
 
@@ -344,7 +474,7 @@ export function LandingPage({
           </View>
         </View>
 
-        {/* 5. FAQ (PERTANYAAN UMUM & TRANSPARANSI DATA) */}
+        {/* 5. FAQ ACCORDION INTERAKTIF */}
         <View style={[styles.faqContainer, isDesktop && styles.faqContainerDesktop]}>
           <Text style={styles.sectionEyebrow}>TANYA JAWAB</Text>
           <Text style={[styles.sectionHeading, isDesktop && styles.sectionHeadingDesktop]}>
@@ -352,33 +482,40 @@ export function LandingPage({
           </Text>
 
           <View style={styles.faqList}>
-            <View style={styles.faqCard}>
-              <Text style={styles.faqQuestion}>Apakah ada biaya langganan bulanan?</Text>
-              <Text style={styles.faqAnswer}>
-                Sama sekali tidak ada. Pembayaran Rp 15.000 adalah untuk akses seumur hidup (pay once, own forever). Tidak ada pemotongan saldo berkala.
-              </Text>
-            </View>
-
-            <View style={styles.faqCard}>
-              <Text style={styles.faqQuestion}>Bagaimana cara mengaktifkan setelah membeli?</Text>
-              <Text style={styles.faqAnswer}>
-                Setelah pembayaran berhasil, Anda akan menerima 1 kode lisensi (contoh: BH-46LC-P9HY). Buka web ini, klik tombol "Masukkan Kode", masukkan kodenya, dan aplikasi langsung aktif selamanya.
-              </Text>
-            </View>
-
-            <View style={styles.faqCard}>
-              <Text style={styles.faqQuestion}>Apakah data keuangan saya aman dan tetap ada setelah browser ditutup?</Text>
-              <Text style={styles.faqAnswer}>
-                Data transaksi disimpan secara lokal di memori browser/perangkat Anda (Local Storage / SQLite lokal), bukan di server luar. Data tetap tersimpan aman saat browser ditutup atau direfresh. Anda juga dapat mencadangkan (export backup) data kapan saja di menu Pengaturan.
-              </Text>
-            </View>
-
-            <View style={styles.faqCard}>
-              <Text style={styles.faqQuestion}>Bagaimana jika saya ganti HP atau menghapus data browser?</Text>
-              <Text style={styles.faqAnswer}>
-                Cukup simpan kode lisensi Anda. Kode tersebut dapat dimasukkan kembali di perangkat baru kapan saja untuk membuka akses penuh.
-              </Text>
-            </View>
+            {[
+              {
+                q: "Apakah ada biaya langganan bulanan?",
+                a: "Sama sekali tidak ada. Pembayaran Rp 15.000 adalah untuk akses seumur hidup (pay once, own forever). Tidak ada pemotongan saldo berkala.",
+              },
+              {
+                q: "Bagaimana cara mengaktifkan setelah membeli?",
+                a: 'Setelah pembayaran berhasil, Anda akan menerima 1 kode lisensi (contoh: BH-46LC-P9HY). Buka web ini, klik tombol "Masukkan Kode", masukkan kodenya, dan aplikasi langsung aktif selamanya.',
+              },
+              {
+                q: "Apakah data keuangan saya aman dan tetap ada setelah browser ditutup?",
+                a: "Data transaksi disimpan secara lokal di memori browser/perangkat Anda (Local Storage / SQLite lokal), bukan di server luar. Data tetap tersimpan aman saat browser ditutup atau direfresh. Anda juga dapat mencadangkan (export backup) data kapan saja di menu Pengaturan.",
+              },
+              {
+                q: "Bagaimana jika saya ganti HP atau menghapus data browser?",
+                a: "Cukup simpan kode lisensi Anda. Kode tersebut dapat dimasukkan kembali di perangkat baru kapan saja untuk membuka akses penuh.",
+              },
+            ].map((faq, idx) => {
+              const isOpen = expandedFaq === idx;
+              return (
+                <TouchableOpacity
+                  key={idx}
+                  style={styles.faqCard}
+                  onPress={() => toggleFaq(idx)}
+                  activeOpacity={0.8}
+                >
+                  <View style={styles.faqHeaderRow}>
+                    <Text style={styles.faqQuestion}>{faq.q}</Text>
+                    <Text style={styles.faqToggleIcon}>{isOpen ? "−" : "+"}</Text>
+                  </View>
+                  {isOpen && <Text style={styles.faqAnswer}>{faq.a}</Text>}
+                </TouchableOpacity>
+              );
+            })}
           </View>
         </View>
 
@@ -423,6 +560,36 @@ export function LandingPage({
         </View>
       </ScrollView>
 
+      {/* 7. STICKY MOBILE CONVERSION BAR (SELALU DALAM JANGKAUAN JEMPOL) */}
+      {!isDesktop && (
+        <View style={styles.stickyMobileBar}>
+          <View>
+            <Text style={styles.stickyPriceLabel}>Akses Seumur Hidup</Text>
+            <Text style={styles.stickyPriceValue}>Rp 15.000</Text>
+          </View>
+          <View style={styles.stickyActionGroup}>
+            <TouchableOpacity
+              style={styles.stickyBuyBtn}
+              onPress={handleOpenBuy}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Beli Akses Rp 15.000"
+            >
+              <Text style={styles.stickyBuyText}>Beli Akses</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.stickyKeyBtn}
+              onPress={() => setShowLicenseModal(true)}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Aktivasi Kode"
+            >
+              <Text style={styles.stickyKeyText}>Aktivasi</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
       {/* MODAL INPUT LISENSI */}
       <LicenseGateModal
         visible={showLicenseModal}
@@ -460,7 +627,7 @@ const styles = StyleSheet.create({
   scrollContent: {
     paddingHorizontal: 16,
     paddingTop: 10,
-    paddingBottom: 40,
+    paddingBottom: 90, // extra padding for sticky mobile bar
     maxWidth: 540,
     alignSelf: "center",
     width: "100%",
@@ -469,6 +636,7 @@ const styles = StyleSheet.create({
     maxWidth: 1080,
     paddingHorizontal: 32,
     paddingTop: 20,
+    paddingBottom: 40,
   },
 
   /* TOP BAR */
@@ -661,7 +829,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     gap: 10,
     paddingBottom: 10,
-    marginBottom: 12,
+    marginBottom: 10,
     borderBottomWidth: 1,
     borderBottomColor: C.border,
   },
@@ -678,6 +846,38 @@ const styles = StyleSheet.create({
     fontSize: 11.5,
     fontWeight: "700",
     color: C.muted,
+  },
+
+  /* SCENARIO TABS */
+  scenarioTabRow: {
+    flexDirection: "row",
+    backgroundColor: C.cream,
+    borderRadius: 10,
+    padding: 3,
+    marginBottom: 12,
+    gap: 4,
+  },
+  scenarioTab: {
+    flex: 1,
+    paddingVertical: 7,
+    alignItems: "center",
+    borderRadius: 8,
+  },
+  scenarioTabActive: {
+    backgroundColor: C.white,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+  },
+  scenarioTabText: {
+    fontSize: 11.5,
+    fontWeight: "600",
+    color: C.muted,
+  },
+  scenarioTabTextActive: {
+    fontWeight: "800",
+    color: C.greenDark,
   },
 
   /* TOTAL CARD MOCK */
@@ -707,30 +907,32 @@ const styles = StyleSheet.create({
     marginTop: 2,
   },
   statusPill: {
-    backgroundColor: "#DCFCE7",
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
   statusPillText: {
-    color: C.greenDark,
     fontSize: 10.5,
     fontWeight: "800",
   },
   progressBarBg: {
-    height: 6,
+    height: 7,
     backgroundColor: "#DCFCE7",
-    borderRadius: 3,
+    borderRadius: 4,
     marginVertical: 8,
     overflow: "hidden",
   },
   progressBarFill: {
     height: "100%",
-    backgroundColor: C.greenLight,
-    borderRadius: 3,
+    borderRadius: 4,
+  },
+  meterDetailsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   totalCardDetails: {
-    fontSize: 11,
+    fontSize: 10.5,
     color: C.muted,
   },
 
@@ -756,7 +958,7 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     paddingHorizontal: 10,
     paddingVertical: 8,
-    fontSize: 14,
+    fontSize: 13.5,
     fontWeight: "700",
     color: C.ink,
     marginBottom: 8,
@@ -779,27 +981,23 @@ const styles = StyleSheet.create({
     fontWeight: "600",
   },
   calcWidgetResultValue: {
-    fontSize: 13.5,
+    fontSize: 14,
     fontWeight: "900",
     color: C.greenDark,
   },
-  presetChipRow: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 6,
+  insightBox: {
+    backgroundColor: "#FEF3C7",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderLeftWidth: 3,
+    borderLeftColor: "#D97706",
   },
-  presetChip: {
-    backgroundColor: C.white,
-    paddingHorizontal: 8,
-    paddingVertical: 5,
-    borderRadius: 6,
-    borderWidth: 1,
-    borderColor: C.border,
-  },
-  presetChipText: {
-    fontSize: 10.5,
-    fontWeight: "700",
-    color: C.inkLight,
+  insightText: {
+    fontSize: 11,
+    lineHeight: 16,
+    color: "#92400E",
+    fontWeight: "600",
   },
 
   /* RECENT SAMPLE BOX */
@@ -807,27 +1005,26 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: C.border,
     paddingTop: 10,
+    gap: 6,
   },
   recentSampleTitle: {
     fontSize: 10.5,
     fontWeight: "700",
     color: C.muted,
-    marginBottom: 6,
+    marginBottom: 2,
   },
   sampleRow: {
     flexDirection: "row",
+    justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: C.cream,
     paddingHorizontal: 10,
     paddingVertical: 7,
     borderRadius: 8,
   },
-  sampleEmoji: {
-    fontSize: 16,
-    marginRight: 8,
-  },
   sampleCol: {
     flex: 1,
+    paddingRight: 8,
   },
   sampleCategory: {
     fontSize: 11.5,
@@ -839,7 +1036,7 @@ const styles = StyleSheet.create({
     color: C.muted,
   },
   sampleAmount: {
-    fontSize: 12.5,
+    fontSize: 12,
     fontWeight: "800",
     color: C.greenDark,
   },
@@ -1072,7 +1269,7 @@ const styles = StyleSheet.create({
     marginTop: 4,
   },
 
-  /* FAQ */
+  /* FAQ ACCORDION */
   faqContainer: {
     width: "100%",
     marginBottom: 28,
@@ -1089,20 +1286,35 @@ const styles = StyleSheet.create({
   faqCard: {
     backgroundColor: C.white,
     borderRadius: 14,
-    padding: 14,
+    padding: 16,
     borderWidth: 1,
     borderColor: C.border,
+  },
+  faqHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   faqQuestion: {
     fontSize: 13.5,
     fontWeight: "800",
     color: C.ink,
-    marginBottom: 4,
+    flex: 1,
+    paddingRight: 12,
+  },
+  faqToggleIcon: {
+    fontSize: 18,
+    fontWeight: "700",
+    color: C.greenDark,
   },
   faqAnswer: {
-    fontSize: 12,
+    fontSize: 12.5,
     color: C.inkLight,
-    lineHeight: 18,
+    lineHeight: 19,
+    marginTop: 10,
+    paddingTop: 10,
+    borderTopWidth: 1,
+    borderTopColor: C.border,
   },
 
   /* FOOTER */
@@ -1172,5 +1384,65 @@ const styles = StyleSheet.create({
     color: C.inkLight,
     fontWeight: "600",
     marginBottom: 6,
+  },
+
+  /* STICKY BOTTOM MOBILE BAR */
+  stickyMobileBar: {
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: C.white,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    paddingHorizontal: 16,
+    paddingVertical: 12,
+    borderTopWidth: 1,
+    borderTopColor: C.border,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    elevation: 8,
+  },
+  stickyPriceLabel: {
+    fontSize: 10,
+    fontWeight: "700",
+    color: C.muted,
+  },
+  stickyPriceValue: {
+    fontSize: 16,
+    fontWeight: "900",
+    color: C.greenDark,
+  },
+  stickyActionGroup: {
+    flexDirection: "row",
+    gap: 8,
+    alignItems: "center",
+  },
+  stickyBuyBtn: {
+    backgroundColor: C.greenDark,
+    paddingHorizontal: 16,
+    paddingVertical: 10,
+    borderRadius: 10,
+  },
+  stickyBuyText: {
+    color: C.white,
+    fontSize: 13,
+    fontWeight: "800",
+  },
+  stickyKeyBtn: {
+    backgroundColor: C.cream,
+    paddingHorizontal: 12,
+    paddingVertical: 10,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  stickyKeyText: {
+    color: C.ink,
+    fontSize: 13,
+    fontWeight: "700",
   },
 });
