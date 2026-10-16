@@ -277,7 +277,7 @@ export default function PengaturanScreen() {
             accessibilityRole="button"
             accessibilityLabel="Kirim Email ke admin@soradev.id"
           >
-            <Text style={styles.contactBtnEmailText}>✉️ Email: admin@soradev.id</Text>
+            <Text style={styles.contactBtnEmailText}>Email: admin@soradev.id</Text>
           </TouchableOpacity>
         </View>
 

@@ -218,7 +218,7 @@ export function LandingPage({
           <View style={[styles.heroTextCol, isDesktop && styles.heroTextColDesktop]}>
             <View style={styles.eyebrowChip}>
               <Text style={styles.eyebrowChipText}>
-                BEBAS LANGGANAN BULANAN • 100% PRIVAT DI HP ANDA
+                APLIKASI HP & WEB • 100% PRIVAT LOKAL • BEBAS BIAYA BULANAN
               </Text>
             </View>
 
@@ -233,7 +233,7 @@ export function LandingPage({
             </Text>
 
             <Text style={[styles.heroBody, isDesktop && styles.heroBodyDesktop]}>
-              Itu namanya <Text style={styles.heroHighlight}>"Bocor Halus"</Text> — pengeluaran kecil Rp 5.000, jajan kopi, parkir, dan ongkir yang tak pernah tercatat. Bocor Halus hadir sebagai pencatat keuangan rumah tangga yang anti ribet: buka langsung ketik layaknya kalkulator belanjaan.
+              Itu namanya <Text style={styles.heroHighlight}>"Bocor Halus"</Text> — pengeluaran kecil Rp 5.000, jajan kopi, parkir, dan ongkir yang tak pernah tercatat. Bocor Halus hadir sebagai aplikasi pencatat keuangan rumah tangga yang anti ribet: bisa dipasang langsung di layar utama HP (PWA) maupun dibuka di browser, langsung pakai tanpa harus mendaftar.
             </Text>
 
             {/* CTA Group */}
@@ -409,7 +409,7 @@ export function LandingPage({
               </View>
               <Text style={styles.compareTitleNew}>Pencatat Keuangan Paling Praktis</Text>
               <Text style={styles.compareItemNew}>
-                • <Text style={styles.boldText}>Tanpa Akun & Password:</Text> Buka web langsung pakai seketika.
+                • <Text style={styles.boldText}>Aplikasi HP (PWA) & Web:</Text> Pasang langsung ke layar utama HP Anda atau buka di browser — langsung pakai tanpa repot buat akun.
               </Text>
               <Text style={styles.compareItemNew}>
                 • <Text style={styles.boldText}>Smart Kalkulator:</Text> Ketik `15rb + 35rb` langsung terjumlah.
@@ -450,7 +450,7 @@ export function LandingPage({
               <Text style={styles.featureLine}>• Pengatur Batas Sisa Jatah Belanja Harian</Text>
               <Text style={styles.featureLine}>• Rekap Bulanan Otomatis & Grafik Pengeluaran</Text>
               <Text style={styles.featureLine}>• Kunci Tambahan dengan PIN Keamanan</Text>
-              <Text style={styles.featureLine}>• Bisa dipasang di Layar Utama HP (PWA)</Text>
+              <Text style={styles.featureLine}>• Bisa Dipasang Jadi App di Layar Utama HP (PWA)</Text>
               <Text style={styles.featureLine}>• Bantuan Customer Service via WhatsApp</Text>
             </View>
 
@@ -489,11 +489,15 @@ export function LandingPage({
               },
               {
                 q: "Bagaimana cara mengaktifkan setelah membeli?",
-                a: 'Setelah pembayaran berhasil, Anda akan menerima 1 kode lisensi (contoh: BH-46LC-P9HY). Buka web ini, klik tombol "Masukkan Kode", masukkan kodenya, dan aplikasi langsung aktif selamanya.',
+                a: 'Setelah pembayaran berhasil, Anda akan menerima 1 kode lisensi (contoh: BH-46LC-P9HY). Buka aplikasi Bocor Halus di HP atau browser, klik tombol "Masukkan Kode", masukkan kodenya, dan aplikasi langsung aktif selamanya.',
+              },
+              {
+                q: "Apakah aplikasi ini bisa dipasang di HP seperti aplikasi biasa?",
+                a: "Bisa banget! Bocor Halus mendukung PWA (Progressive Web App). Cukup buka di Chrome (Android) lalu pilih 'Instal Aplikasi / Tambahkan ke Layar Utama', atau buka di Safari (iPhone) lalu pilih ikon Bagikan > 'Tambah ke Layar Utama'. Aplikasi akan langsung muncul di HP Anda layaknya aplikasi mandiri tanpa memakan memori berlebih.",
               },
               {
                 q: "Apakah data keuangan saya aman dan tetap ada setelah browser ditutup?",
-                a: "Data transaksi disimpan secara lokal di memori browser/perangkat Anda (Local Storage / SQLite lokal), bukan di server luar. Data tetap tersimpan aman saat browser ditutup atau direfresh. Anda juga dapat mencadangkan (export backup) data kapan saja di menu Pengaturan.",
+                a: "Data transaksi disimpan secara lokal di memori browser/perangkat Anda (Local Storage / SQLite lokal), bukan di server luar. Data tetap tersimpan aman saat aplikasi/browser ditutup atau direfresh. Anda juga dapat mencadangkan (export backup) data kapan saja di menu Pengaturan.",
               },
               {
                 q: "Bagaimana jika saya ganti HP atau menghapus data browser?",
@@ -526,7 +530,7 @@ export function LandingPage({
             <View style={[styles.footerCol, isDesktop && styles.footerColDesktop]}>
               <Text style={styles.footerBrand}>Bocor Halus</Text>
               <Text style={styles.footerTagline}>
-                Aplikasi web pencatat keuangan rumah tangga dan pengeluaran harian anti ribet. Dikembangkan oleh Soradev.
+                Aplikasi pencatat keuangan rumah tangga dan pengeluaran harian anti ribet (bisa dipasang di HP / PWA). Dikembangkan oleh Soradev.
               </Text>
               <Text style={styles.footerCopyright}>
                 © 2026 Bocor Halus App. All rights reserved.
