@@ -25,7 +25,7 @@ export function LegalModal({
   initialTab = "privacy",
   onClose,
   supportPhone = "0853-7331-3646",
-  supportEmail = "andrewchivas.ar@gmail.com",
+  supportEmail = "admin@soradev.id",
 }: LegalModalProps) {
   const [activeTab, setActiveTab] = useState<LegalTab>(initialTab);
 

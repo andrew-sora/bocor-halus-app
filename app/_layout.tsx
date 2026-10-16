@@ -149,7 +149,7 @@ export default function RootLayout() {
         onActivated={() => setIsActivated(true)}
         checkoutUrl="https://lynk.id/soradev/bocor-halus"
         supportPhone="0853-7331-3646"
-        supportEmail="andrewchivas.ar@gmail.com"
+        supportEmail="admin@soradev.id"
       />
     );
   }

@@ -78,7 +78,7 @@ export function LandingPage({
   onActivated,
   checkoutUrl = "https://lynk.id/soradev/bocor-halus",
   supportPhone = "0853-7331-3646",
-  supportEmail = "andrewchivas.ar@gmail.com",
+  supportEmail = "admin@soradev.id",
 }: LandingPageProps) {
   const { width: windowWidth } = useWindowDimensions();
   const isDesktop = windowWidth >= 768;
@@ -526,7 +526,7 @@ export function LandingPage({
             <View style={[styles.footerCol, isDesktop && styles.footerColDesktop]}>
               <Text style={styles.footerBrand}>Bocor Halus</Text>
               <Text style={styles.footerTagline}>
-                Aplikasi web pencatat keuangan rumah tangga dan pengeluaran harian anti ribet. Dikembangkan oleh Sora Dev (Andrew Chivas Arsenal Rico).
+                Aplikasi web pencatat keuangan rumah tangga dan pengeluaran harian anti ribet. Dikembangkan oleh Sora Dev.
               </Text>
               <Text style={styles.footerCopyright}>
                 © 2026 Bocor Halus App. All rights reserved.
