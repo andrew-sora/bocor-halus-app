@@ -258,13 +258,13 @@ export default function PengaturanScreen() {
               const text = encodeURIComponent(
                 "Halo Tim Bocor Halus, saya ingin menyampaikan saran/keluhan mengenai aplikasi: "
               );
-              Linking.openURL(`https://wa.me/6286373313646?text=${text}`).catch(() => {});
+              Linking.openURL(`https://wa.me/6285373313646?text=${text}`).catch(() => {});
             }}
             activeOpacity={0.85}
             accessibilityRole="button"
             accessibilityLabel="Chat WhatsApp Pengembang"
           >
-            <Text style={styles.contactBtnWaText}>💬 Chat WhatsApp: 0863-7331-3646</Text>
+            <Text style={styles.contactBtnWaText}>💬 Chat WhatsApp: 0853-7331-3646</Text>
           </TouchableOpacity>
 
           {/* Tombol Email */}

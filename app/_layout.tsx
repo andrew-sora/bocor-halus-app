@@ -10,6 +10,7 @@ import { C } from "@/constants/Colors";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 import { PinLockScreen } from "@/components/PinLockScreen";
 import { LicenseGateModal } from "@/components/LicenseGateModal";
+import { LandingPage } from "@/components/LandingPage";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -142,29 +143,30 @@ export default function RootLayout() {
       </ErrorBoundary>
     );
 
-  const currentView = !isActivated ? (
-    <LicenseGateModal
-      visible={true}
-      onActivated={() => setIsActivated(true)}
-    />
-  ) : (
-    content
-  );
-
+  if (!isActivated) {
+    return (
+      <LandingPage
+        onActivated={() => setIsActivated(true)}
+        checkoutUrl="https://lynk.id/soradev/bocor-halus"
+        supportPhone="0853-7331-3646"
+        supportEmail="andrewchivas.ar@gmail.com"
+      />
+    );
+  }
 
   if (Platform.OS === "web") {
     if (isMobileWeb) {
-      return <View style={styles.webMobileOuter}>{currentView}</View>;
+      return <View style={styles.webMobileOuter}>{content}</View>;
     }
 
     return (
       <View style={styles.webOuter}>
-        <View style={styles.webInner}>{currentView}</View>
+        <View style={styles.webInner}>{content}</View>
       </View>
     );
   }
 
-  return currentView;
+  return content;
 }
 
 const styles = StyleSheet.create({

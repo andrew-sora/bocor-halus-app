@@ -16,12 +16,14 @@ type LicenseGateModalProps = {
   visible: boolean;
   onActivated: () => void;
   checkoutUrl?: string;
+  onClose?: () => void;
 };
 
 export function LicenseGateModal({
   visible,
   onActivated,
   checkoutUrl = "https://lynk.id/soradev/bocor-halus",
+  onClose,
 }: LicenseGateModalProps) {
 
   const [code, setCode] = useState("");
@@ -79,6 +81,16 @@ export function LicenseGateModal({
   return (
     <View style={styles.overlay}>
       <View style={styles.card}>
+        {onClose && (
+          <TouchableOpacity
+            style={styles.modalCloseBtn}
+            onPress={onClose}
+            accessibilityRole="button"
+            accessibilityLabel="Tutup"
+          >
+            <Text style={styles.modalCloseText}>✕</Text>
+          </TouchableOpacity>
+        )}
         {/* Header */}
         <View style={styles.header}>
           <View style={styles.tag}>
@@ -167,13 +179,13 @@ export function LicenseGateModal({
             <TouchableOpacity
               onPress={() => {
                 const text = encodeURIComponent("Halo Tim Bocor Halus, saya butuh bantuan aktivasi/pembayaran lisensi:");
-                Linking.openURL(`https://wa.me/6286373313646?text=${text}`).catch(() => {});
+                Linking.openURL(`https://wa.me/6285373313646?text=${text}`).catch(() => {});
               }}
               activeOpacity={0.7}
               accessibilityRole="button"
               accessibilityLabel="Hubungi WhatsApp Bantuan"
             >
-              <Text style={styles.supportLink}>💬 WhatsApp CS: 0863-7331-3646</Text>
+              <Text style={styles.supportLink}>💬 WhatsApp CS: 0853-7331-3646</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -203,6 +215,24 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.15,
     shadowRadius: 20,
     elevation: 8,
+    position: "relative",
+  },
+  modalCloseBtn: {
+    position: "absolute",
+    top: 16,
+    right: 16,
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: C.cream,
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 10,
+  },
+  modalCloseText: {
+    fontSize: 13,
+    color: C.inkLight,
+    fontWeight: "700",
   },
   header: {
     alignItems: "center",
