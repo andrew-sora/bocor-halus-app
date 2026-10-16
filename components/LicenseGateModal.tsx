@@ -8,6 +8,7 @@ import {
   ActivityIndicator,
   Linking,
   Platform,
+  Modal,
 } from "react-native";
 import { C } from "@/constants/Colors";
 import { activateLicense } from "@/lib/license";
@@ -79,10 +80,16 @@ export function LicenseGateModal({
   };
 
   return (
-    <View style={styles.overlay}>
-      <View style={styles.card}>
-        {onClose && (
-          <TouchableOpacity
+    <Modal
+      visible={visible}
+      transparent={true}
+      animationType="fade"
+      onRequestClose={onClose}
+    >
+      <View style={styles.overlay}>
+        <View style={styles.card}>
+          {onClose && (
+            <TouchableOpacity
             style={styles.modalCloseBtn}
             onPress={onClose}
             accessibilityRole="button"
@@ -191,6 +198,7 @@ export function LicenseGateModal({
         </View>
       </View>
     </View>
+  </Modal>
   );
 }
 
@@ -198,8 +206,7 @@ export function LicenseGateModal({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    width: "100%",
-    backgroundColor: C.cream,
+    backgroundColor: "rgba(15, 23, 42, 0.75)",
     justifyContent: "center",
     alignItems: "center",
     padding: 16,
