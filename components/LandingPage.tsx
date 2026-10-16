@@ -218,7 +218,7 @@ export function LandingPage({
           <View style={[styles.heroTextCol, isDesktop && styles.heroTextColDesktop]}>
             <View style={styles.eyebrowChip}>
               <Text style={styles.eyebrowChipText}>
-                APLIKASI HP & WEB • 100% PRIVAT LOKAL • BEBAS BIAYA BULANAN
+                BISA DI HP & LAPTOP • 100% PRIVAT LOKAL • BEBAS BIAYA BULANAN
               </Text>
             </View>
 
@@ -233,7 +233,7 @@ export function LandingPage({
             </Text>
 
             <Text style={[styles.heroBody, isDesktop && styles.heroBodyDesktop]}>
-              Itu namanya <Text style={styles.heroHighlight}>"Bocor Halus"</Text> — pengeluaran kecil Rp 5.000, jajan kopi, parkir, dan ongkir yang tak pernah tercatat. Bocor Halus hadir sebagai aplikasi pencatat keuangan rumah tangga yang anti ribet: bisa dipasang langsung di layar utama HP (PWA) maupun dibuka di browser, langsung pakai tanpa harus mendaftar.
+              Itu namanya <Text style={styles.heroHighlight}>"Bocor Halus"</Text> — pengeluaran kecil Rp 5.000, jajan kopi, parkir, dan ongkir yang tak pernah tercatat. Bocor Halus hadir sebagai aplikasi pencatat keuangan rumah tangga yang anti ribet: bisa dipasang langsung di layar HP (Android & iPhone) layaknya aplikasi biasa maupun dibuka di browser, langsung pakai tanpa perlu daftar akun.
             </Text>
 
             {/* CTA Group */}
@@ -409,7 +409,7 @@ export function LandingPage({
               </View>
               <Text style={styles.compareTitleNew}>Pencatat Keuangan Paling Praktis</Text>
               <Text style={styles.compareItemNew}>
-                • <Text style={styles.boldText}>Aplikasi HP (PWA) & Web:</Text> Pasang langsung ke layar utama HP Anda atau buka di browser — langsung pakai tanpa repot buat akun.
+                • <Text style={styles.boldText}>Bisa Jadi Aplikasi di HP:</Text> Pasang langsung ke layar utama HP Anda (Android & iPhone) tanpa unduh file berat, atau buka langsung di browser tanpa repot bikin akun.
               </Text>
               <Text style={styles.compareItemNew}>
                 • <Text style={styles.boldText}>Smart Kalkulator:</Text> Ketik `15rb + 35rb` langsung terjumlah.
@@ -450,7 +450,7 @@ export function LandingPage({
               <Text style={styles.featureLine}>• Pengatur Batas Sisa Jatah Belanja Harian</Text>
               <Text style={styles.featureLine}>• Rekap Bulanan Otomatis & Grafik Pengeluaran</Text>
               <Text style={styles.featureLine}>• Kunci Tambahan dengan PIN Keamanan</Text>
-              <Text style={styles.featureLine}>• Bisa Dipasang Jadi App di Layar Utama HP (PWA)</Text>
+              <Text style={styles.featureLine}>• Bisa Dipasang Langsung di Layar HP (Android & iPhone)</Text>
               <Text style={styles.featureLine}>• Bantuan Customer Service via WhatsApp</Text>
             </View>
 
@@ -493,7 +493,7 @@ export function LandingPage({
               },
               {
                 q: "Apakah aplikasi ini bisa dipasang di HP seperti aplikasi biasa?",
-                a: "Bisa banget! Bocor Halus mendukung PWA (Progressive Web App). Cukup buka di Chrome (Android) lalu pilih 'Instal Aplikasi / Tambahkan ke Layar Utama', atau buka di Safari (iPhone) lalu pilih ikon Bagikan > 'Tambah ke Layar Utama'. Aplikasi akan langsung muncul di HP Anda layaknya aplikasi mandiri tanpa memakan memori berlebih.",
+                a: 'Bisa banget! Anda tidak perlu download aplikasi berat yang memakan memori HP. Cukup buka di browser HP Anda (Chrome di Android atau Safari di iPhone), lalu pilih opsi "Tambahkan ke Layar Utama" (Add to Home Screen). Ikon aplikasi Bocor Halus akan langsung muncul di layar HP Anda dan siap dibuka kapan saja seperti aplikasi biasa.',
               },
               {
                 q: "Apakah data keuangan saya aman dan tetap ada setelah browser ditutup?",
@@ -530,7 +530,7 @@ export function LandingPage({
             <View style={[styles.footerCol, isDesktop && styles.footerColDesktop]}>
               <Text style={styles.footerBrand}>Bocor Halus</Text>
               <Text style={styles.footerTagline}>
-                Aplikasi pencatat keuangan rumah tangga dan pengeluaran harian anti ribet (bisa dipasang di HP / PWA). Dikembangkan oleh Soradev.
+                Aplikasi pencatat keuangan rumah tangga dan pengeluaran harian anti ribet (bisa dipasang di layar HP Android & iPhone). Dikembangkan oleh Soradev.
               </Text>
               <Text style={styles.footerCopyright}>
                 © 2026 Bocor Halus App. All rights reserved.

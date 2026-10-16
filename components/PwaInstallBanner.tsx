@@ -106,7 +106,7 @@ export function PwaInstallBanner() {
               accessibilityRole="button"
               accessibilityLabel="Pasang Aplikasi Sekarang"
             >
-              <Text style={styles.installBtnText}>📲 Pasang Aplikasi Sekarang</Text>
+              <Text style={styles.installBtnText}>Pasang Aplikasi Sekarang</Text>
             </TouchableOpacity>
           )}
         </View>
