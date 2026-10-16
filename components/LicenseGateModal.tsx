@@ -185,7 +185,7 @@ export function LicenseGateModal({
               accessibilityRole="button"
               accessibilityLabel="Hubungi WhatsApp Bantuan"
             >
-              <Text style={styles.supportLink}>💬 WhatsApp CS: 0853-7331-3646</Text>
+              <Text style={styles.supportLink}>WhatsApp CS: 0853-7331-3646</Text>
             </TouchableOpacity>
           </View>
         </View>

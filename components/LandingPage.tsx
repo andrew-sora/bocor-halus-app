@@ -223,19 +223,19 @@ export function LandingPage({
                     style={styles.presetChip}
                     onPress={() => setSimFormula("15000 + 35000 + 8000")}
                   >
-                    <Text style={styles.presetChipText}>🛒 Sayur & Ayam</Text>
+                    <Text style={styles.presetChipText}>Sayur & Ayam</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.presetChip}
                     onPress={() => setSimFormula("18000 + 5000 + 4000")}
                   >
-                    <Text style={styles.presetChipText}>☕ Kopi & Jajan</Text>
+                    <Text style={styles.presetChipText}>Kopi & Jajan</Text>
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.presetChip}
                     onPress={() => setSimFormula("45000 + 12000")}
                   >
-                    <Text style={styles.presetChipText}>🍼 Popok & Susu</Text>
+                    <Text style={styles.presetChipText}>Popok & Susu</Text>
                   </TouchableOpacity>
                 </View>
               </View>
@@ -244,7 +244,6 @@ export function LandingPage({
               <View style={styles.recentSampleBox}>
                 <Text style={styles.recentSampleTitle}>Contoh Transaksi Tersimpan:</Text>
                 <View style={styles.sampleRow}>
-                  <Text style={styles.sampleEmoji}>🛒</Text>
                   <View style={styles.sampleCol}>
                     <Text style={styles.sampleCategory}>Belanja Dapur</Text>
                     <Text style={styles.sampleExpr}>15.000 + 35.000 + 8.000</Text>
@@ -267,10 +266,10 @@ export function LandingPage({
             {/* Card Aplikasi Lain */}
             <View style={[styles.compareCardOld, isDesktop && styles.compareCardDesktop]}>
               <Text style={styles.compareTitleOld}>Aplikasi Keuangan Biasa & Excel</Text>
-              <Text style={styles.compareItemOld}>✕ Wajib daftar akun, isi nomor HP, email & password</Text>
-              <Text style={styles.compareItemOld}>✕ Repot buka kalkulator dulu baru catat manual satu-satu</Text>
-              <Text style={styles.compareItemOld}>✕ Data keuangan disimpan di server cloud luar</Text>
-              <Text style={styles.compareItemOld}>✕ Tagihan langganan bulanan yang terus memotong saldo</Text>
+              <Text style={styles.compareItemOld}>• Wajib daftar akun, isi nomor HP, email & password</Text>
+              <Text style={styles.compareItemOld}>• Repot buka kalkulator dulu baru catat manual satu-satu</Text>
+              <Text style={styles.compareItemOld}>• Data keuangan disimpan di server cloud luar</Text>
+              <Text style={styles.compareItemOld}>• Tagihan langganan bulanan yang terus memotong saldo</Text>
             </View>
 
             {/* Card Bocor Halus */}
@@ -280,16 +279,16 @@ export function LandingPage({
               </View>
               <Text style={styles.compareTitleNew}>Pencatat Keuangan Paling Praktis</Text>
               <Text style={styles.compareItemNew}>
-                ✓ <Text style={styles.boldText}>Tanpa Akun & Password:</Text> Buka web langsung pakai seketika.
+                • <Text style={styles.boldText}>Tanpa Akun & Password:</Text> Buka web langsung pakai seketika.
               </Text>
               <Text style={styles.compareItemNew}>
-                ✓ <Text style={styles.boldText}>Smart Kalkulator:</Text> Ketik `15rb + 35rb` langsung terjumlah.
+                • <Text style={styles.boldText}>Smart Kalkulator:</Text> Ketik `15rb + 35rb` langsung terjumlah.
               </Text>
               <Text style={styles.compareItemNew}>
-                ✓ <Text style={styles.boldText}>100% Privat di HP:</Text> Data tersimpan lokal di perangkat Anda.
+                • <Text style={styles.boldText}>100% Privat di HP:</Text> Data tersimpan lokal di perangkat Anda.
               </Text>
               <Text style={styles.compareItemNew}>
-                ✓ <Text style={styles.boldText}>Sekali Bayar Rp 15.000:</Text> Miliki seumur hidup tanpa bulanan.
+                • <Text style={styles.boldText}>Sekali Bayar Rp 15.000:</Text> Miliki seumur hidup tanpa bulanan.
               </Text>
             </View>
           </View>
@@ -316,13 +315,13 @@ export function LandingPage({
             </View>
 
             <View style={styles.featureList}>
-              <Text style={styles.featureLine}>✓ 1 Kode Lisensi Digital Akses Selamanya</Text>
-              <Text style={styles.featureLine}>✓ Smart Calculator Belanjaan Langsung</Text>
-              <Text style={styles.featureLine}>✓ Pengatur Batas Sisa Jatah Belanja Harian</Text>
-              <Text style={styles.featureLine}>✓ Rekap Bulanan Otomatis & Grafik Pengeluaran</Text>
-              <Text style={styles.featureLine}>✓ Kunci Tambahan dengan PIN Keamanan</Text>
-              <Text style={styles.featureLine}>✓ Bisa dipasang di Layar Utama HP (PWA)</Text>
-              <Text style={styles.featureLine}>✓ Bantuan Customer Service via WhatsApp</Text>
+              <Text style={styles.featureLine}>• 1 Kode Lisensi Digital Akses Selamanya</Text>
+              <Text style={styles.featureLine}>• Smart Calculator Belanjaan Langsung</Text>
+              <Text style={styles.featureLine}>• Pengatur Batas Sisa Jatah Belanja Harian</Text>
+              <Text style={styles.featureLine}>• Rekap Bulanan Otomatis & Grafik Pengeluaran</Text>
+              <Text style={styles.featureLine}>• Kunci Tambahan dengan PIN Keamanan</Text>
+              <Text style={styles.featureLine}>• Bisa dipasang di Layar Utama HP (PWA)</Text>
+              <Text style={styles.featureLine}>• Bantuan Customer Service via WhatsApp</Text>
             </View>
 
             {/* Tombol Aksi Utama Pembelian */}
@@ -340,7 +339,7 @@ export function LandingPage({
               Didukung QRIS (BCA, Mandiri, BRI, BNI, GoPay, OVO, Dana, ShopeePay) & Transfer Bank
             </Text>
             <Text style={styles.paymentInstant}>
-              ⚡ Kode lisensi langsung diberikan otomatis setelah pembayaran berhasil.
+              Kode lisensi langsung diberikan otomatis setelah pembayaran berhasil.
             </Text>
           </View>
         </View>
@@ -402,7 +401,7 @@ export function LandingPage({
               <Text style={styles.footerColTitle}>Layanan Pelanggan & Bantuan</Text>
               <Text style={styles.footerText}>Email: {supportEmail}</Text>
               <TouchableOpacity onPress={handleOpenWhatsApp} activeOpacity={0.7}>
-                <Text style={styles.footerWaLink}>💬 WhatsApp CS: {supportPhone}</Text>
+                <Text style={styles.footerWaLink}>WhatsApp CS: {supportPhone}</Text>
               </TouchableOpacity>
               <Text style={styles.footerHours}>Jam Operasional: Senin – Sabtu, 08:00 – 21:00 WIB</Text>
             </View>

@@ -264,7 +264,7 @@ export default function PengaturanScreen() {
             accessibilityRole="button"
             accessibilityLabel="Chat WhatsApp Pengembang"
           >
-            <Text style={styles.contactBtnWaText}>💬 Chat WhatsApp: 0853-7331-3646</Text>
+            <Text style={styles.contactBtnWaText}>WhatsApp CS: 0853-7331-3646</Text>
           </TouchableOpacity>
 
           {/* Tombol Email */}
