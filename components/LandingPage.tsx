@@ -526,7 +526,7 @@ export function LandingPage({
             <View style={[styles.footerCol, isDesktop && styles.footerColDesktop]}>
               <Text style={styles.footerBrand}>Bocor Halus</Text>
               <Text style={styles.footerTagline}>
-                Aplikasi web pencatat keuangan rumah tangga dan pengeluaran harian anti ribet. Dikembangkan oleh Sora Dev.
+                Aplikasi web pencatat keuangan rumah tangga dan pengeluaran harian anti ribet. Dikembangkan oleh Soradev.
               </Text>
               <Text style={styles.footerCopyright}>
                 © 2026 Bocor Halus App. All rights reserved.
