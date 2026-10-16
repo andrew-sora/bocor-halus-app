@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -29,6 +29,12 @@ export function LegalModal({
 }: LegalModalProps) {
   const [activeTab, setActiveTab] = useState<LegalTab>(initialTab);
 
+  useEffect(() => {
+    if (visible && initialTab) {
+      setActiveTab(initialTab);
+    }
+  }, [visible, initialTab]);
+
   if (!visible) return null;
 
   return (
@@ -56,34 +62,43 @@ export function LegalModal({
             </TouchableOpacity>
           </View>
 
-          {/* Tab Selector */}
-          <View style={styles.tabsContainer}>
-            <TouchableOpacity
-              style={[styles.tabBtn, activeTab === "privacy" && styles.tabBtnActive]}
-              onPress={() => setActiveTab("privacy")}
+          {/* Tab Selector: Horizontal Scrollable */}
+          <View style={styles.tabsWrapper}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.tabsScrollContent}
             >
-              <Text style={[styles.tabText, activeTab === "privacy" && styles.tabTextActive]}>
-                Kebijakan Privasi
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tabBtn, activeTab === "privacy" && styles.tabBtnActive]}
+                onPress={() => setActiveTab("privacy")}
+                activeOpacity={0.75}
+              >
+                <Text style={[styles.tabText, activeTab === "privacy" && styles.tabTextActive]}>
+                  Kebijakan Privasi
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.tabBtn, activeTab === "terms" && styles.tabBtnActive]}
-              onPress={() => setActiveTab("terms")}
-            >
-              <Text style={[styles.tabText, activeTab === "terms" && styles.tabTextActive]}>
-                Syarat & Ketentuan
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tabBtn, activeTab === "terms" && styles.tabBtnActive]}
+                onPress={() => setActiveTab("terms")}
+                activeOpacity={0.75}
+              >
+                <Text style={[styles.tabText, activeTab === "terms" && styles.tabTextActive]}>
+                  Syarat & Ketentuan
+                </Text>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={[styles.tabBtn, activeTab === "refund" && styles.tabBtnActive]}
-              onPress={() => setActiveTab("refund")}
-            >
-              <Text style={[styles.tabText, activeTab === "refund" && styles.tabTextActive]}>
-                Kebijakan Refund
-              </Text>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={[styles.tabBtn, activeTab === "refund" && styles.tabBtnActive]}
+                onPress={() => setActiveTab("refund")}
+                activeOpacity={0.75}
+              >
+                <Text style={[styles.tabText, activeTab === "refund" && styles.tabTextActive]}>
+                  Kebijakan Refund
+                </Text>
+              </TouchableOpacity>
+            </ScrollView>
           </View>
 
           {/* Content Body */}
@@ -252,20 +267,24 @@ const styles = StyleSheet.create({
     color: C.inkLight,
     fontWeight: "600",
   },
-  tabsContainer: {
-    flexDirection: "row",
+  tabsWrapper: {
     backgroundColor: C.cream,
-    paddingHorizontal: 16,
-    paddingTop: 8,
     borderBottomWidth: 1,
     borderBottomColor: C.border,
   },
+  tabsScrollContent: {
+    flexDirection: "row",
+    paddingHorizontal: 12,
+    paddingTop: 8,
+    alignItems: "center",
+  },
   tabBtn: {
     paddingVertical: 10,
-    paddingHorizontal: 14,
+    paddingHorizontal: 12,
     borderBottomWidth: 2,
     borderBottomColor: "transparent",
-    marginRight: 6,
+    marginRight: 4,
+    flexShrink: 0,
   },
   tabBtnActive: {
     borderBottomColor: C.greenDark,
