@@ -98,17 +98,23 @@ export function LandingPage({
   // State FAQ Accordion
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
 
-  const calculateSimTotal = (formula: string): number => {
+  const parseFormulaParts = (formula: string): number[] => {
     try {
       const clean = formula.replace(/[^\d+*.-]/g, "");
-      const parts = clean.split("+").map((p) => parseInt(p.trim(), 10) || 0);
-      return parts.reduce((a, b) => a + b, 0);
+      const rawParts = clean.split("+");
+      const mapped = rawParts.map((p) => parseInt(p.trim(), 10) || 0);
+      // Jika pengguna sedang mengetik '+' di ujung (misal "15000 + "), abaikan part kosong terakhir
+      if (mapped.length > 1 && mapped[mapped.length - 1] === 0 && rawParts[rawParts.length - 1].trim() === "") {
+        return mapped.slice(0, -1);
+      }
+      return mapped;
     } catch {
-      return 62000;
+      return [62000];
     }
   };
 
-  const simTotal = calculateSimTotal(simFormula);
+  const formulaParts = parseFormulaParts(simFormula);
+  const simTotal = formulaParts.reduce((a, b) => a + b, 0);
   const dailyBudget = 100000;
   const remainingBudget = Math.max(0, dailyBudget - simTotal);
   const budgetRatio = Math.min(1.5, simTotal / dailyBudget);
@@ -175,6 +181,44 @@ export function LandingPage({
 
   const currentScenarioData =
     SCENARIOS.find((s) => s.id === activeScenario) || SCENARIOS[0];
+
+  // Rincian transaksi dinamis yang tersinkronisasi 100% dengan angka pada formula yang diketik pengguna
+  const dynamicItems = (formulaParts.length > 0 ? formulaParts : [0]).map((amount, idx) => {
+    const baseItem = currentScenarioData.items[idx];
+    if (baseItem) {
+      let expr = baseItem.expr;
+      const kVal = Math.round(amount / 1000);
+      expr = expr.replace(/\(\d+k\)/i, `(${kVal}k)`);
+      return {
+        category: baseItem.category,
+        expr: expr,
+        amount: amount,
+      };
+    }
+    return {
+      category: "Belanja Tambahan",
+      expr: `Item belanjaan #${idx + 1}`,
+      amount: amount,
+    };
+  });
+
+  // Catatan insight dinamis
+  let dynamicNote = currentScenarioData.note;
+  if (activeScenario === "pasar") {
+    if (simTotal > dailyBudget) {
+      dynamicNote = `Waspada! Belanja dapur telah melebihi batas jatah harian sebesar Rp ${(simTotal - dailyBudget).toLocaleString("id-ID")}.`;
+    } else {
+      dynamicNote = `Belanja dapur terencana rapi. Sisa jatah harian masih sangat aman (Rp ${remainingBudget.toLocaleString("id-ID")}).`;
+    }
+  } else if (activeScenario === "bocor") {
+    dynamicNote = `Waspada! ${dynamicItems.length} transaksi kecil telah memakan Rp ${simTotal.toLocaleString("id-ID")} tanpa Anda sadari.`;
+  } else if (activeScenario === "kalap") {
+    if (simTotal > dailyBudget) {
+      dynamicNote = `Pengeluaran melebihi batas jatah Rp ${(simTotal - dailyBudget).toLocaleString("id-ID")}. Rekap bulanan otomatis memberi sinyal penghematan.`;
+    } else {
+      dynamicNote = `Pengeluaran masih dalam kendali budget (sisa Rp ${remainingBudget.toLocaleString("id-ID")}).`;
+    }
+  }
 
   return (
     <View style={styles.rootWrapper}>
@@ -361,7 +405,7 @@ export function LandingPage({
                 {/* Insight Catatan Dinamis */}
                 <View style={styles.insightBox}>
                   <Text style={styles.insightText}>
-                    {currentScenarioData.note}
+                    {dynamicNote}
                   </Text>
                 </View>
               </View>
@@ -369,7 +413,7 @@ export function LandingPage({
               {/* Item Transaksi Terakhir Nyata */}
               <View style={styles.recentSampleBox}>
                 <Text style={styles.recentSampleTitle}>Rincian Transaksi Skenario:</Text>
-                {currentScenarioData.items.map((item, idx) => (
+                {dynamicItems.map((item, idx) => (
                   <View key={idx} style={styles.sampleRow}>
                     <View style={styles.sampleCol}>
                       <Text style={styles.sampleCategory}>{item.category}</Text>
