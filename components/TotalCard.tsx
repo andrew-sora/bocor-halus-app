@@ -92,27 +92,20 @@ export function TotalCard({
         </View>
 
         <View style={styles.budgetRow}>
-          <View>
+          <View style={{ flex: 1, paddingRight: 8 }}>
             <Text style={styles.budgetSublabel}>Sisa Jatah Belanja:</Text>
-            {extraBudget > 0 && (
+            {extraBudget > 0 ? (
               <Text style={styles.extraBudgetNote}>
-                +{formatRupiah(extraBudget)} uang masuk
+                Total Jatah {formatRupiah(budgetLimit)} (Pokok {formatRupiah(budgetLimit - extraBudget)} + Masuk {formatRupiah(extraBudget)})
+              </Text>
+            ) : (
+              <Text style={styles.extraBudgetNote}>
+                Total Jatah: {formatRupiah(budgetLimit)}
               </Text>
             )}
           </View>
           <View style={styles.budgetRightRow}>
             <Text style={styles.budgetVal}>{formatRupiah(sisaJatah)}</Text>
-            {Boolean(onPressAddExtraBudget) && (
-              <TouchableOpacity
-                style={styles.addExtraBtn}
-                onPress={onPressAddExtraBudget}
-                activeOpacity={0.75}
-                accessibilityRole="button"
-                accessibilityLabel="Catat uang masuk"
-              >
-                <Text style={styles.addExtraBtnText}>+ Uang Masuk</Text>
-              </TouchableOpacity>
-            )}
           </View>
         </View>
 

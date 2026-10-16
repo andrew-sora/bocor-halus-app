@@ -20,13 +20,11 @@ import {
   setBudgetLimit,
   hasBudgetLimitSet,
   getMonthlyExtraBudget,
-  addMonthlyExtraBudget,
 } from "@/lib/db";
 import { TotalCard } from "@/components/TotalCard";
 import { ExpenseRow } from "@/components/ExpenseRow";
 import { BudgetOnboardingModal } from "@/components/BudgetOnboardingModal";
 import { MicroExpensesModal } from "@/components/MicroExpensesModal";
-import { AddExtraBudgetModal } from "@/components/AddExtraBudgetModal";
 import { PwaInstallBanner } from "@/components/PwaInstallBanner";
 import { strings } from "@/constants/strings";
 import { formatTanggalId, currentYearMonth, namaBulan } from "@/lib/date";
@@ -46,7 +44,6 @@ export default function BerandaScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const [showMicroModal, setShowMicroModal] = useState(false);
-  const [showAddExtraModal, setShowAddExtraModal] = useState(false);
   const [microExpensesList, setMicroExpensesList] = useState<Expense[]>([]);
 
   const now = new Date();
@@ -79,11 +76,6 @@ export default function BerandaScreen() {
     await setBudgetLimit(newBudget);
     setBudgetLimitState(newBudget);
     setShowOnboarding(false);
-  };
-
-  const handleAddExtraBudget = async (amount: number) => {
-    const updated = await addMonthlyExtraBudget(ym, amount);
-    setExtraBudget(updated);
   };
 
   const handleOpenMicroModal = useCallback(async () => {
@@ -140,7 +132,6 @@ export default function BerandaScreen() {
               microTotal={microSummary.total}
               microCount={microSummary.count}
               onPressMicroInsight={handleOpenMicroModal}
-              onPressAddExtraBudget={() => setShowAddExtraModal(true)}
             />
           </>
         }
@@ -201,14 +192,6 @@ export default function BerandaScreen() {
           setShowMicroModal(false);
           router.push({ pathname: "/tambah", params: { id } });
         }}
-      />
-
-      <AddExtraBudgetModal
-        visible={showAddExtraModal}
-        onClose={() => setShowAddExtraModal(false)}
-        onAdd={handleAddExtraBudget}
-        monthName={namaBulan(currentMonth)}
-        currentBudget={budgetLimit + extraBudget}
       />
     </View>
   );

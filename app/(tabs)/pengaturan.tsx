@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useCallback } from "react";
 import {
   View,
   Text,
@@ -11,36 +11,57 @@ import {
   Linking,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { useFocusEffect } from "expo-router";
 import Constants from "expo-constants";
 import { exportBackup, importBackup } from "@/lib/backup";
-import { getBudgetLimit, setBudgetLimit, getAppPin, setAppPin } from "@/lib/db";
+import {
+  getBudgetLimit,
+  setBudgetLimit,
+  getAppPin,
+  setAppPin,
+  getMonthlyExtraBudget,
+  setMonthlyExtraBudget,
+} from "@/lib/db";
 import { isAppActivated } from "@/lib/license";
 import { formatRupiah } from "@/lib/format";
+import { currentYearMonth, namaBulan } from "@/lib/date";
 import { SetPinModal } from "@/components/SetPinModal";
 import { strings } from "@/constants/strings";
 import { C } from "@/constants/Colors";
 
 export default function PengaturanScreen() {
   const insets = useSafeAreaInsets();
+  const ym = currentYearMonth();
+  const now = new Date();
+  const currentMonthName = `${namaBulan(now.getMonth() + 1)} ${now.getFullYear()}`;
+
   const [loading, setLoading] = useState<"export" | "import" | null>(null);
-  const [budgetInput, setBudgetInput] = useState("3000000");
+  const [budgetInput, setBudgetInput] = useState("2000000");
   const [budgetSaved, setBudgetSaved] = useState(false);
+  const [extraBudgetInput, setExtraBudgetInput] = useState("0");
+  const [extraSaved, setExtraSaved] = useState(false);
   const [appPin, setAppPinState] = useState<string | null>(null);
   const [showPinModal, setShowPinModal] = useState(false);
-
   const [activated, setActivated] = useState(false);
 
-  useEffect(() => {
-    getBudgetLimit().then((limit) => {
-      setBudgetInput(limit.toString());
-    });
-    getAppPin().then((pin) => {
-      setAppPinState(pin);
-    });
-    isAppActivated().then((act) => {
-      setActivated(act);
-    });
-  }, []);
+  const loadData = useCallback(async () => {
+    const [limit, pin, act, extra] = await Promise.all([
+      getBudgetLimit(),
+      getAppPin(),
+      isAppActivated(),
+      getMonthlyExtraBudget(ym),
+    ]);
+    setBudgetInput(limit.toString());
+    setExtraBudgetInput(extra.toString());
+    setAppPinState(pin);
+    setActivated(act);
+  }, [ym]);
+
+  useFocusEffect(
+    useCallback(() => {
+      loadData().catch(console.error);
+    }, [loadData])
+  );
 
   const handleSavePin = async (newPin: string | null) => {
     await setAppPin(newPin);
@@ -48,15 +69,29 @@ export default function PengaturanScreen() {
   };
 
   const parsedBudgetVal = parseInt(budgetInput.replace(/\D/g, ""), 10) || 0;
+  const parsedExtraVal = parseInt(extraBudgetInput.replace(/\D/g, ""), 10) || 0;
 
   const handleSaveBudget = async () => {
     if (parsedBudgetVal <= 0) {
-      Alert.alert("Gagal", "Batas budget harus angka positif.");
+      Alert.alert("Gagal", "Jatah pokok harus berupa angka positif.");
       return;
     }
     await setBudgetLimit(parsedBudgetVal);
     setBudgetSaved(true);
     setTimeout(() => setBudgetSaved(false), 2000);
+  };
+
+  const handleSaveExtraBudget = async () => {
+    await setMonthlyExtraBudget(ym, parsedExtraVal);
+    setExtraSaved(true);
+    setTimeout(() => setExtraSaved(false), 2000);
+  };
+
+  const handleResetExtraBudget = async () => {
+    await setMonthlyExtraBudget(ym, 0);
+    setExtraBudgetInput("0");
+    setExtraSaved(true);
+    setTimeout(() => setExtraSaved(false), 2000);
   };
 
   const handleExport = async () => {
@@ -127,16 +162,21 @@ export default function PengaturanScreen() {
           { paddingBottom: insets.bottom + 32 },
         ]}
       >
-        {/* Target Budget Manager */}
-        <Text style={styles.sectionTitle}>{strings.targetBudgetTitle}</Text>
+        {/* JATAH BELANJA BULANAN & UANG MASUK */}
+        <Text style={styles.sectionTitle}>Jatah Belanja & Uang Masuk</Text>
+
+        {/* Card 1: Jatah Pokok Rutin Bulanan */}
         <View style={styles.card}>
-          <Text style={styles.infoText}>{strings.targetBudgetDesc}</Text>
+          <Text style={styles.infoTitle}>1. Jatah Pokok Rutin Bulanan</Text>
+          <Text style={styles.infoText}>
+            Target jatah belanja dasar yang otomatis berlaku setiap awal bulan (misal gaji pokok belanja).
+          </Text>
           <TextInput
             style={styles.budgetInput}
             value={budgetInput}
             onChangeText={(t) => setBudgetInput(t.replace(/\D/g, ""))}
             keyboardType="numeric"
-            placeholder="3000000"
+            placeholder="2000000"
             placeholderTextColor={C.muted}
           />
           {parsedBudgetVal > 0 && (
@@ -148,11 +188,88 @@ export default function PengaturanScreen() {
             style={styles.saveBudgetBtn}
             onPress={handleSaveBudget}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Simpan Jatah Pokok"
           >
             <Text style={styles.saveBudgetBtnText}>
-              {budgetSaved ? "Tersimpan" : strings.simpanBudget}
+              {budgetSaved ? "Tersimpan" : "Simpan Jatah Pokok"}
             </Text>
           </TouchableOpacity>
+        </View>
+
+        {/* Card 2: Tambahan Uang Masuk Bulan Berjalan */}
+        <View style={styles.card}>
+          <View style={styles.cardHeaderRow}>
+            <Text style={styles.infoTitle}>2. Uang Masuk Ekstra</Text>
+            <View style={styles.monthPill}>
+              <Text style={styles.monthPillText}>{currentMonthName}</Text>
+            </View>
+          </View>
+          <Text style={styles.infoText}>
+            Pemasukan ekstra khusus bulan ini (seperti bonus, THR, atau sisa saldo belanja).
+          </Text>
+          <TextInput
+            style={styles.budgetInput}
+            value={extraBudgetInput}
+            onChangeText={(t) => setExtraBudgetInput(t.replace(/\D/g, ""))}
+            keyboardType="numeric"
+            placeholder="0"
+            placeholderTextColor={C.muted}
+          />
+          <Text style={styles.formattedPreview}>
+            Terformat: {formatRupiah(parsedExtraVal)}
+          </Text>
+          <View style={styles.extraBtnGroup}>
+            <TouchableOpacity
+              style={[styles.saveBudgetBtn, { flex: 1, marginRight: parsedExtraVal > 0 ? 8 : 0 }]}
+              onPress={handleSaveExtraBudget}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Simpan Uang Masuk"
+            >
+              <Text style={styles.saveBudgetBtnText}>
+                {extraSaved ? "Tersimpan" : "Simpan Uang Masuk"}
+              </Text>
+            </TouchableOpacity>
+            {parsedExtraVal > 0 && (
+              <TouchableOpacity
+                style={styles.resetBtn}
+                onPress={handleResetExtraBudget}
+                activeOpacity={0.8}
+                accessibilityRole="button"
+                accessibilityLabel="Reset uang masuk"
+              >
+                <Text style={styles.resetBtnText}>Reset ke 0</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
+        {/* Card 3: Ringkasan Total Jatah Efektif Bulan Berjalan */}
+        <View style={styles.summaryCard}>
+          <Text style={styles.summaryEyebrow}>TOTAL JATAH BELANJA BULAN INI</Text>
+          <Text style={styles.summaryMonth}>{currentMonthName}</Text>
+
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryRowLabel}>Jatah Pokok Rutin:</Text>
+            <Text style={styles.summaryRowVal}>{formatRupiah(parsedBudgetVal)}</Text>
+          </View>
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryRowLabel}>Tambahan Uang Masuk:</Text>
+            <Text style={[styles.summaryRowVal, { color: C.greenDark }]}>
+              +{formatRupiah(parsedExtraVal)}
+            </Text>
+          </View>
+          <View style={styles.summaryDivider} />
+          <View style={styles.summaryRow}>
+            <Text style={styles.summaryTotalLabel}>Total Jatah Efektif:</Text>
+            <Text style={styles.summaryTotalVal}>
+              {formatRupiah(parsedBudgetVal + parsedExtraVal)}
+            </Text>
+          </View>
+          <Text style={styles.summaryFootnote}>
+            Total jatah ini otomatis menjadi acuan batas aman pengeluaran di layar Beranda.
+          </Text>
         </View>
 
         {/* Kunci Aplikasi PIN */}
@@ -471,6 +588,98 @@ const styles = StyleSheet.create({
     color: C.ink,
     fontSize: 15,
     fontWeight: "600",
+  },
+  cardHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  monthPill: {
+    backgroundColor: C.greenSoft,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 8,
+  },
+  monthPillText: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: C.greenDark,
+  },
+  extraBtnGroup: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginTop: 2,
+  },
+  resetBtn: {
+    backgroundColor: "#FEE2E2",
+    borderRadius: 12,
+    paddingVertical: 14,
+    paddingHorizontal: 16,
+    alignItems: "center",
+  },
+  resetBtnText: {
+    color: C.danger,
+    fontSize: 14,
+    fontWeight: "700",
+  },
+  summaryCard: {
+    backgroundColor: "#F0FDF4",
+    borderRadius: 16,
+    padding: 16,
+    marginBottom: 16,
+    borderWidth: 1.5,
+    borderColor: "#BBF7D0",
+  },
+  summaryEyebrow: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: C.greenDark,
+    letterSpacing: 0.8,
+    textTransform: "uppercase",
+  },
+  summaryMonth: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: C.ink,
+    marginTop: 2,
+    marginBottom: 12,
+  },
+  summaryRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  summaryRowLabel: {
+    fontSize: 13,
+    color: C.inkLight,
+  },
+  summaryRowVal: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: C.ink,
+  },
+  summaryDivider: {
+    height: 1,
+    backgroundColor: "#BBF7D0",
+    marginVertical: 8,
+  },
+  summaryTotalLabel: {
+    fontSize: 14,
+    fontWeight: "800",
+    color: C.greenDark,
+  },
+  summaryTotalVal: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: C.greenDark,
+  },
+  summaryFootnote: {
+    fontSize: 12,
+    color: "#15803D",
+    marginTop: 10,
+    lineHeight: 17,
   },
 });
 

@@ -403,6 +403,20 @@ export async function addMonthlyExtraBudget(ym: string, addition: number): Promi
   return updated;
 }
 
+export async function setMonthlyExtraBudget(ym: string, amount: number): Promise<void> {
+  try {
+    const db = await getDb();
+    if (amount <= 0) {
+      await db.runAsync("DELETE FROM settings WHERE key = ?", [`budget_bonus_${ym}`]);
+    } else {
+      await db.runAsync(
+        "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+        [`budget_bonus_${ym}`, amount.toString()]
+      );
+    }
+  } catch {}
+}
+
 export async function getAppPin(): Promise<string | null> {
   try {
     const db = await getDb();
