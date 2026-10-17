@@ -445,7 +445,116 @@ export async function setAppPin(pin: string | null): Promise<void> {
   } catch {}
 }
 
+export type SavingGoal = {
+  id: string;
+  title: string;
+  targetAmount: number;
+  currentAmount: number;
+  emoji: string;
+  createdAt: string;
+};
+
+export async function getSavingGoals(): Promise<SavingGoal[]> {
+  try {
+    const db = await getDb();
+    const row = await db.getFirstAsync<{ value: string }>(
+      "SELECT value FROM settings WHERE key = ?",
+      ["saving_goals"]
+    );
+    if (row && row.value) {
+      const parsed = JSON.parse(row.value);
+      if (Array.isArray(parsed)) return parsed;
+    }
+  } catch (err) {
+    console.error("Error reading saving goals:", err);
+  }
+  return [];
+}
+
+export async function saveSavingGoal(input: {
+  id?: string;
+  title: string;
+  targetAmount: number;
+  currentAmount?: number;
+  emoji?: string;
+}): Promise<SavingGoal> {
+  const goals = await getSavingGoals();
+  const db = await getDb();
+  const id = input.id || Crypto.randomUUID();
+  const emoji = input.emoji || "🐷";
+  const currentAmount = Math.max(0, input.currentAmount ?? 0);
+  const targetAmount = Math.max(1000, input.targetAmount);
+  const createdAt = new Date().toISOString();
+
+  const existingIndex = goals.findIndex((g) => g.id === id);
+  let updatedGoal: SavingGoal;
+
+  if (existingIndex >= 0) {
+    updatedGoal = {
+      ...goals[existingIndex],
+      title: input.title,
+      targetAmount,
+      currentAmount: input.currentAmount !== undefined ? currentAmount : goals[existingIndex].currentAmount,
+      emoji,
+    };
+    goals[existingIndex] = updatedGoal;
+  } else {
+    updatedGoal = {
+      id,
+      title: input.title,
+      targetAmount,
+      currentAmount,
+      emoji,
+      createdAt,
+    };
+    goals.push(updatedGoal);
+  }
+
+  await db.runAsync(
+    "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+    ["saving_goals", JSON.stringify(goals)]
+  );
+
+  return updatedGoal;
+}
+
+export async function addSavingsDeposit(
+  goalId: string,
+  depositAmount: number
+): Promise<SavingGoal | null> {
+  const goals = await getSavingGoals();
+  const index = goals.findIndex((g) => g.id === goalId);
+  if (index === -1) return null;
+
+  const current = goals[index];
+  const updatedAmount = Math.max(0, current.currentAmount + depositAmount);
+  const updatedGoal: SavingGoal = {
+    ...current,
+    currentAmount: updatedAmount,
+  };
+  goals[index] = updatedGoal;
+
+  const db = await getDb();
+  await db.runAsync(
+    "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+    ["saving_goals", JSON.stringify(goals)]
+  );
+
+  return updatedGoal;
+}
+
+export async function deleteSavingGoal(goalId: string): Promise<void> {
+  const goals = await getSavingGoals();
+  const filtered = goals.filter((g) => g.id !== goalId);
+  const db = await getDb();
+  await db.runAsync(
+    "INSERT OR REPLACE INTO settings (key, value) VALUES (?, ?)",
+    ["saving_goals", JSON.stringify(filtered)]
+  );
+}
+
 // Untuk testing: reset instance DB (dipakai oleh mock)
 export function _resetDbForTest(): void {
   resetDbInstance();
 }
+

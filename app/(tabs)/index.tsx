@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import type { Expense } from "@/lib/db";
+import type { Expense, SavingGoal } from "@/lib/db";
 import {
   listRecent,
   totalByMonth,
@@ -20,8 +20,14 @@ import {
   setBudgetLimit,
   hasBudgetLimitSet,
   getMonthlyExtraBudget,
+  getSavingGoals,
+  saveSavingGoal,
+  addSavingsDeposit,
+  deleteSavingGoal,
 } from "@/lib/db";
 import { TotalCard } from "@/components/TotalCard";
+import { SavingGoalCard } from "@/components/SavingGoalCard";
+import { SavingGoalModal } from "@/components/SavingGoalModal";
 import { ExpenseRow } from "@/components/ExpenseRow";
 import { BudgetOnboardingModal } from "@/components/BudgetOnboardingModal";
 import { MicroExpensesModal } from "@/components/MicroExpensesModal";
@@ -46,13 +52,18 @@ export default function BerandaScreen() {
   const [showMicroModal, setShowMicroModal] = useState(false);
   const [microExpensesList, setMicroExpensesList] = useState<Expense[]>([]);
 
+  // Celengan Target State
+  const [savingGoals, setSavingGoals] = useState<SavingGoal[]>([]);
+  const [activeGoalId, setActiveGoalId] = useState<string | null>(null);
+  const [showSavingModal, setShowSavingModal] = useState(false);
+
   const now = new Date();
   const currentMonth = now.getMonth() + 1;
   const currentYear = now.getFullYear();
   const ym = currentYearMonth();
 
   const load = useCallback(async () => {
-    const [exps, mt, yt, micro, bLimit, hasLimit, extra] = await Promise.all([
+    const [exps, mt, yt, micro, bLimit, hasLimit, extra, goals] = await Promise.all([
       listRecent(100),
       totalByMonth(ym),
       totalByYear(currentYear),
@@ -60,6 +71,7 @@ export default function BerandaScreen() {
       getBudgetLimit(),
       hasBudgetLimitSet(),
       getMonthlyExtraBudget(ym),
+      getSavingGoals(),
     ]);
     setExpenses(exps);
     setMonthlyTotal(mt);
@@ -67,6 +79,10 @@ export default function BerandaScreen() {
     setMicroSummary(micro);
     setBudgetLimitState(bLimit);
     setExtraBudget(extra);
+    setSavingGoals(goals);
+    if (goals.length > 0) {
+      setActiveGoalId((prev) => prev ?? goals[0].id);
+    }
     if (!hasLimit) {
       setShowOnboarding(true);
     }
@@ -83,6 +99,47 @@ export default function BerandaScreen() {
     setMicroExpensesList(list);
     setShowMicroModal(true);
   }, [ym]);
+
+  const activeGoal = useMemo(() => {
+    return savingGoals.find((g) => g.id === activeGoalId) || savingGoals[0] || null;
+  }, [savingGoals, activeGoalId]);
+
+  const handleQuickDeposit = async (amount: number) => {
+    if (!activeGoal) {
+      setShowSavingModal(true);
+      return;
+    }
+    await addSavingsDeposit(activeGoal.id, amount);
+    const updated = await getSavingGoals();
+    setSavingGoals(updated);
+  };
+
+  const handleSaveGoal = async (data: {
+    id?: string;
+    title: string;
+    targetAmount: number;
+    emoji: string;
+  }) => {
+    const saved = await saveSavingGoal(data);
+    const updated = await getSavingGoals();
+    setSavingGoals(updated);
+    setActiveGoalId(saved.id);
+  };
+
+  const handleDeleteGoal = async (goalId: string) => {
+    await deleteSavingGoal(goalId);
+    const updated = await getSavingGoals();
+    setSavingGoals(updated);
+    if (activeGoalId === goalId) {
+      setActiveGoalId(updated[0]?.id || null);
+    }
+  };
+
+  const handleDepositOrWithdraw = async (goalId: string, amount: number) => {
+    await addSavingsDeposit(goalId, amount);
+    const updated = await getSavingGoals();
+    setSavingGoals(updated);
+  };
 
   useFocusEffect(
     useCallback(() => {
@@ -133,6 +190,12 @@ export default function BerandaScreen() {
               microCount={microSummary.count}
               onPressMicroInsight={handleOpenMicroModal}
             />
+            <SavingGoalCard
+              goal={activeGoal}
+              onQuickDeposit={handleQuickDeposit}
+              onOpenManageModal={() => setShowSavingModal(true)}
+              onCreateNewGoal={() => setShowSavingModal(true)}
+            />
           </>
         }
         renderSectionHeader={({ section }) => (
@@ -179,6 +242,20 @@ export default function BerandaScreen() {
           setShowMicroModal(false);
           router.push({ pathname: "/tambah", params: { id } });
         }}
+      />
+
+      <SavingGoalModal
+        visible={showSavingModal}
+        onClose={() => setShowSavingModal(false)}
+        goals={savingGoals}
+        activeGoalId={activeGoal?.id || null}
+        onSelectActiveGoal={(id) => {
+          setActiveGoalId(id);
+          setShowSavingModal(false);
+        }}
+        onSaveGoal={handleSaveGoal}
+        onDeleteGoal={handleDeleteGoal}
+        onDepositOrWithdraw={handleDepositOrWithdraw}
       />
     </View>
   );
