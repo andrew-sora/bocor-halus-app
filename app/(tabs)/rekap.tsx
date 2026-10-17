@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import { useRouter, useFocusEffect } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -32,23 +33,19 @@ export default function RekapScreen() {
   const [budgetLimit, setBudgetLimit] = useState(3000000);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    availableYears()
-      .then(setYears)
-      .catch(console.error);
-  }, []);
-
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [mt, yt, bLimit] = await Promise.all([
+      const [mt, yt, bLimit, ay] = await Promise.all([
         monthlyTotals(year),
         totalByYear(year),
         getBudgetLimit(),
+        availableYears(),
       ]);
       setRows(mt);
       setYearTotal(yt);
       setBudgetLimit(bLimit);
+      setYears(ay);
     } catch (err) {
       console.error(err);
     } finally {
@@ -71,8 +68,13 @@ export default function RekapScreen() {
     }, 0);
   }, [rows, budgetLimit]);
 
-  const canPrev = years.length === 0 || year > Math.min(...years);
-  const canNext = years.length === 0 || year < Math.max(...years);
+  // Izinkan melihat ke belakang minimal 5 tahun terakhir (atau tahun data terlama)
+  const currentYear = new Date().getFullYear();
+  const minYear = years.length > 0 ? Math.min(currentYear - 5, ...years) : currentYear - 5;
+  const maxYear = years.length > 0 ? Math.max(currentYear + 1, ...years) : currentYear + 1;
+
+  const canPrev = year > minYear;
+  const canNext = year < maxYear;
 
   const navigateToMonth = (month: number) => {
     const ym = `${year}-${String(month).padStart(2, "0")}`;
@@ -203,8 +205,12 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     borderWidth: 1,
     borderColor: C.border,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
   },
-  arrowDisabled: { opacity: 0.3 },
+  arrowDisabled: {
+    opacity: 0.3,
+    ...Platform.select({ web: { cursor: "not-allowed" as any } }),
+  },
   arrowText: { fontSize: 24, color: C.ink, lineHeight: 28 },
   yearBadge: {
     marginHorizontal: 16,
