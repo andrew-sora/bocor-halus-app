@@ -240,13 +240,6 @@ export function LandingPage({
         <View style={[styles.heroContainer, isDesktop && styles.heroContainerDesktop]}>
           {/* Kolom Teks Hero */}
           <View style={[styles.heroTextCol, isDesktop && styles.heroTextColDesktop]}>
-            <View style={styles.eyebrowChip}>
-              <View style={styles.eyebrowDot} />
-              <Text style={styles.eyebrowChipText}>
-                100% Privat Lokal • Bisa di Layar HP • Bebas Biaya Bulanan
-              </Text>
-            </View>
-
             <Text
               style={[
                 styles.heroHeadline,
@@ -290,6 +283,15 @@ export function LandingPage({
               >
                 <Text style={styles.secondaryCtaText}>Sudah Memiliki Lisensi? Masukkan Kode</Text>
               </TouchableOpacity>
+
+              {/* Trust Indicators (Human, Minimalist, No AI Pill Bubble) */}
+              <View style={styles.heroTrustRow}>
+                <Text style={styles.heroTrustItem}>100% Privat Lokal</Text>
+                <Text style={styles.heroTrustDot}>•</Text>
+                <Text style={styles.heroTrustItem}>Bisa di Layar HP</Text>
+                <Text style={styles.heroTrustDot}>•</Text>
+                <Text style={styles.heroTrustItem}>Bebas Biaya Bulanan</Text>
+              </View>
             </View>
           </View>
 
@@ -821,31 +823,6 @@ const styles = StyleSheet.create({
     marginBottom: 0,
     paddingTop: 8,
   },
-  eyebrowChip: {
-    backgroundColor: C.greenSoft,
-    alignSelf: "flex-start",
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 6,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 20,
-    marginBottom: 14,
-    borderWidth: 1,
-    borderColor: "#A7F3D0",
-  },
-  eyebrowDot: {
-    width: 6,
-    height: 6,
-    borderRadius: 3,
-    backgroundColor: C.greenLight,
-  },
-  eyebrowChipText: {
-    fontSize: 11,
-    fontWeight: "800",
-    color: C.greenDark,
-    letterSpacing: 0.5,
-  },
   heroHeadline: {
     fontSize: 22,
     fontWeight: "900",
@@ -942,6 +919,23 @@ const styles = StyleSheet.create({
     color: C.ink,
     fontSize: 13.5,
     fontWeight: "700",
+  },
+  heroTrustRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 8,
+    marginTop: 8,
+    flexWrap: "wrap",
+  },
+  heroTrustItem: {
+    fontSize: 11.5,
+    color: C.muted,
+    fontWeight: "600",
+  },
+  heroTrustDot: {
+    fontSize: 10,
+    color: C.border,
   },
 
   /* HERO PREVIEW COL */
