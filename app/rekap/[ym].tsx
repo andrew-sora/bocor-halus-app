@@ -17,6 +17,7 @@ import {
 } from "@/lib/db";
 import type { Expense } from "@/lib/db";
 import { ExpenseRow } from "@/components/ExpenseRow";
+import { FinancialCalendar } from "@/components/FinancialCalendar";
 import { formatRupiah } from "@/lib/format";
 import { formatTanggalId, namaBulan, todayLocal } from "@/lib/date";
 import { C, getCategoryById } from "@/constants/Colors";
@@ -34,6 +35,7 @@ export default function RekapDetailScreen() {
   const [budgetLimit, setBudgetLimit] = useState(3000000);
   const [extraBudget, setExtraBudget] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
   // Update title header dengan nama bulan
   useEffect(() => {
@@ -117,10 +119,15 @@ export default function RekapDetailScreen() {
     return items;
   }, [expenses, total]);
 
-  // Kelompokkan per tanggal
+  // Kelompokkan per tanggal (bisa difilter jika ada tanggal yang dipilih di kalender)
+  const filteredExpenses = useMemo(() => {
+    if (!selectedDate) return expenses;
+    return expenses.filter((e) => e.spentAt === selectedDate);
+  }, [expenses, selectedDate]);
+
   const sections: Section[] = useMemo(() => {
     const map = new Map<string, Expense[]>();
-    for (const exp of expenses) {
+    for (const exp of filteredExpenses) {
       const list = map.get(exp.spentAt) ?? [];
       list.push(exp);
       map.set(exp.spentAt, list);
@@ -129,7 +136,7 @@ export default function RekapDetailScreen() {
       title: date,
       data,
     }));
-  }, [expenses]);
+  }, [filteredExpenses]);
 
   if (loading) {
     return (
@@ -180,6 +187,20 @@ export default function RekapDetailScreen() {
               </TouchableOpacity>
             </View>
 
+            {/* Kalender Pengeluaran Visual */}
+            {ym && (
+              <View style={{ marginTop: 14 }}>
+                <FinancialCalendar
+                  yearMonth={ym}
+                  expenses={expenses}
+                  budgetLimit={totalBudget}
+                  selectedDate={selectedDate}
+                  onSelectDate={setSelectedDate}
+                  todayStr={todayLocal()}
+                />
+              </View>
+            )}
+
             {/* Komposisi Kategori */}
             {categoryBreakdown.length > 0 && (
               <View style={styles.breakdownCard}>
@@ -224,7 +245,21 @@ export default function RekapDetailScreen() {
 
             {expenses.length > 0 && (
               <View style={styles.transactionListHeader}>
-                <Text style={styles.transactionListTitle}>Riwayat Transaksi Harian</Text>
+                <View style={styles.transactionListHeaderRow}>
+                  <Text style={styles.transactionListTitle}>
+                    {selectedDate
+                      ? `Transaksi ${formatTanggalId(selectedDate)}`
+                      : "Riwayat Transaksi Harian"}
+                  </Text>
+                  {selectedDate && (
+                    <TouchableOpacity
+                      onPress={() => setSelectedDate(null)}
+                      style={styles.resetFilterBtn}
+                    >
+                      <Text style={styles.resetFilterText}>Lihat Semua ✕</Text>
+                    </TouchableOpacity>
+                  )}
+                </View>
               </View>
             )}
           </View>
@@ -465,9 +500,27 @@ const styles = StyleSheet.create({
     paddingTop: 16,
     paddingBottom: 4,
   },
+  transactionListHeaderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+  },
   transactionListTitle: {
     fontSize: 14,
     fontWeight: "700",
     color: C.inkLight,
+  },
+  resetFilterBtn: {
+    backgroundColor: C.white,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  resetFilterText: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: C.danger,
   },
 });
