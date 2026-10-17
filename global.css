@@ -1,3 +1,22 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Desktop Web Interaction: make all buttons, tabs, and interactive elements show pointer cursor */
+[role="button"],
+button,
+a,
+[tabindex="0"],
+div[role="button"],
+div[tabindex="0"],
+div[aria-role="button"] {
+  cursor: pointer !important;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  [role="button"]:hover,
+  button:hover {
+    filter: brightness(1.04);
+    transition: filter 0.15s ease;
+  }
+}

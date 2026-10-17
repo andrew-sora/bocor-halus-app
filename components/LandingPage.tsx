@@ -783,6 +783,7 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: C.border,
     flexShrink: 0,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
   },
   keyEntryBtnText: {
     fontSize: 12.5,
@@ -861,6 +862,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.18,
     shadowRadius: 10,
     elevation: 3,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
   },
   mainCtaTitle: {
     color: C.white,
@@ -884,6 +886,7 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderWidth: 1,
     borderColor: C.border,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
   },
   secondaryCtaText: {
     color: C.ink,
@@ -986,6 +989,7 @@ const styles = StyleSheet.create({
     paddingVertical: 7,
     alignItems: "center",
     borderRadius: 8,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
   },
   miniSimTabActive: {
     backgroundColor: C.white,
@@ -1109,6 +1113,7 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     borderWidth: 1,
     borderColor: C.border,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
   },
   miniPresetText: {
     fontSize: 10,
@@ -1455,6 +1460,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.18,
     shadowRadius: 10,
     elevation: 3,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
   },
   pricingBuyBtnText: {
     color: C.white,
@@ -1496,6 +1502,7 @@ const styles = StyleSheet.create({
     padding: 16,
     borderWidth: 1,
     borderColor: C.border,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
   },
   faqHeaderRow: {
     flexDirection: "row",
@@ -1633,6 +1640,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     paddingVertical: 10,
     borderRadius: 10,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
   },
   stickyBuyText: {
     color: C.white,
@@ -1646,6 +1654,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     borderWidth: 1,
     borderColor: C.border,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
   },
   stickyKeyText: {
     color: C.ink,
