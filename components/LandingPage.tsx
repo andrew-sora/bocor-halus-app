@@ -243,7 +243,7 @@ export function LandingPage({
             <View style={styles.eyebrowChip}>
               <View style={styles.eyebrowDot} />
               <Text style={styles.eyebrowChipText}>
-                BISA DI HP & LAPTOP • 100% PRIVAT LOKAL • BEBAS BIAYA BULANAN
+                100% Privat Lokal • Bisa di Layar HP • Bebas Biaya Bulanan
               </Text>
             </View>
 
@@ -270,8 +270,15 @@ export function LandingPage({
                 accessibilityRole="button"
                 accessibilityLabel="Beli Akses Seumur Hidup Rp 15.000"
               >
-                <Text style={styles.mainCtaTitle}>Beli Akses Seumur Hidup — Rp 15.000</Text>
-                <Text style={styles.mainCtaSub}>Bayar 1x Miliki Selamanya • Tanpa Biaya Bulanan</Text>
+                <View style={styles.mainCtaRow}>
+                  <View style={styles.mainCtaTextWrap}>
+                    <Text style={styles.mainCtaTitle}>Beli Akses Seumur Hidup — Rp 15.000</Text>
+                    <Text style={styles.mainCtaSub}>Bayar 1x Miliki Selamanya • Tanpa Biaya Bulanan</Text>
+                  </View>
+                  <View style={styles.ctaIconCircle}>
+                    <Text style={styles.ctaIconArrow}>→</Text>
+                  </View>
+                </View>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -286,151 +293,153 @@ export function LandingPage({
             </View>
           </View>
 
-          {/* Kolom Showcase Interaktif (Mini Simulator) */}
+          {/* Kolom Showcase Interaktif (Mini Simulator) - Double-Bezel Precision Instrument */}
           <View style={[styles.heroPreviewCol, isDesktop && styles.heroPreviewColDesktop]}>
-            <View style={styles.miniSimCard}>
-              {/* Header Mini Simulator */}
-              <View style={styles.miniSimHeader}>
-                <View style={styles.miniSimTitleRow}>
-                  <View style={styles.miniSimDot} />
-                  <Text style={styles.miniSimTitle}>MINI SIMULATOR BOCOR HALUS</Text>
+            <View style={styles.miniSimOuter}>
+              <View style={styles.miniSimCard}>
+                {/* Header Mini Simulator */}
+                <View style={styles.miniSimHeader}>
+                  <View style={styles.miniSimTitleRow}>
+                    <View style={styles.miniSimDot} />
+                    <Text style={styles.miniSimTitle}>Simulator Bocor Halus</Text>
+                  </View>
+                  <View style={styles.miniSimBadge}>
+                    <Text style={styles.miniSimBadgeText}>Interaktif</Text>
+                  </View>
                 </View>
-                <View style={styles.miniSimBadge}>
-                  <Text style={styles.miniSimBadgeText}>Interaktif</Text>
-                </View>
-              </View>
 
-              {/* Skenario Selector Tabs */}
-              <View style={styles.miniSimTabRow}>
-                {SCENARIO_PRESETS.map((sc) => {
-                  const isActive = activeScenarioId === sc.id;
-                  return (
-                    <TouchableOpacity
-                      key={sc.id}
-                      style={[styles.miniSimTab, isActive && styles.miniSimTabActive]}
-                      onPress={() => handleSelectScenario(sc)}
-                      activeOpacity={0.8}
-                    >
-                      <Text
-                        style={[
-                          styles.miniSimTabText,
-                          isActive && styles.miniSimTabTextActive,
-                        ]}
+                {/* Skenario Selector Tabs */}
+                <View style={styles.miniSimTabRow}>
+                  {SCENARIO_PRESETS.map((sc) => {
+                    const isActive = activeScenarioId === sc.id;
+                    return (
+                      <TouchableOpacity
+                        key={sc.id}
+                        style={[styles.miniSimTab, isActive && styles.miniSimTabActive]}
+                        onPress={() => handleSelectScenario(sc)}
+                        activeOpacity={0.8}
                       >
-                        {sc.title}
-                      </Text>
-                    </TouchableOpacity>
-                  );
-                })}
-              </View>
-
-              {/* Card Ringkasan Jatah (Sleek Emerald Card) */}
-              <View style={styles.miniBudgetCard}>
-                <View style={styles.miniBudgetTop}>
-                  <View>
-                    <Text style={styles.miniBudgetSub}>SISA JATAH BULANAN</Text>
-                    <Text style={styles.miniBudgetVal}>
-                      {formatRupiah(sisaJatah)}
-                    </Text>
-                  </View>
-                  <View style={[styles.miniStatusBadge, { backgroundColor: statusBadgeBg }]}>
-                    <Text style={[styles.miniStatusText, { color: statusBadgeText }]}>
-                      {statusBadge}
-                    </Text>
-                  </View>
+                        <Text
+                          style={[
+                            styles.miniSimTabText,
+                            isActive && styles.miniSimTabTextActive,
+                          ]}
+                        >
+                          {sc.title}
+                        </Text>
+                      </TouchableOpacity>
+                    );
+                  })}
                 </View>
 
-                {/* Progress Bar */}
-                <View style={styles.miniProgressTrack}>
-                  <View
-                    style={[
-                      styles.miniProgressBar,
-                      {
-                        width: `${Math.min(100, percentage)}%`,
-                        backgroundColor: barColor,
-                      },
-                    ]}
-                  />
-                </View>
-
-                <View style={styles.miniBudgetInfoRow}>
-                  <Text style={styles.miniBudgetMeta}>
-                    Jatah Pokok: {formatRupiah(budgetLimit)}
-                  </Text>
-                  <Text style={styles.miniBudgetSpent}>
-                    Terpakai: {formatRupiah(totalSpent)} ({percentage}%)
-                  </Text>
-                </View>
-
-                {/* Deteksi Bocor Halus Insight Badge */}
-                {microItems.length > 0 && (
-                  <View style={styles.miniBocorBadge}>
-                    <Text style={styles.miniBocorBadgeText}>
-                      💡 Deteksi Bocor Halus: {microItems.length} transaksi kecil (&lt;50rb) total {formatRupiah(microTotal)}
-                    </Text>
-                  </View>
-                )}
-              </View>
-
-              {/* Formula Smart Calculator Input */}
-              <View style={styles.miniCalcSection}>
-                <Text style={styles.miniCalcLabel}>
-                  Formula Belanjaan (Bisa Diketik Langsung):
-                </Text>
-                <TextInput
-                  style={styles.miniCalcInput}
-                  value={simFormula}
-                  onChangeText={setSimFormula}
-                  placeholder="Mis. 15000 + 35000 + 12000"
-                  placeholderTextColor={C.muted}
-                />
-
-                {/* Quick Preset Chips */}
-                <View style={styles.miniPresetRow}>
-                  {[10000, 20000, 50000, 100000].map((amt) => (
-                    <TouchableOpacity
-                      key={amt}
-                      style={styles.miniPresetChip}
-                      onPress={() => handleAddPreset(amt)}
-                      activeOpacity={0.7}
-                    >
-                      <Text style={styles.miniPresetText}>+{amt / 1000}rb</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-
-              {/* Rincian Transaksi Skenario (100% Sinkron) */}
-              <View style={styles.miniRincianSection}>
-                <View style={styles.miniRincianHeader}>
-                  <Text style={styles.miniRincianTitle}>
-                    RINCIAN TRANSAKSI ({parsedItems.length})
-                  </Text>
-                  <Text style={styles.miniRincianLiveTotal}>
-                    Total: {formatRupiah(totalSpent)}
-                  </Text>
-                </View>
-
-                <View style={styles.miniItemList}>
-                  {parsedItems.map((item) => (
-                    <View key={item.id} style={styles.miniItemRow}>
-                      <Text style={styles.miniItemEmoji}>{item.emoji}</Text>
-                      <Text style={styles.miniItemLabel} numberOfLines={1}>
-                        {item.label}
-                      </Text>
-                      <Text style={styles.miniItemAmount}>
-                        {formatRupiah(item.amount)}
+                {/* Card Ringkasan Jatah (Sleek Emerald Card) */}
+                <View style={styles.miniBudgetCard}>
+                  <View style={styles.miniBudgetTop}>
+                    <View>
+                      <Text style={styles.miniBudgetSub}>Sisa Jatah Bulanan</Text>
+                      <Text style={styles.miniBudgetVal}>
+                        {formatRupiah(sisaJatah)}
                       </Text>
                     </View>
-                  ))}
-                </View>
-              </View>
+                    <View style={[styles.miniStatusBadge, { backgroundColor: statusBadgeBg }]}>
+                      <Text style={[styles.miniStatusText, { color: statusBadgeText }]}>
+                        {statusBadge}
+                      </Text>
+                    </View>
+                  </View>
 
-              {/* Catatan Skenario */}
-              <View style={styles.miniNoteBox}>
-                <Text style={styles.miniNoteText}>
-                  {activePreset.note}
-                </Text>
+                  {/* Progress Bar */}
+                  <View style={styles.miniProgressTrack}>
+                    <View
+                      style={[
+                        styles.miniProgressBar,
+                        {
+                          width: `${Math.min(100, percentage)}%`,
+                          backgroundColor: barColor,
+                        },
+                      ]}
+                    />
+                  </View>
+
+                  <View style={styles.miniBudgetInfoRow}>
+                    <Text style={styles.miniBudgetMeta}>
+                      Jatah Pokok: {formatRupiah(budgetLimit)}
+                    </Text>
+                    <Text style={styles.miniBudgetSpent}>
+                      Terpakai: {formatRupiah(totalSpent)} ({percentage}%)
+                    </Text>
+                  </View>
+
+                  {/* Deteksi Bocor Halus Insight Badge */}
+                  {microItems.length > 0 && (
+                    <View style={styles.miniBocorBadge}>
+                      <Text style={styles.miniBocorBadgeText}>
+                        💡 Deteksi Bocor Halus: {microItems.length} transaksi kecil (&lt;50rb) total {formatRupiah(microTotal)}
+                      </Text>
+                    </View>
+                  )}
+                </View>
+
+                {/* Formula Smart Calculator Input */}
+                <View style={styles.miniCalcSection}>
+                  <Text style={styles.miniCalcLabel}>
+                    Formula Belanjaan (Bisa Diketik Langsung):
+                  </Text>
+                  <TextInput
+                    style={styles.miniCalcInput}
+                    value={simFormula}
+                    onChangeText={setSimFormula}
+                    placeholder="Mis. 15000 + 35000 + 12000"
+                    placeholderTextColor={C.muted}
+                  />
+
+                  {/* Quick Preset Chips */}
+                  <View style={styles.miniPresetRow}>
+                    {[10000, 20000, 50000, 100000].map((amt) => (
+                      <TouchableOpacity
+                        key={amt}
+                        style={styles.miniPresetChip}
+                        onPress={() => handleAddPreset(amt)}
+                        activeOpacity={0.7}
+                      >
+                        <Text style={styles.miniPresetText}>+{amt / 1000}rb</Text>
+                      </TouchableOpacity>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Rincian Transaksi Skenario (100% Sinkron) */}
+                <View style={styles.miniRincianSection}>
+                  <View style={styles.miniRincianHeader}>
+                    <Text style={styles.miniRincianTitle}>
+                      Rincian Simulasi ({parsedItems.length})
+                    </Text>
+                    <Text style={styles.miniRincianLiveTotal}>
+                      Total: {formatRupiah(totalSpent)}
+                    </Text>
+                  </View>
+
+                  <View style={styles.miniItemList}>
+                    {parsedItems.map((item) => (
+                      <View key={item.id} style={styles.miniItemRow}>
+                        <Text style={styles.miniItemEmoji}>{item.emoji}</Text>
+                        <Text style={styles.miniItemLabel} numberOfLines={1}>
+                          {item.label}
+                        </Text>
+                        <Text style={styles.miniItemAmount}>
+                          {formatRupiah(item.amount)}
+                        </Text>
+                      </View>
+                    ))}
+                  </View>
+                </View>
+
+                {/* Catatan Skenario */}
+                <View style={styles.miniNoteBox}>
+                  <Text style={styles.miniNoteText}>
+                    {activePreset.note}
+                  </Text>
+                </View>
               </View>
             </View>
           </View>
@@ -438,7 +447,6 @@ export function LandingPage({
 
         {/* 3. PERBANDINGAN REALISTIS (KENAPA BUKAN EXCEL / APLIKASI LAIN) */}
         <View style={[styles.sectionContainer, isDesktop && styles.sectionContainerDesktop]}>
-          <Text style={styles.sectionEyebrow}>PERBANDINGAN NYATA</Text>
           <Text style={[styles.sectionHeading, isDesktop && styles.sectionHeadingDesktop]}>
             Kenapa Mencatat Keuangan Selalu Malas & Berhenti?
           </Text>
@@ -447,87 +455,132 @@ export function LandingPage({
             {/* Card Aplikasi Lain */}
             <View style={[styles.compareCardOld, isDesktop && styles.compareCardDesktop]}>
               <Text style={styles.compareTitleOld}>Aplikasi Keuangan Biasa & Excel</Text>
-              <Text style={styles.compareItemOld}>• Wajib daftar akun, isi nomor HP, email & password</Text>
-              <Text style={styles.compareItemOld}>• Repot buka kalkulator dulu baru catat manual satu-satu</Text>
-              <Text style={styles.compareItemOld}>• Data keuangan disimpan di server cloud pihak lain</Text>
-              <Text style={styles.compareItemOld}>• Tagihan langganan bulanan yang terus memotong saldo</Text>
+              <View style={styles.compareList}>
+                <View style={styles.compareItemRow}>
+                  <Text style={styles.compareCrossIcon}>✕</Text>
+                  <Text style={styles.compareItemOld}>Wajib daftar akun, isi nomor HP, email & password</Text>
+                </View>
+                <View style={styles.compareItemRow}>
+                  <Text style={styles.compareCrossIcon}>✕</Text>
+                  <Text style={styles.compareItemOld}>Repot buka kalkulator dulu baru catat manual satu-satu</Text>
+                </View>
+                <View style={styles.compareItemRow}>
+                  <Text style={styles.compareCrossIcon}>✕</Text>
+                  <Text style={styles.compareItemOld}>Data keuangan disimpan di server cloud pihak lain</Text>
+                </View>
+                <View style={styles.compareItemRow}>
+                  <Text style={styles.compareCrossIcon}>✕</Text>
+                  <Text style={styles.compareItemOld}>Tagihan langganan bulanan yang terus memotong saldo</Text>
+                </View>
+              </View>
             </View>
 
-            {/* Card Bocor Halus */}
-            <View style={[styles.compareCardNew, isDesktop && styles.compareCardDesktop]}>
-              <View style={styles.compareBadge}>
-                <Text style={styles.compareBadgeText}>Solusi Bocor Halus</Text>
+            {/* Card Bocor Halus - Double Bezel */}
+            <View style={[styles.compareCardNewOuter, isDesktop && styles.compareCardDesktop]}>
+              <View style={styles.compareCardNew}>
+                <View style={styles.compareBadge}>
+                  <Text style={styles.compareBadgeText}>Solusi Praktis</Text>
+                </View>
+                <Text style={styles.compareTitleNew}>Bocor Halus: Langsung Tanpa Ribet</Text>
+                <View style={styles.compareList}>
+                  <View style={styles.compareItemRow}>
+                    <Text style={styles.compareCheckIcon}>✓</Text>
+                    <Text style={styles.compareItemNew}>
+                      <Text style={styles.boldText}>Bisa di Layar HP:</Text> Pasang langsung ke layar utama HP (Android & iPhone) tanpa unduh file berat atau daftar akun.
+                    </Text>
+                  </View>
+                  <View style={styles.compareItemRow}>
+                    <Text style={styles.compareCheckIcon}>✓</Text>
+                    <Text style={styles.compareItemNew}>
+                      <Text style={styles.boldText}>Smart Kalkulator:</Text> Ketik <Text style={styles.codeText}>15rb + 35rb</Text> langsung terjumlah otomatis.
+                    </Text>
+                  </View>
+                  <View style={styles.compareItemRow}>
+                    <Text style={styles.compareCheckIcon}>✓</Text>
+                    <Text style={styles.compareItemNew}>
+                      <Text style={styles.boldText}>100% Privat Lokal:</Text> Seluruh data transaksi tersimpan aman di HP Anda sendiri.
+                    </Text>
+                  </View>
+                  <View style={styles.compareItemRow}>
+                    <Text style={styles.compareCheckIcon}>✓</Text>
+                    <Text style={styles.compareItemNew}>
+                      <Text style={styles.boldText}>Sekali Bayar Rp 15.000:</Text> Miliki seumur hidup tanpa biaya bulanan.
+                    </Text>
+                  </View>
+                </View>
               </View>
-              <Text style={styles.compareTitleNew}>Pencatat Keuangan Paling Praktis</Text>
-              <Text style={styles.compareItemNew}>
-                • <Text style={styles.boldText}>Bisa Jadi Aplikasi di HP:</Text> Pasang langsung ke layar utama HP Anda (Android & iPhone) tanpa unduh file berat, atau buka langsung di browser tanpa repot bikin akun.
-              </Text>
-              <Text style={styles.compareItemNew}>
-                • <Text style={styles.boldText}>Smart Kalkulator:</Text> Ketik `15rb + 35rb` langsung terjumlah.
-              </Text>
-              <Text style={styles.compareItemNew}>
-                • <Text style={styles.boldText}>100% Privat di HP:</Text> Data tersimpan lokal di perangkat Anda.
-              </Text>
-              <Text style={styles.compareItemNew}>
-                • <Text style={styles.boldText}>Sekali Bayar Rp 15.000:</Text> Miliki seumur hidup tanpa bulanan.
-              </Text>
             </View>
           </View>
         </View>
 
         {/* 4. PENAWARAN HARGA & ALUR PEMBELIAN (SYARAT KYC DUITKU) */}
         <View style={[styles.pricingContainer, isDesktop && styles.pricingContainerDesktop]}>
-          <View style={[styles.pricingCard, isDesktop && styles.pricingCardDesktop]}>
-            <View style={styles.pricingBadge}>
-              <Text style={styles.pricingBadgeText}>PENAWARAN RESMI</Text>
-            </View>
-            <Text style={styles.pricingTitle}>Lisensi Akses Seumur Hidup</Text>
-            <Text style={styles.pricingSubtitle}>
-              Bayar satu kali, nikmati selamanya tanpa biaya tambahan atau tagihan tersembunyi.
-            </Text>
-
-            <View style={styles.priceRow}>
-              <Text style={styles.priceStrike}>Rp 50.000</Text>
-              <View style={styles.priceMain}>
-                <Text style={styles.priceCurrency}>Rp</Text>
-                <Text style={styles.priceFigure}>15.000</Text>
-                <Text style={styles.pricePeriod}>/ sekali bayar</Text>
+          <View style={[styles.pricingOuter, isDesktop && styles.pricingOuterDesktop]}>
+            <View style={styles.pricingCard}>
+              <View style={styles.pricingBadge}>
+                <Text style={styles.pricingBadgeText}>Akses Digital Permanen</Text>
               </View>
+              <Text style={styles.pricingTitle}>Lisensi Akses Seumur Hidup</Text>
+              <Text style={styles.pricingSubtitle}>
+                Bayar satu kali, nikmati selamanya tanpa biaya tambahan atau tagihan tersembunyi.
+              </Text>
+
+              <View style={styles.priceRow}>
+                <Text style={styles.priceStrike}>Rp 50.000</Text>
+                <View style={styles.priceMain}>
+                  <Text style={styles.priceCurrency}>Rp</Text>
+                  <Text style={styles.priceFigure}>15.000</Text>
+                  <Text style={styles.pricePeriod}>/ bayar 1x selamanya</Text>
+                </View>
+              </View>
+
+              <View style={styles.featureList}>
+                {[
+                  "1 Kode lisensi digital akses seumur hidup",
+                  "Smart calculator belanjaan langsung di layar",
+                  "Pengatur batas sisa jatah belanja harian",
+                  "Rekap bulanan otomatis & grafik pengeluaran",
+                  "Kunci tambahan dengan PIN keamanan privat",
+                  "Bisa dipasang langsung di layar HP (Android & iPhone)",
+                  "Bantuan customer service resmi via WhatsApp",
+                ].map((feat, idx) => (
+                  <View key={idx} style={styles.featureItemRow}>
+                    <View style={styles.featureCheckBadge}>
+                      <Text style={styles.featureCheckMark}>✓</Text>
+                    </View>
+                    <Text style={styles.featureLine}>{feat}</Text>
+                  </View>
+                ))}
+              </View>
+
+              {/* Tombol Aksi Utama Pembelian dengan Button-in-Button Trailing Arrow */}
+              <TouchableOpacity
+                style={styles.pricingBuyBtn}
+                onPress={handleOpenBuy}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel="Beli Lisensi Sekarang Rp 15.000"
+              >
+                <View style={styles.pricingBtnContent}>
+                  <Text style={styles.pricingBuyBtnText}>Beli Lisensi Sekarang — Rp 15.000</Text>
+                  <View style={styles.pricingBtnIconCircle}>
+                    <Text style={styles.pricingBtnArrow}>→</Text>
+                  </View>
+                </View>
+              </TouchableOpacity>
+
+              <Text style={styles.paymentMethods}>
+                Didukung QRIS (BCA, Mandiri, BRI, BNI, GoPay, OVO, Dana, ShopeePay) & Transfer Bank
+              </Text>
+              <Text style={styles.paymentInstant}>
+                Kode lisensi langsung diberikan otomatis setelah pembayaran berhasil.
+              </Text>
             </View>
-
-            <View style={styles.featureList}>
-              <Text style={styles.featureLine}>• 1 Kode Lisensi Digital Akses Selamanya</Text>
-              <Text style={styles.featureLine}>• Smart Calculator Belanjaan Langsung</Text>
-              <Text style={styles.featureLine}>• Pengatur Batas Sisa Jatah Belanja Harian</Text>
-              <Text style={styles.featureLine}>• Rekap Bulanan Otomatis & Grafik Pengeluaran</Text>
-              <Text style={styles.featureLine}>• Kunci Tambahan dengan PIN Keamanan</Text>
-              <Text style={styles.featureLine}>• Bisa Dipasang Langsung di Layar HP (Android & iPhone)</Text>
-              <Text style={styles.featureLine}>• Bantuan Customer Service via WhatsApp</Text>
-            </View>
-
-            {/* Tombol Aksi Utama Pembelian */}
-            <TouchableOpacity
-              style={styles.pricingBuyBtn}
-              onPress={handleOpenBuy}
-              activeOpacity={0.85}
-              accessibilityRole="button"
-              accessibilityLabel="Beli Lisensi Sekarang Rp 15.000"
-            >
-              <Text style={styles.pricingBuyBtnText}>Beli Lisensi Sekarang (Rp 15.000)</Text>
-            </TouchableOpacity>
-
-            <Text style={styles.paymentMethods}>
-              Didukung QRIS (BCA, Mandiri, BRI, BNI, GoPay, OVO, Dana, ShopeePay) & Transfer Bank
-            </Text>
-            <Text style={styles.paymentInstant}>
-              Kode lisensi langsung diberikan otomatis setelah pembayaran berhasil.
-            </Text>
           </View>
         </View>
 
         {/* 5. FAQ ACCORDION INTERAKTIF */}
         <View style={[styles.faqContainer, isDesktop && styles.faqContainerDesktop]}>
-          <Text style={styles.sectionEyebrow}>TANYA JAWAB</Text>
           <Text style={[styles.sectionHeading, isDesktop && styles.sectionHeadingDesktop]}>
             Pertanyaan yang Sering Ditanyakan
           </Text>
@@ -833,14 +886,36 @@ const styles = StyleSheet.create({
   mainCtaBtn: {
     backgroundColor: C.greenDark,
     paddingVertical: 14,
-    paddingHorizontal: 16,
-    borderRadius: 14,
-    alignItems: "center",
+    paddingHorizontal: 18,
+    borderRadius: 16,
     shadowColor: C.greenDark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 10,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.22,
+    shadowRadius: 12,
+    elevation: 4,
+  },
+  mainCtaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    width: "100%",
+  },
+  mainCtaTextWrap: {
+    flex: 1,
+    paddingRight: 8,
+  },
+  ctaIconCircle: {
+    width: 32,
+    height: 32,
+    borderRadius: 16,
+    backgroundColor: "rgba(255,255,255,0.14)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  ctaIconArrow: {
+    color: C.white,
+    fontSize: 16,
+    fontWeight: "900",
   },
   mainCtaTitle: {
     color: C.white,
@@ -877,18 +952,24 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 
-  /* MINI SIMULATOR */
+  /* MINI SIMULATOR - DOUBLE BEZEL */
+  miniSimOuter: {
+    backgroundColor: "#F3EDE3",
+    borderRadius: 24,
+    padding: 6,
+    borderWidth: 1,
+    borderColor: "#E5DDD1",
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 10 },
+    shadowOpacity: 0.08,
+    shadowRadius: 24,
+    elevation: 4,
+  },
   miniSimCard: {
     backgroundColor: C.white,
-    borderRadius: 20,
+    borderRadius: 18,
     padding: 16,
-    borderWidth: 1,
-    borderColor: C.border,
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 8 },
-    shadowOpacity: 0.08,
-    shadowRadius: 20,
-    elevation: 4,
     width: "100%",
   },
   miniSimHeader: {
@@ -1166,7 +1247,7 @@ const styles = StyleSheet.create({
     marginBottom: 24,
   },
   compareGrid: {
-    gap: 12,
+    gap: 14,
     width: "100%",
   },
   compareGridDesktop: {
@@ -1174,27 +1255,52 @@ const styles = StyleSheet.create({
     gap: 20,
   },
   compareCardOld: {
-    backgroundColor: C.white,
-    borderRadius: 16,
-    padding: 16,
+    backgroundColor: "#F8FAFC",
+    borderRadius: 18,
+    padding: 18,
     borderWidth: 1,
-    borderColor: C.border,
-    opacity: 0.9,
+    borderColor: "#E2E8F0",
+  },
+  compareList: {
+    gap: 10,
+  },
+  compareItemRow: {
+    flexDirection: "row",
+    alignItems: "flex-start",
+    gap: 8,
+  },
+  compareCrossIcon: {
+    fontSize: 13,
+    fontWeight: "900",
+    color: "#EF4444",
+    lineHeight: 18,
+  },
+  compareCheckIcon: {
+    fontSize: 14,
+    fontWeight: "900",
+    color: C.greenDark,
+    lineHeight: 18,
+  },
+  compareCardNewOuter: {
+    backgroundColor: "#ECFDF5",
+    borderRadius: 22,
+    padding: 4,
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
   },
   compareCardNew: {
     backgroundColor: C.white,
-    borderRadius: 16,
-    padding: 16,
-    borderWidth: 2,
-    borderColor: C.greenDark,
+    borderRadius: 18,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "#A7F3D0",
     shadowColor: C.greenDark,
-    shadowOffset: { width: 0, height: 4 },
+    shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.08,
-    shadowRadius: 12,
+    shadowRadius: 14,
   },
   compareCardDesktop: {
     flex: 1,
-    padding: 20,
   },
   compareTitleOld: {
     fontSize: 14,
@@ -1203,13 +1309,13 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingBottom: 6,
     borderBottomWidth: 1,
-    borderBottomColor: C.border,
+    borderBottomColor: "#E2E8F0",
   },
   compareItemOld: {
-    fontSize: 12,
+    fontSize: 12.5,
     color: C.muted,
     lineHeight: 18,
-    marginBottom: 6,
+    flex: 1,
   },
   compareBadge: {
     alignSelf: "flex-start",
@@ -1231,60 +1337,74 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     paddingBottom: 6,
     borderBottomWidth: 1,
-    borderBottomColor: C.border,
+    borderBottomColor: "#E2DDD6",
   },
   compareItemNew: {
     fontSize: 12.5,
     color: C.inkLight,
     lineHeight: 18,
-    marginBottom: 6,
+    flex: 1,
   },
   boldText: {
     fontWeight: "800",
     color: C.ink,
   },
+  codeText: {
+    fontWeight: "700",
+    color: C.greenDark,
+    fontFamily: Platform.select({ ios: "Menlo", default: "monospace" }),
+  },
 
   /* PRICING */
   pricingContainer: {
     width: "100%",
-    marginBottom: 28,
+    marginBottom: 32,
     alignItems: "center",
   },
   pricingContainerDesktop: {
-    marginBottom: 48,
+    marginBottom: 56,
+  },
+  pricingOuter: {
+    backgroundColor: "#F5EDE2",
+    borderRadius: 26,
+    padding: 8,
+    borderWidth: 1,
+    borderColor: "#E5DDD1",
+    width: "100%",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.08,
+    shadowRadius: 24,
+  },
+  pricingOuterDesktop: {
+    maxWidth: 640,
+    alignSelf: "center",
   },
   pricingCard: {
     backgroundColor: C.white,
     borderRadius: 20,
-    padding: 20,
-    borderWidth: 1,
-    borderColor: C.border,
+    padding: 24,
     width: "100%",
     alignItems: "center",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.08,
-    shadowRadius: 16,
   },
   pricingCardDesktop: {
-    maxWidth: 640,
     padding: 32,
   },
   pricingBadge: {
-    backgroundColor: "#FEF3C7",
+    backgroundColor: C.greenSoft,
     paddingHorizontal: 10,
-    paddingVertical: 3,
-    borderRadius: 6,
+    paddingVertical: 4,
+    borderRadius: 8,
     marginBottom: 8,
   },
   pricingBadgeText: {
-    color: "#92400E",
-    fontSize: 10,
+    color: C.greenDark,
+    fontSize: 10.5,
     fontWeight: "800",
     letterSpacing: 0.5,
   },
   pricingTitle: {
-    fontSize: 19,
+    fontSize: 20,
     fontWeight: "900",
     color: C.ink,
     textAlign: "center",
@@ -1293,8 +1413,8 @@ const styles = StyleSheet.create({
     fontSize: 12.5,
     color: C.muted,
     textAlign: "center",
-    marginTop: 2,
-    marginBottom: 14,
+    marginTop: 4,
+    marginBottom: 16,
   },
   priceRow: {
     alignItems: "center",
@@ -1328,26 +1448,73 @@ const styles = StyleSheet.create({
   },
   featureList: {
     width: "100%",
-    gap: 7,
-    marginBottom: 18,
+    gap: 8,
+    marginBottom: 20,
+  },
+  featureItemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 10,
+  },
+  featureCheckBadge: {
+    width: 20,
+    height: 20,
+    borderRadius: 10,
+    backgroundColor: C.greenSoft,
+    alignItems: "center",
+    justifyContent: "center",
+    flexShrink: 0,
+  },
+  featureCheckMark: {
+    fontSize: 12,
+    fontWeight: "900",
+    color: C.greenDark,
+    lineHeight: 14,
   },
   featureLine: {
     fontSize: 12.5,
     color: C.inkLight,
     lineHeight: 18,
+    flex: 1,
   },
   pricingBuyBtn: {
     width: "100%",
     backgroundColor: C.greenDark,
     paddingVertical: 14,
-    borderRadius: 12,
+    paddingHorizontal: 16,
+    borderRadius: 14,
     alignItems: "center",
     marginBottom: 12,
+    shadowColor: C.greenDark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 3,
+  },
+  pricingBtnContent: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: 10,
+    width: "100%",
   },
   pricingBuyBtnText: {
     color: C.white,
     fontSize: 15,
     fontWeight: "800",
+  },
+  pricingBtnIconCircle: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: "rgba(255,255,255,0.18)",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  pricingBtnArrow: {
+    color: C.white,
+    fontSize: 15,
+    fontWeight: "900",
   },
   paymentMethods: {
     fontSize: 11,
