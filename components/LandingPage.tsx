@@ -263,15 +263,8 @@ export function LandingPage({
                 accessibilityRole="button"
                 accessibilityLabel="Beli Akses Seumur Hidup Rp 15.000"
               >
-                <View style={styles.mainCtaRow}>
-                  <View style={styles.mainCtaTextWrap}>
-                    <Text style={styles.mainCtaTitle}>Beli Akses Seumur Hidup — Rp 15.000</Text>
-                    <Text style={styles.mainCtaSub}>Bayar 1x Miliki Selamanya • Tanpa Biaya Bulanan</Text>
-                  </View>
-                  <View style={styles.ctaIconCircle}>
-                    <Text style={styles.ctaIconArrow}>→</Text>
-                  </View>
-                </View>
+                <Text style={styles.mainCtaTitle}>Beli Akses Seumur Hidup — Rp 15.000</Text>
+                <Text style={styles.mainCtaSub}>Bayar 1x Miliki Selamanya • Tanpa Biaya Bulanan</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
@@ -555,7 +548,7 @@ export function LandingPage({
                 ))}
               </View>
 
-              {/* Tombol Aksi Utama Pembelian dengan Button-in-Button Trailing Arrow */}
+              {/* Tombol Aksi Utama Pembelian */}
               <TouchableOpacity
                 style={styles.pricingBuyBtn}
                 onPress={handleOpenBuy}
@@ -563,12 +556,7 @@ export function LandingPage({
                 accessibilityRole="button"
                 accessibilityLabel="Beli Lisensi Sekarang Rp 15.000"
               >
-                <View style={styles.pricingBtnContent}>
-                  <Text style={styles.pricingBuyBtnText}>Beli Lisensi Sekarang — Rp 15.000</Text>
-                  <View style={styles.pricingBtnIconCircle}>
-                    <Text style={styles.pricingBtnArrow}>→</Text>
-                  </View>
-                </View>
+                <Text style={styles.pricingBuyBtnText}>Beli Lisensi Sekarang — Rp 15.000</Text>
               </TouchableOpacity>
 
               <Text style={styles.paymentMethods}>
@@ -863,48 +851,30 @@ const styles = StyleSheet.create({
   mainCtaBtn: {
     backgroundColor: C.greenDark,
     paddingVertical: 14,
-    paddingHorizontal: 18,
-    borderRadius: 16,
-    shadowColor: C.greenDark,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.22,
-    shadowRadius: 12,
-    elevation: 4,
-  },
-  mainCtaRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "space-between",
-    width: "100%",
-  },
-  mainCtaTextWrap: {
-    flex: 1,
-    paddingRight: 8,
-  },
-  ctaIconCircle: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: "rgba(255,255,255,0.14)",
+    paddingHorizontal: 16,
+    borderRadius: 14,
     alignItems: "center",
     justifyContent: "center",
-  },
-  ctaIconArrow: {
-    color: C.white,
-    fontSize: 16,
-    fontWeight: "900",
+    width: "100%",
+    shadowColor: C.greenDark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.18,
+    shadowRadius: 10,
+    elevation: 3,
   },
   mainCtaTitle: {
     color: C.white,
     fontSize: 15,
     fontWeight: "800",
     letterSpacing: -0.2,
+    textAlign: "center",
   },
   mainCtaSub: {
     color: "#A7F3D0",
     fontSize: 11,
     fontWeight: "600",
-    marginTop: 2,
+    marginTop: 3,
+    textAlign: "center",
   },
   secondaryCtaBtn: {
     backgroundColor: C.white,
@@ -1478,6 +1448,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
     borderRadius: 14,
     alignItems: "center",
+    justifyContent: "center",
     marginBottom: 12,
     shadowColor: C.greenDark,
     shadowOffset: { width: 0, height: 4 },
@@ -1485,30 +1456,11 @@ const styles = StyleSheet.create({
     shadowRadius: 10,
     elevation: 3,
   },
-  pricingBtnContent: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: 10,
-    width: "100%",
-  },
   pricingBuyBtnText: {
     color: C.white,
     fontSize: 15,
     fontWeight: "800",
-  },
-  pricingBtnIconCircle: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: "rgba(255,255,255,0.18)",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  pricingBtnArrow: {
-    color: C.white,
-    fontSize: 15,
-    fontWeight: "900",
+    textAlign: "center",
   },
   paymentMethods: {
     fontSize: 11,
