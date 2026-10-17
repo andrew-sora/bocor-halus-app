@@ -10,6 +10,7 @@ import {
   Alert,
   StyleSheet,
   ActivityIndicator,
+  Modal,
 } from "react-native";
 import DateTimePicker, {
   type DateTimePickerEvent,
@@ -45,6 +46,7 @@ export default function TambahScreen({ isTab = false }: { isTab?: boolean } = {}
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(isEdit);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
 
   const selectionRef = useRef<{ start: number; end: number }>({ start: 0, end: 0 });
   const [controlledSelection, setControlledSelection] = useState<
@@ -153,28 +155,32 @@ export default function TambahScreen({ isTab = false }: { isTab?: boolean } = {}
   };
 
   const handleDelete = () => {
-    Alert.alert(strings.hapusJudul, strings.hapusPesan, [
-      { text: strings.batal, style: "cancel" },
-      {
-        text: strings.hapusKonfirmasi,
-        style: "destructive",
-        onPress: async () => {
-          if (!id) return;
-          try {
-            await deleteExpense(id);
-            if (isTab) {
-              setInputValue("");
-              setNote("");
-              router.replace("/(tabs)");
-            } else {
-              dismissModal();
-            }
-          } catch (err) {
-            Alert.alert("Gagal menghapus", String(err));
-          }
-        },
-      },
-    ]);
+    setShowDeleteConfirm(true);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!id) return;
+    try {
+      setSaving(true);
+      await deleteExpense(id);
+      setShowDeleteConfirm(false);
+      if (isTab) {
+        setInputValue("");
+        setNote("");
+        router.replace("/(tabs)");
+      } else {
+        dismissModal();
+      }
+    } catch (err) {
+      setShowDeleteConfirm(false);
+      if (Platform.OS === "web" && typeof window !== "undefined") {
+        window.alert("Gagal menghapus: " + String(err));
+      } else {
+        Alert.alert("Gagal menghapus", String(err));
+      }
+    } finally {
+      setSaving(false);
+    }
   };
 
   if (loading) {
@@ -365,6 +371,46 @@ export default function TambahScreen({ isTab = false }: { isTab?: boolean } = {}
           </View>
         </ScrollView>
       </KeyboardAvoidingView>
+
+      {/* Modal Konfirmasi Hapus Cross-Platform (Web & Native) */}
+      <Modal
+        visible={showDeleteConfirm}
+        transparent
+        animationType="fade"
+        onRequestClose={() => setShowDeleteConfirm(false)}
+      >
+        <View style={styles.confirmOverlay}>
+          <View style={styles.confirmCard}>
+            <View style={styles.confirmIconCircle}>
+              <Text style={styles.confirmIconText}>🗑️</Text>
+            </View>
+            <Text style={styles.confirmTitle}>{strings.hapusJudul}</Text>
+            <Text style={styles.confirmDesc}>{strings.hapusPesan}</Text>
+
+            <View style={styles.confirmActionRow}>
+              <TouchableOpacity
+                style={styles.confirmCancelBtn}
+                onPress={() => setShowDeleteConfirm(false)}
+                disabled={saving}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.confirmCancelText}>{strings.batal}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.confirmDeleteBtn, saving && { opacity: 0.7 }]}
+                onPress={handleConfirmDelete}
+                disabled={saving}
+                activeOpacity={0.7}
+              >
+                <Text style={styles.confirmDeleteText}>
+                  {saving ? "Menghapus..." : strings.hapusKonfirmasi}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 }
@@ -519,4 +565,86 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   deleteBtnText: { color: C.danger, fontSize: 15, fontWeight: "700" },
+  confirmOverlay: {
+    flex: 1,
+    backgroundColor: "rgba(15, 23, 42, 0.6)",
+    justifyContent: "center",
+    alignItems: "center",
+    padding: 20,
+  },
+  confirmCard: {
+    backgroundColor: C.white,
+    borderRadius: 20,
+    padding: 22,
+    width: "100%",
+    maxWidth: 340,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: C.border,
+    ...Platform.select({
+      web: { boxShadow: "0 10px 25px rgba(0,0,0,0.15)" },
+      default: { elevation: 5 },
+    }),
+  },
+  confirmIconCircle: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
+    backgroundColor: C.dangerBg,
+    alignItems: "center",
+    justifyContent: "center",
+    marginBottom: 12,
+  },
+  confirmIconText: {
+    fontSize: 22,
+  },
+  confirmTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: C.ink,
+    textAlign: "center",
+    marginBottom: 6,
+  },
+  confirmDesc: {
+    fontSize: 13,
+    color: C.muted,
+    textAlign: "center",
+    lineHeight: 18,
+    marginBottom: 18,
+  },
+  confirmActionRow: {
+    flexDirection: "row",
+    gap: 10,
+    width: "100%",
+  },
+  confirmCancelBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: C.cream,
+    alignItems: "center",
+    justifyContent: "center",
+    borderWidth: 1,
+    borderColor: C.border,
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
+  },
+  confirmCancelText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: C.inkLight,
+  },
+  confirmDeleteBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    backgroundColor: C.danger,
+    alignItems: "center",
+    justifyContent: "center",
+    ...Platform.select({ web: { cursor: "pointer" as any } }),
+  },
+  confirmDeleteText: {
+    fontSize: 13,
+    fontWeight: "700",
+    color: C.white,
+  },
 });
