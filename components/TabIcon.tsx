@@ -3,7 +3,7 @@ import { Platform } from "react-native";
 import { SymbolView } from "expo-symbols";
 
 interface TabIconProps {
-  name: "beranda" | "rekap" | "pengaturan";
+  name: "beranda" | "rekap" | "pengaturan" | "catat";
   color: any;
   size?: number;
 }
@@ -70,6 +70,24 @@ export function TabIcon({ name, color, size = 24 }: TabIconProps) {
         </svg>
       );
     }
+    if (name === "catat") {
+      return (
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={color}
+          strokeWidth="2.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ display: "block" }}
+        >
+          <line x1="12" y1="5" x2="12" y2="19" />
+          <line x1="5" y1="12" x2="19" y2="12" />
+        </svg>
+      );
+    }
   }
 
   // Pada platform iOS Native / Android Native: fallback ke SymbolView
@@ -77,6 +95,20 @@ export function TabIcon({ name, color, size = 24 }: TabIconProps) {
     return (
       <SymbolView
         name={{ ios: "house.fill", android: "home", web: "home" }}
+        tintColor={color}
+        size={size}
+      />
+    );
+  }
+
+  if (name === "catat") {
+    return (
+      <SymbolView
+        name={{
+          ios: "plus",
+          android: "add",
+          web: "add",
+        }}
         tintColor={color}
         size={size}
       />

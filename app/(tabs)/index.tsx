@@ -159,21 +159,8 @@ export default function BerandaScreen() {
             <Text style={styles.emptySubtitle}>{strings.belumAdaDataDetail}</Text>
           </View>
         }
-        contentContainerStyle={{ paddingBottom: insets.bottom + 96 }}
+        contentContainerStyle={{ paddingBottom: insets.bottom + 32 }}
       />
-
-      {/* Tombol utama */}
-      <View style={[styles.fabContainer, { bottom: insets.bottom + 16 }]}>
-        <TouchableOpacity
-          style={styles.fab}
-          onPress={() => router.push("/tambah")}
-          activeOpacity={0.85}
-          accessibilityRole="button"
-          accessibilityLabel={strings.catatPengeluaran}
-        >
-          <Text style={styles.fabText}>+ {strings.catatPengeluaran}</Text>
-        </TouchableOpacity>
-      </View>
 
       <BudgetOnboardingModal
         visible={showOnboarding}
@@ -250,27 +237,5 @@ const styles = StyleSheet.create({
     color: C.muted,
     textAlign: "center",
     lineHeight: 20,
-  },
-  fabContainer: {
-    position: "absolute",
-    left: 16,
-    right: 16,
-  },
-  fab: {
-    backgroundColor: C.greenDark,
-    borderRadius: 18,
-    paddingVertical: 16,
-    alignItems: "center",
-    shadowColor: C.greenDark,
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.35,
-    shadowRadius: 12,
-    elevation: 8,
-  },
-  fabText: {
-    color: C.white,
-    fontSize: 16,
-    fontWeight: "700",
-    letterSpacing: 0.3,
   },
 });

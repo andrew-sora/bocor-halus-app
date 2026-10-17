@@ -1,11 +1,12 @@
 import { View, Text, StyleSheet, Platform } from "react-native";
-import { Tabs } from "expo-router";
+import { Tabs, useRouter } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TabIcon } from "@/components/TabIcon";
 import { strings } from "@/constants/strings";
 import { C } from "@/constants/Colors";
 
 export default function TabLayout() {
+  const router = useRouter();
   const insets = useSafeAreaInsets();
 
   // Deteksi lingkungan device secara dinamis (iPhone, Android, Desktop)
@@ -47,6 +48,7 @@ export default function TabLayout() {
           height: tabHeight,
           paddingBottom: bottomPadding,
           paddingTop: 4,
+          overflow: "visible",
         },
         tabBarItemStyle: {
           overflow: "visible",
@@ -75,6 +77,30 @@ export default function TabLayout() {
           tabBarIcon: ({ color }) => (
             <TabIcon name="beranda" color={color} size={22} />
           ),
+        }}
+      />
+      <Tabs.Screen
+        name="catat"
+        options={{
+          title: "Catat",
+          tabBarLabel: "Catat",
+          tabBarIcon: () => (
+            <View style={styles.centerFabCircle}>
+              <TabIcon name="catat" color="#FFFFFF" size={20} />
+            </View>
+          ),
+          tabBarLabelStyle: {
+            fontSize: 11,
+            fontWeight: "700",
+            color: C.greenDark,
+            marginTop: 2,
+          },
+        }}
+        listeners={{
+          tabPress: (e) => {
+            e.preventDefault();
+            router.push("/tambah");
+          },
         }}
       />
       <Tabs.Screen
@@ -116,5 +142,19 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "800",
     color: C.greenDark,
+  },
+  centerFabCircle: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: C.greenDark,
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: -8,
+    shadowColor: C.greenDark,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.35,
+    shadowRadius: 8,
+    elevation: 6,
   },
 });
