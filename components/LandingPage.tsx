@@ -493,13 +493,25 @@ export function LandingPage({
                   <View style={styles.compareItemRow}>
                     <Text style={styles.compareCheckIcon}>✓</Text>
                     <Text style={styles.compareItemNew}>
-                      <Text style={styles.boldText}>100% Privat Lokal:</Text> Seluruh data transaksi tersimpan aman di HP Anda sendiri.
+                      <Text style={styles.boldText}>📅 Kalender Pengeluaran:</Text> Pantau tanggal boros & rayakan hari hemat dalam kalender visual.
                     </Text>
                   </View>
                   <View style={styles.compareItemRow}>
                     <Text style={styles.compareCheckIcon}>✓</Text>
                     <Text style={styles.compareItemNew}>
-                      <Text style={styles.boldText}>Sekali Bayar Rp 15.000:</Text> Miliki seumur hidup tanpa biaya bulanan.
+                      <Text style={styles.boldText}>🐷 Celengan Target Impian:</Text> Alihkan uang jajan yang dihemat ke barang impian dengan 1-klik (+10rb, +20rb, +50rb).
+                    </Text>
+                  </View>
+                  <View style={styles.compareItemRow}>
+                    <Text style={styles.compareCheckIcon}>✓</Text>
+                    <Text style={styles.compareItemNew}>
+                      <Text style={styles.boldText}>100% Privat Lokal:</Text> Seluruh data transaksi tersimpan aman di HP Anda sendiri tanpa bikin akun.
+                    </Text>
+                  </View>
+                  <View style={styles.compareItemRow}>
+                    <Text style={styles.compareCheckIcon}>✓</Text>
+                    <Text style={styles.compareItemNew}>
+                      <Text style={styles.boldText}>Sekali Bayar Rp 15.000:</Text> Miliki seumur hidup tanpa biaya langganan bulanan.
                     </Text>
                   </View>
                 </View>
@@ -508,7 +520,86 @@ export function LandingPage({
           </View>
         </View>
 
-        {/* 4. PENAWARAN HARGA & ALUR PEMBELIAN (SYARAT KYC DUITKU) */}
+        {/* 4. SHOWCASE FITUR UNGGULAN (KALENDER VISUAL & CELENGAN TARGET) */}
+        <View style={[styles.sectionContainer, isDesktop && styles.sectionContainerDesktop]}>
+          <Text style={[styles.sectionHeading, isDesktop && styles.sectionHeadingDesktop]}>
+            Instrumen Cerdas untuk Menghentikan Bocor Halus
+          </Text>
+
+          <View style={[styles.spotlightGrid, isDesktop && styles.spotlightGridDesktop]}>
+            {/* Card 1: Kalender Pengeluaran Visual */}
+            <View style={[styles.spotlightCard, isDesktop && styles.spotlightCardDesktop]}>
+              <View style={styles.spotlightHeader}>
+                <View style={styles.spotlightEmojiBox}>
+                  <Text style={styles.spotlightEmoji}>📅</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.spotlightTitle}>Kalender Pengeluaran Visual</Text>
+                  <Text style={styles.spotlightSub}>Peta Heatmap Transaksi Harian</Text>
+                </View>
+              </View>
+              <Text style={styles.spotlightDesc}>
+                Lihat langsung tanggal berapa saja belanja membengkak, hari mana terdeteksi jajan bocor halus (&lt;50rb), dan rayakan hari hemat tanpa belanja (No-Spend Day).
+              </Text>
+
+              {/* Mini Calendar Visual Box */}
+              <View style={styles.miniCalBox}>
+                <View style={styles.miniCalHeaderRow}>
+                  {["Sen", "Sel", "Rab", "Kam", "Jum", "Sab", "Min"].map((d) => (
+                    <Text key={d} style={styles.miniCalHeadCell}>{d}</Text>
+                  ))}
+                </View>
+                <View style={styles.miniCalGridRow}>
+                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>10</Text><View style={styles.miniCalPillSafe}><Text style={styles.miniCalPillTextSafe}>25k</Text></View></View>
+                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>11</Text><Text style={styles.miniCalStar}>✨</Text></View>
+                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>12</Text><View style={styles.miniCalPillBocor}><Text style={styles.miniCalPillTextBocor}>💧 45k</Text></View></View>
+                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>13</Text><Text style={styles.miniCalStar}>✨</Text></View>
+                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>14</Text><View style={styles.miniCalPillSafe}><Text style={styles.miniCalPillTextSafe}>35k</Text></View></View>
+                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>15</Text><View style={styles.miniCalPillHeavy}><Text style={styles.miniCalPillTextHeavy}>180k</Text></View></View>
+                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>16</Text><Text style={styles.miniCalStar}>✨</Text></View>
+                </View>
+              </View>
+            </View>
+
+            {/* Card 2: Celengan Target Impian */}
+            <View style={[styles.spotlightCard, isDesktop && styles.spotlightCardDesktop]}>
+              <View style={styles.spotlightHeader}>
+                <View style={styles.spotlightEmojiBox}>
+                  <Text style={styles.spotlightEmoji}>🐷</Text>
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.spotlightTitle}>Celengan Target Impian</Text>
+                  <Text style={styles.spotlightSub}>Alihkan Uang Jajan ke Tabungan</Text>
+                </View>
+              </View>
+              <Text style={styles.spotlightDesc}>
+                Berhasil menahan godaan jajan impulsif? Cukup 1 klik tombol cepat (+10rb, +20rb, +50rb), uang tersebut langsung terkumpul rapi di tabungan barang impian Anda.
+              </Text>
+
+              {/* Mini Saving Visual Box */}
+              <View style={styles.miniSavingBox}>
+                <View style={styles.miniSavingTopRow}>
+                  <Text style={styles.miniSavingGoalName}>👟 Beli Sepatu Olahraga</Text>
+                  <Text style={styles.miniSavingPct}>70%</Text>
+                </View>
+                <View style={styles.miniSavingTrack}>
+                  <View style={[styles.miniSavingBar, { width: "70%" }]} />
+                </View>
+                <View style={styles.miniSavingAmountRow}>
+                  <Text style={styles.miniSavingCurAmt}>Rp 350.000</Text>
+                  <Text style={styles.miniSavingTargetAmt}>/ Rp 500.000</Text>
+                </View>
+                <View style={styles.miniSavingBtnRow}>
+                  <View style={styles.miniSavingChip}><Text style={styles.miniSavingChipText}>+10rb</Text></View>
+                  <View style={styles.miniSavingChip}><Text style={styles.miniSavingChipText}>+20rb</Text></View>
+                  <View style={styles.miniSavingChip}><Text style={styles.miniSavingChipText}>+50rb</Text></View>
+                </View>
+              </View>
+            </View>
+          </View>
+        </View>
+
+        {/* 5. PENAWARAN HARGA & ALUR PEMBELIAN (SYARAT KYC DUITKU) */}
         <View style={[styles.pricingContainer, isDesktop && styles.pricingContainerDesktop]}>
           <View style={[styles.pricingOuter, isDesktop && styles.pricingOuterDesktop]}>
             <View style={styles.pricingCard}>
@@ -526,6 +617,8 @@ export function LandingPage({
                   "Smart Calculator: Ketik belanjaan pasar langsung terjumlah",
                   "Detektor Otomatis Transaksi Bocor Halus (<50rb)",
                   "Pantau Batas & Sisa Jatah Belanja Harian Real-time",
+                  "📅 Kalender Pengeluaran Visual: Deteksi tanggal jebol & hari hemat",
+                  "🐷 Celengan Target Impian: Alihkan sisa jajan ke tabungan 1-klik",
                   "Rekap Pengeluaran Bulanan & Grafik Kategori Otomatis",
                   "100% Bebas Iklan Pop-up yang Mengganggu",
                   "100% Privat Lokal: Data di HP Anda Tanpa Bikin Akun",
@@ -1676,5 +1769,206 @@ const styles = StyleSheet.create({
     color: C.ink,
     fontSize: 13,
     fontWeight: "700",
+  },
+  spotlightGrid: {
+    flexDirection: "column",
+    gap: 16,
+  },
+  spotlightGridDesktop: {
+    flexDirection: "row",
+    gap: 20,
+  },
+  spotlightCard: {
+    backgroundColor: C.white,
+    borderRadius: 20,
+    padding: 20,
+    borderWidth: 1,
+    borderColor: C.border,
+    flex: 1,
+    ...Platform.select({
+      web: { boxShadow: "0 4px 16px rgba(15, 23, 42, 0.05)" },
+      default: { elevation: 2 },
+    }),
+  },
+  spotlightCardDesktop: {
+    flex: 1,
+  },
+  spotlightHeader: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 12,
+    marginBottom: 10,
+  },
+  spotlightEmojiBox: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    backgroundColor: C.cream,
+    borderWidth: 1,
+    borderColor: C.border,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  spotlightEmoji: {
+    fontSize: 22,
+  },
+  spotlightTitle: {
+    fontSize: 16,
+    fontWeight: "800",
+    color: C.ink,
+    letterSpacing: -0.2,
+  },
+  spotlightSub: {
+    fontSize: 12,
+    color: C.muted,
+    marginTop: 1,
+  },
+  spotlightDesc: {
+    fontSize: 13,
+    color: C.inkLight,
+    lineHeight: 19,
+    marginBottom: 14,
+  },
+  miniCalBox: {
+    backgroundColor: C.cream,
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  miniCalHeaderRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 8,
+    paddingBottom: 6,
+    borderBottomWidth: 1,
+    borderBottomColor: C.border,
+  },
+  miniCalHeadCell: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: C.muted,
+    flex: 1,
+    textAlign: "center",
+  },
+  miniCalGridRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
+  miniCalCell: {
+    flex: 1,
+    alignItems: "center",
+    paddingVertical: 2,
+  },
+  miniCalDate: {
+    fontSize: 11,
+    fontWeight: "700",
+    color: C.ink,
+    marginBottom: 4,
+  },
+  miniCalPillSafe: {
+    backgroundColor: C.greenSoft,
+    paddingHorizontal: 4,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  miniCalPillTextSafe: {
+    fontSize: 9,
+    fontWeight: "800",
+    color: C.greenDark,
+  },
+  miniCalPillBocor: {
+    backgroundColor: C.warningBg,
+    paddingHorizontal: 3,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  miniCalPillTextBocor: {
+    fontSize: 8.5,
+    fontWeight: "800",
+    color: C.warning,
+  },
+  miniCalPillHeavy: {
+    backgroundColor: C.dangerBg,
+    paddingHorizontal: 3,
+    paddingVertical: 1,
+    borderRadius: 4,
+  },
+  miniCalPillTextHeavy: {
+    fontSize: 8.5,
+    fontWeight: "800",
+    color: C.danger,
+  },
+  miniCalStar: {
+    fontSize: 10,
+    lineHeight: 14,
+  },
+  miniSavingBox: {
+    backgroundColor: C.cream,
+    borderRadius: 14,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  miniSavingTopRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: 6,
+  },
+  miniSavingGoalName: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: C.ink,
+  },
+  miniSavingPct: {
+    fontSize: 12,
+    fontWeight: "800",
+    color: C.greenDark,
+  },
+  miniSavingTrack: {
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: C.mutedBg,
+    overflow: "hidden",
+    marginBottom: 8,
+  },
+  miniSavingBar: {
+    height: "100%",
+    backgroundColor: C.greenLight,
+    borderRadius: 4,
+  },
+  miniSavingAmountRow: {
+    flexDirection: "row",
+    alignItems: "baseline",
+    gap: 4,
+    marginBottom: 10,
+  },
+  miniSavingCurAmt: {
+    fontSize: 15,
+    fontWeight: "800",
+    color: C.greenDark,
+  },
+  miniSavingTargetAmt: {
+    fontSize: 12,
+    color: C.muted,
+  },
+  miniSavingBtnRow: {
+    flexDirection: "row",
+    gap: 6,
+  },
+  miniSavingChip: {
+    flex: 1,
+    backgroundColor: C.greenSoft,
+    paddingVertical: 5,
+    borderRadius: 8,
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "rgba(16, 185, 129, 0.3)",
+  },
+  miniSavingChipText: {
+    fontSize: 11,
+    fontWeight: "800",
+    color: C.greenDark,
   },
 });
