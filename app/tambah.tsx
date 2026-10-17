@@ -32,7 +32,7 @@ import { addPresetAmount, insertChar, backspaceChar } from "@/lib/expenseInput";
 
 const PRESET_AMOUNTS = [10000, 20000, 50000, 100000];
 
-export default function TambahScreen() {
+export default function TambahScreen({ isTab = false }: { isTab?: boolean } = {}) {
   const router = useRouter();
   const insets = useSafeAreaInsets();
   const { id, defaultDate } = useLocalSearchParams<{ id?: string; defaultDate?: string }>();
@@ -137,7 +137,14 @@ export default function TambahScreen() {
           spentAt,
         });
       }
-      dismissModal();
+      if (isTab) {
+        setInputValue("");
+        setNote("");
+        setCategory("lainnya");
+        router.replace("/(tabs)");
+      } else {
+        dismissModal();
+      }
     } catch (err) {
       Alert.alert("Gagal menyimpan", String(err));
     } finally {
@@ -155,7 +162,13 @@ export default function TambahScreen() {
           if (!id) return;
           try {
             await deleteExpense(id);
-            dismissModal();
+            if (isTab) {
+              setInputValue("");
+              setNote("");
+              router.replace("/(tabs)");
+            } else {
+              dismissModal();
+            }
           } catch (err) {
             Alert.alert("Gagal menghapus", String(err));
           }
@@ -173,22 +186,24 @@ export default function TambahScreen() {
   }
 
   return (
-    <View style={[styles.container, { paddingTop: insets.top }]}>
+    <View style={[styles.container, !isTab && { paddingTop: insets.top }]}>
       {/* Header modal */}
-      <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.headerBtn}
-          onPress={dismissModal}
-          accessibilityRole="button"
-          accessibilityLabel="Tutup"
-        >
-          <Text style={styles.headerBtnText}>{strings.batal}</Text>
-        </TouchableOpacity>
-        <Text style={styles.headerTitle}>
-          {isEdit ? strings.edit : strings.catatPengeluaran}
-        </Text>
-        <View style={styles.headerBtn} />
-      </View>
+      {!isTab && (
+        <View style={styles.header}>
+          <TouchableOpacity
+            style={styles.headerBtn}
+            onPress={dismissModal}
+            accessibilityRole="button"
+            accessibilityLabel="Tutup"
+          >
+            <Text style={styles.headerBtnText}>{strings.batal}</Text>
+          </TouchableOpacity>
+          <Text style={styles.headerTitle}>
+            {isEdit ? strings.edit : strings.catatPengeluaran}
+          </Text>
+          <View style={styles.headerBtn} />
+        </View>
+      )}
 
       <KeyboardAvoidingView
         style={styles.flex}
@@ -198,7 +213,7 @@ export default function TambahScreen() {
           style={styles.flex}
           contentContainerStyle={[
             styles.scrollContent,
-            { paddingBottom: insets.bottom + 16 },
+            { paddingBottom: insets.bottom + (isTab ? 32 : 16) },
           ]}
           keyboardShouldPersistTaps="handled"
         >

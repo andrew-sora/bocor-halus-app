@@ -1,12 +1,11 @@
 import { View, Text, StyleSheet, Platform } from "react-native";
-import { Tabs, useRouter } from "expo-router";
+import { Tabs } from "expo-router";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { TabIcon } from "@/components/TabIcon";
 import { strings } from "@/constants/strings";
 import { C } from "@/constants/Colors";
 
 export default function TabLayout() {
-  const router = useRouter();
   const insets = useSafeAreaInsets();
 
   // Deteksi lingkungan device secara dinamis (iPhone, Android, Desktop)
@@ -47,11 +46,9 @@ export default function TabLayout() {
           borderTopWidth: 1,
           height: tabHeight,
           paddingBottom: bottomPadding,
-          paddingTop: 4,
-          overflow: "visible",
+          paddingTop: 6,
         },
         tabBarItemStyle: {
-          overflow: "visible",
           paddingVertical: 2,
         },
         tabBarLabelStyle: {
@@ -74,33 +71,19 @@ export default function TabLayout() {
               </View>
             </View>
           ),
-          tabBarIcon: ({ color }) => (
-            <TabIcon name="beranda" color={color} size={22} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name="beranda" color={color} size={22} focused={focused} />
           ),
         }}
       />
       <Tabs.Screen
         name="catat"
         options={{
-          title: "Catat",
-          tabBarLabel: "Catat",
-          tabBarIcon: () => (
-            <View style={styles.centerFabCircle}>
-              <TabIcon name="catat" color="#FFFFFF" size={20} />
-            </View>
+          title: strings.tabCatat,
+          headerTitle: strings.catatPengeluaran,
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name="catat" color={color} size={22} focused={focused} />
           ),
-          tabBarLabelStyle: {
-            fontSize: 11,
-            fontWeight: "700",
-            color: C.greenDark,
-            marginTop: 2,
-          },
-        }}
-        listeners={{
-          tabPress: (e) => {
-            e.preventDefault();
-            router.push("/tambah");
-          },
         }}
       />
       <Tabs.Screen
@@ -108,8 +91,8 @@ export default function TabLayout() {
         options={{
           title: strings.tabRekap,
           headerTitle: strings.rekap,
-          tabBarIcon: ({ color }) => (
-            <TabIcon name="rekap" color={color} size={22} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name="rekap" color={color} size={22} focused={focused} />
           ),
         }}
       />
@@ -118,8 +101,8 @@ export default function TabLayout() {
         options={{
           title: strings.tabPengaturan,
           headerTitle: strings.tabPengaturan,
-          tabBarIcon: ({ color }) => (
-            <TabIcon name="pengaturan" color={color} size={22} />
+          tabBarIcon: ({ color, focused }) => (
+            <TabIcon name="pengaturan" color={color} size={22} focused={focused} />
           ),
         }}
       />
@@ -142,19 +125,5 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: "800",
     color: C.greenDark,
-  },
-  centerFabCircle: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    backgroundColor: C.greenDark,
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: -8,
-    shadowColor: C.greenDark,
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.35,
-    shadowRadius: 8,
-    elevation: 6,
   },
 });

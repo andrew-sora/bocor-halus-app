@@ -6,9 +6,12 @@ interface TabIconProps {
   name: "beranda" | "rekap" | "pengaturan" | "catat";
   color: any;
   size?: number;
+  focused?: boolean;
 }
 
-export function TabIcon({ name, color, size = 24 }: TabIconProps) {
+export function TabIcon({ name, color, size = 22, focused = false }: TabIconProps) {
+  const strokeWidth = focused ? "2.5" : "2.0";
+
   // Di Web: Gunakan inline SVG murni yang 100% tajam, ringan, dan tidak pernah rusak/tofu
   if (Platform.OS === "web") {
     if (name === "beranda") {
@@ -19,12 +22,32 @@ export function TabIcon({ name, color, size = 24 }: TabIconProps) {
           viewBox="0 0 24 24"
           fill="none"
           stroke={color}
-          strokeWidth="2.2"
+          strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{ display: "block" }}
         >
           <path d="M3 9.5L12 3l9 6.5v11a1 1 0 0 1-1 1h-5v-6h-6v6H4a1 1 0 0 1-1-1v-11z" />
+        </svg>
+      );
+    }
+
+    if (name === "catat") {
+      return (
+        <svg
+          width={size}
+          height={size}
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={color}
+          strokeWidth={strokeWidth}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          style={{ display: "block" }}
+        >
+          <circle cx="12" cy="12" r="9" />
+          <line x1="12" y1="8" x2="12" y2="16" />
+          <line x1="8" y1="12" x2="16" y2="12" />
         </svg>
       );
     }
@@ -37,7 +60,7 @@ export function TabIcon({ name, color, size = 24 }: TabIconProps) {
           viewBox="0 0 24 24"
           fill="none"
           stroke={color}
-          strokeWidth="2.2"
+          strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{ display: "block" }}
@@ -60,7 +83,7 @@ export function TabIcon({ name, color, size = 24 }: TabIconProps) {
           viewBox="0 0 24 24"
           fill="none"
           stroke={color}
-          strokeWidth="2.2"
+          strokeWidth={strokeWidth}
           strokeLinecap="round"
           strokeLinejoin="round"
           style={{ display: "block" }}
@@ -70,31 +93,13 @@ export function TabIcon({ name, color, size = 24 }: TabIconProps) {
         </svg>
       );
     }
-    if (name === "catat") {
-      return (
-        <svg
-          width={size}
-          height={size}
-          viewBox="0 0 24 24"
-          fill="none"
-          stroke={color}
-          strokeWidth="2.8"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          style={{ display: "block" }}
-        >
-          <line x1="12" y1="5" x2="12" y2="19" />
-          <line x1="5" y1="12" x2="19" y2="12" />
-        </svg>
-      );
-    }
   }
 
   // Pada platform iOS Native / Android Native: fallback ke SymbolView
   if (name === "beranda") {
     return (
       <SymbolView
-        name={{ ios: "house.fill", android: "home", web: "home" }}
+        name={{ ios: focused ? "house.fill" : "house", android: "home", web: "home" }}
         tintColor={color}
         size={size}
       />
@@ -105,9 +110,9 @@ export function TabIcon({ name, color, size = 24 }: TabIconProps) {
     return (
       <SymbolView
         name={{
-          ios: "plus",
-          android: "add",
-          web: "add",
+          ios: focused ? "plus.circle.fill" : "plus.circle",
+          android: "add_circle_outline",
+          web: "add_circle_outline",
         }}
         tintColor={color}
         size={size}
@@ -119,7 +124,7 @@ export function TabIcon({ name, color, size = 24 }: TabIconProps) {
     return (
       <SymbolView
         name={{
-          ios: "list.bullet.rectangle",
+          ios: focused ? "list.bullet.rectangle.portrait.fill" : "list.bullet.rectangle",
           android: "list",
           web: "list",
         }}
@@ -132,7 +137,7 @@ export function TabIcon({ name, color, size = 24 }: TabIconProps) {
   return (
     <SymbolView
       name={{
-        ios: "gearshape.fill",
+        ios: focused ? "gearshape.fill" : "gearshape",
         android: "settings",
         web: "settings",
       }}

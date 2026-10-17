@@ -1,13 +1,5 @@
-import { useEffect } from "react";
-import { useRouter } from "expo-router";
-import { View } from "react-native";
+import TambahScreen from "../tambah";
 
-export default function CatatTabPlaceholder() {
-  const router = useRouter();
-
-  useEffect(() => {
-    router.replace("/tambah");
-  }, [router]);
-
-  return <View style={{ flex: 1 }} />;
+export default function CatatTabScreen() {
+  return <TambahScreen isTab />;
 }

@@ -2,6 +2,7 @@
 export const strings = {
   // Tab navigation
   tabBeranda: "Beranda",
+  tabCatat: "Catat",
   tabRekap: "Rekap",
   tabPengaturan: "Pengaturan",
 
