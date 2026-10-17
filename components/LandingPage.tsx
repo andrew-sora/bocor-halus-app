@@ -517,35 +517,49 @@ export function LandingPage({
               </View>
               <Text style={styles.pricingTitle}>Lisensi Akses Seumur Hidup</Text>
               <Text style={styles.pricingSubtitle}>
-                Bayar satu kali, nikmati selamanya tanpa biaya tambahan atau tagihan tersembunyi.
+                Semua instrumen anti bocor halus disatukan dalam satu aplikasi praktis tanpa biaya bulanan.
               </Text>
 
-              <View style={styles.priceRow}>
-                <Text style={styles.priceStrike}>Rp 50.000</Text>
+              {/* Value Stacking List (Teknik Fase 1 Kuaze) */}
+              <View style={styles.valueStackBox}>
+                {[
+                  { name: "Smart Calculator Belanja Langsung", val: "Rp 35.000" },
+                  { name: "Detektor Otomatis Transaksi Bocor Halus", val: "Rp 40.000" },
+                  { name: "Dashboard Sisa Jatah Belanja Harian", val: "Rp 35.000" },
+                  { name: "Rekap Bulanan Otomatis & Grafik Kategori", val: "Rp 40.000" },
+                  { name: "Sistem Keamanan PIN Lokal (100% Privat)", val: "Rp 25.000" },
+                  { name: "Pemasangan Layar Utama HP (Android & iOS)", val: "Rp 25.000" },
+                ].map((item, idx) => (
+                  <View key={idx} style={styles.valueStackRow}>
+                    <View style={styles.valueStackLeft}>
+                      <Text style={styles.valueStackCheck}>✓</Text>
+                      <Text style={styles.valueStackName}>{item.name}</Text>
+                    </View>
+                    <Text style={styles.valueStackVal}>{item.val}</Text>
+                  </View>
+                ))}
+
+                <View style={styles.valueStackTotalRow}>
+                  <Text style={styles.valueStackTotalLabel}>Total Nilai Kalau Terpisah:</Text>
+                  <Text style={styles.valueStackTotalStrike}>Rp 200.000</Text>
+                </View>
+              </View>
+
+              {/* Price Reveal Box */}
+              <View style={styles.priceRevealBox}>
+                <Text style={styles.priceRevealTag}>
+                  Di aplikasi lain Rp 100rb - Rp 400rb. Di Bocor Halus cukup:
+                </Text>
                 <View style={styles.priceMain}>
                   <Text style={styles.priceCurrency}>Rp</Text>
                   <Text style={styles.priceFigure}>15.000</Text>
                   <Text style={styles.pricePeriod}>/ bayar 1x selamanya</Text>
                 </View>
-              </View>
-
-              <View style={styles.featureList}>
-                {[
-                  "1 Kode lisensi digital akses seumur hidup",
-                  "Smart calculator belanjaan langsung di layar",
-                  "Pengatur batas sisa jatah belanja harian",
-                  "Rekap bulanan otomatis & grafik pengeluaran",
-                  "Kunci tambahan dengan PIN keamanan privat",
-                  "Bisa dipasang langsung di layar HP (Android & iPhone)",
-                  "Bantuan customer service resmi via WhatsApp",
-                ].map((feat, idx) => (
-                  <View key={idx} style={styles.featureItemRow}>
-                    <View style={styles.featureCheckBadge}>
-                      <Text style={styles.featureCheckMark}>✓</Text>
-                    </View>
-                    <Text style={styles.featureLine}>{feat}</Text>
-                  </View>
-                ))}
+                <View style={styles.priceCoffeeAnchor}>
+                  <Text style={styles.priceCoffeeAnchorText}>
+                    ☕ Hanya seharga 1 cup es kopi susu untuk bebas boros selamanya
+                  </Text>
+                </View>
               </View>
 
               {/* Tombol Aksi Utama Pembelian */}
@@ -1385,14 +1399,78 @@ const styles = StyleSheet.create({
     marginTop: 4,
     marginBottom: 16,
   },
-  priceRow: {
+  valueStackBox: {
+    width: "100%",
+    backgroundColor: C.cream,
+    borderRadius: 14,
+    padding: 14,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: C.border,
+    gap: 8,
+  },
+  valueStackRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "space-between",
+    paddingVertical: 3,
+  },
+  valueStackLeft: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+    flex: 1,
+    paddingRight: 8,
+  },
+  valueStackCheck: {
+    fontSize: 12,
+    fontWeight: "900",
+    color: C.greenDark,
+  },
+  valueStackName: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: C.ink,
+    flex: 1,
+  },
+  valueStackVal: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: C.muted,
+    fontVariant: ["tabular-nums"],
+  },
+  valueStackTotalRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: 6,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: C.border,
+  },
+  valueStackTotalLabel: {
+    fontSize: 12,
+    fontWeight: "700",
+    color: C.muted,
+  },
+  valueStackTotalStrike: {
+    fontSize: 13,
+    fontWeight: "800",
+    color: C.danger,
+    textDecorationLine: "line-through",
+    fontVariant: ["tabular-nums"],
+  },
+  priceRevealBox: {
     alignItems: "center",
     marginBottom: 16,
+    width: "100%",
   },
-  priceStrike: {
+  priceRevealTag: {
     fontSize: 12,
     color: C.muted,
-    textDecorationLine: "line-through",
+    fontWeight: "600",
+    marginBottom: 4,
+    textAlign: "center",
   },
   priceMain: {
     flexDirection: "row",
@@ -1415,36 +1493,18 @@ const styles = StyleSheet.create({
     color: C.muted,
     fontWeight: "600",
   },
-  featureList: {
-    width: "100%",
-    gap: 8,
-    marginBottom: 20,
-  },
-  featureItemRow: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 10,
-  },
-  featureCheckBadge: {
-    width: 20,
-    height: 20,
-    borderRadius: 10,
+  priceCoffeeAnchor: {
     backgroundColor: C.greenSoft,
-    alignItems: "center",
-    justifyContent: "center",
-    flexShrink: 0,
+    paddingHorizontal: 12,
+    paddingVertical: 5,
+    borderRadius: 20,
+    marginTop: 8,
   },
-  featureCheckMark: {
-    fontSize: 12,
-    fontWeight: "900",
+  priceCoffeeAnchorText: {
+    fontSize: 11.5,
+    fontWeight: "700",
     color: C.greenDark,
-    lineHeight: 14,
-  },
-  featureLine: {
-    fontSize: 12.5,
-    color: C.inkLight,
-    lineHeight: 18,
-    flex: 1,
+    textAlign: "center",
   },
   pricingBuyBtn: {
     width: "100%",
