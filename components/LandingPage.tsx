@@ -10,15 +10,11 @@ import {
   TextInput,
   useWindowDimensions,
 } from "react-native";
-import { C, CATEGORIES, getCategoryById } from "../constants/Colors";
+import { C } from "../constants/Colors";
 import { LegalModal, LegalTab } from "./LegalModal";
 import { LicenseGateModal } from "./LicenseGateModal";
-import { TotalCard } from "./TotalCard";
-import { TabIcon } from "./TabIcon";
-import { evalExpr } from "@/lib/evalExpr";
 import { formatRupiah } from "@/lib/format";
 import { addPresetAmount } from "@/lib/expenseInput";
-import type { Expense } from "@/lib/db";
 
 interface LandingPageProps {
   onActivated: () => void;
@@ -27,139 +23,81 @@ interface LandingPageProps {
   supportEmail?: string;
 }
 
-interface PresetScenario {
-  id: "dapur" | "bocor" | "kalap";
+type ScenarioId = "dapur" | "bocor" | "kalap";
+
+interface ScenarioPreset {
+  id: ScenarioId;
   title: string;
   badge: string;
-  tip: string;
-  expenses: Expense[];
+  formula: string;
+  itemNames: { emoji: string; label: string }[];
+  note: string;
 }
 
-const PRESET_SCENARIOS: PresetScenario[] = [
+const SCENARIO_PRESETS: ScenarioPreset[] = [
   {
     id: "dapur",
     title: "Belanja Dapur",
     badge: "Terkendali",
-    tip: "Belanja dapur terencana rapi: jatah belanja masih sangat aman di atas 80%.",
-    expenses: [
-      {
-        id: "sim-d1",
-        amount: 50000,
-        expression: "15.000 + 35.000",
-        note: "Sayur bayam & ayam potong 1kg",
-        category: "dapur",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T09:00:00.000Z",
-      },
-      {
-        id: "sim-d2",
-        amount: 25000,
-        expression: "25.000",
-        note: "Bumbu dapur & cabai rawit",
-        category: "dapur",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T09:05:00.000Z",
-      },
-      {
-        id: "sim-d3",
-        amount: 45000,
-        expression: "45.000",
-        note: "Minyak goreng & beras 2.5kg",
-        category: "dapur",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T09:10:00.000Z",
-      },
+    formula: "15000 + 35000 + 12000",
+    itemNames: [
+      { emoji: "🥬", label: "Sayur bayam & tempe" },
+      { emoji: "🍗", label: "Ayam potong 1kg" },
+      { emoji: "🌶️", label: "Cabai & bumbu dapur" },
     ],
+    note: "Belanja dapur terencana rapi: jatah belanja masih sangat aman di atas 80%.",
   },
   {
     id: "bocor",
     title: "Jajan Bocor Halus",
     badge: "5x Transaksi <50k",
-    tip: "Deteksi Bocor Halus menyala! Transaksi kecil di bawah 50rb terakumulasi signifikan tanpa Anda sadari.",
-    expenses: [
-      {
-        id: "sim-b1",
-        amount: 18000,
-        expression: "18.000",
-        note: "Es kopi susu kekinian",
-        category: "jajan",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T10:00:00.000Z",
-      },
-      {
-        id: "sim-b2",
-        amount: 12000,
-        expression: "12.000",
-        note: "Gorengan & tahu renyah",
-        category: "jajan",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T11:00:00.000Z",
-      },
-      {
-        id: "sim-b3",
-        amount: 22000,
-        expression: "22.000",
-        note: "Boba milk tea anak",
-        category: "jajan",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T13:00:00.000Z",
-      },
-      {
-        id: "sim-b4",
-        amount: 9000,
-        expression: "9.000",
-        note: "Ongkir selisih promo",
-        category: "transport",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T14:00:00.000Z",
-      },
-      {
-        id: "sim-b5",
-        amount: 2000,
-        expression: "2.000",
-        note: "Parkir minimarket",
-        category: "transport",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T15:00:00.000Z",
-      },
+    formula: "18000 + 12000 + 22000 + 9000 + 2000",
+    itemNames: [
+      { emoji: "☕", label: "Es kopi susu kekinian" },
+      { emoji: "🥟", label: "Gorengan & camilan sore" },
+      { emoji: "🧋", label: "Boba milk tea anak" },
+      { emoji: "🛵", label: "Ongkir selisih promo" },
+      { emoji: "🅿️", label: "Parkir minimarket" },
     ],
+    note: "Deteksi Bocor Halus aktif! 5 transaksi kecil di bawah 50rb memakan Rp 63.000 tanpa disadari.",
   },
   {
     id: "kalap",
     title: "Belanja Kalap",
     badge: "Over Budget",
-    tip: "Kartu berubah merah! Peringatan overbudget otomatis memberi sinyal penghematan belanja bulanan.",
-    expenses: [
-      {
-        id: "sim-k1",
-        amount: 2200000,
-        expression: "1.500.000 + 700.000",
-        note: "Belanja bulanan supermarket",
-        category: "dapur",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T10:00:00.000Z",
-      },
-      {
-        id: "sim-k2",
-        amount: 950000,
-        expression: "950.000",
-        note: "Elektronik & perabot rumah",
-        category: "lainnya",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T11:00:00.000Z",
-      },
-      {
-        id: "sim-k3",
-        amount: 150000,
-        expression: "150.000",
-        note: "Dinner akhir pekan",
-        category: "jajan",
-        spentAt: "2026-10-17",
-        createdAt: "2026-10-17T19:00:00.000Z",
-      },
+    formula: "1850000 + 1200000 + 450000",
+    itemNames: [
+      { emoji: "🛒", label: "Belanja bulanan supermarket" },
+      { emoji: "📺", label: "Elektronik & perabot rumah" },
+      { emoji: "🍽️", label: "Makan malam keluarga" },
     ],
+    note: "Overbudget! Pengeluaran melebihi batas jatah bulanan Rp 3.000.000.",
   },
 ];
+
+const parseFormulaToItems = (formulaStr: string, activePreset: ScenarioPreset) => {
+  const clean = formulaStr.replace(/[^\d+*.-]/g, "");
+  const parts = clean
+    .split("+")
+    .map((p) => {
+      const cleanNum = p.replace(/\./g, "").trim();
+      const n = parseInt(cleanNum, 10);
+      return isNaN(n) ? 0 : n;
+    })
+    .filter((n) => n > 0);
+
+  if (parts.length === 0) return [];
+
+  return parts.map((amt, idx) => {
+    const presetItem = activePreset.itemNames[idx];
+    return {
+      id: `item-${idx}`,
+      amount: amt,
+      emoji: presetItem?.emoji || "📦",
+      label: presetItem?.label || `Belanjaan #${idx + 1}`,
+    };
+  });
+};
 
 export function LandingPage({
   onActivated,
@@ -175,88 +113,65 @@ export function LandingPage({
   const [legalModalVisible, setLegalModalVisible] = useState(false);
   const [legalTab, setLegalTab] = useState<LegalTab>("privacy");
 
-  // State simulator yang 100% tersinkronisasi (Real App Architecture)
-  const [activeScenarioId, setActiveScenarioId] = useState<string>("dapur");
-  const [simExpenses, setSimExpenses] = useState<Expense[]>(PRESET_SCENARIOS[0].expenses);
-  const budgetLimit = 3000000; // Jatah Pokok Rp 3.000.000
-
-  // State form catat pengeluaran baru di simulator
-  const [simFormula, setSimFormula] = useState("15.000 + 35.000");
-  const [simNote, setSimNote] = useState("Sayur & lauk pasar");
-  const [simCategory, setSimCategory] = useState("dapur");
-  const [toastMsg, setToastMsg] = useState<string | null>(null);
-
-  // Perhitungan dinamis dari simExpenses (Single Source of Truth)
-  const monthlyTotal = useMemo(
-    () => simExpenses.reduce((sum, item) => sum + item.amount, 0),
-    [simExpenses]
-  );
-  const microExpenses = useMemo(
-    () => simExpenses.filter((item) => item.amount < 50000),
-    [simExpenses]
-  );
-  const microTotal = useMemo(
-    () => microExpenses.reduce((sum, item) => sum + item.amount, 0),
-    [microExpenses]
-  );
-  const microCount = microExpenses.length;
-
-  // Evaluasi kalkulator ekspresi langsung
-  const evalResult = evalExpr(simFormula.trim());
-  const isFormulaValid = evalResult !== null && evalResult > 0;
+  // State Mini Simulator
+  const [activeScenarioId, setActiveScenarioId] = useState<ScenarioId>("dapur");
+  const [simFormula, setSimFormula] = useState(SCENARIO_PRESETS[0].formula);
+  const budgetLimit = 3000000; // Rp 3.000.000
 
   // State FAQ Accordion
   const [expandedFaq, setExpandedFaq] = useState<number | null>(0);
 
-  const selectScenario = (sc: PresetScenario) => {
+  const activePreset =
+    SCENARIO_PRESETS.find((s) => s.id === activeScenarioId) || SCENARIO_PRESETS[0];
+
+  const parsedItems = useMemo(
+    () => parseFormulaToItems(simFormula, activePreset),
+    [simFormula, activePreset]
+  );
+
+  const totalSpent = useMemo(
+    () => parsedItems.reduce((sum, item) => sum + item.amount, 0),
+    [parsedItems]
+  );
+
+  const sisaJatah = Math.max(0, budgetLimit - totalSpent);
+  const ratio = Math.min(1.5, totalSpent / budgetLimit);
+  const percentage = Math.round((totalSpent / budgetLimit) * 100);
+
+  const microItems = useMemo(
+    () => parsedItems.filter((item) => item.amount < 50000),
+    [parsedItems]
+  );
+  const microTotal = useMemo(
+    () => microItems.reduce((sum, item) => sum + item.amount, 0),
+    [microItems]
+  );
+
+  // Status meter dinamis
+  let statusBadge = "Optimal / Aman";
+  let statusBadgeBg = "rgba(209, 250, 229, 0.25)";
+  let statusBadgeText = C.greenSoft;
+  let barColor = C.greenLight;
+
+  if (totalSpent > budgetLimit) {
+    statusBadge = "Over Budget";
+    statusBadgeBg = "rgba(254, 226, 226, 0.3)";
+    statusBadgeText = "#FECDD3";
+    barColor = C.danger;
+  } else if (ratio > 0.8) {
+    statusBadge = "Waspada";
+    statusBadgeBg = "rgba(254, 243, 199, 0.3)";
+    statusBadgeText = "#FDE68A";
+    barColor = C.warning;
+  }
+
+  const handleSelectScenario = (sc: ScenarioPreset) => {
     setActiveScenarioId(sc.id);
-    setSimExpenses(sc.expenses);
-    setToastMsg(`Skenario "${sc.title}" dimuat.`);
-    setTimeout(() => setToastMsg(null), 3000);
+    setSimFormula(sc.formula);
   };
 
-  const handleReset = () => {
-    setActiveScenarioId("dapur");
-    setSimExpenses(PRESET_SCENARIOS[0].expenses);
-    setSimFormula("15.000 + 35.000");
-    setSimNote("Sayur & lauk pasar");
-    setSimCategory("dapur");
-    setToastMsg("Simulasi berhasil direset ke awal.");
-    setTimeout(() => setToastMsg(null), 3000);
-  };
-
-  const handleAddPreset = (amount: number) => {
-    setSimFormula(addPresetAmount(simFormula, amount));
-  };
-
-  const handleAddExpense = () => {
-    if (!isFormulaValid || evalResult === null) return;
-    const cat = getCategoryById(simCategory);
-    const newExp: Expense = {
-      id: "sim-" + Date.now(),
-      amount: evalResult,
-      expression: simFormula.trim(),
-      note: simNote.trim() || cat.label,
-      category: simCategory,
-      spentAt: "2026-10-17",
-      createdAt: new Date().toISOString(),
-    };
-    setSimExpenses([newExp, ...simExpenses]);
-    setSimFormula("");
-    setSimNote("");
-    setActiveScenarioId("custom");
-    setToastMsg(`+ ${formatRupiah(evalResult)} ditambahkan ke rincian & total!`);
-    setTimeout(() => setToastMsg(null), 3500);
-  };
-
-  const handleDeleteExpense = (id: string) => {
-    const target = simExpenses.find((e) => e.id === id);
-    setSimExpenses(simExpenses.filter((e) => e.id !== id));
-    setActiveScenarioId("custom");
-    if (target) {
-      setToastMsg(`- ${formatRupiah(target.amount)} dihapus dari rincian, sisa jatah bertambah!`);
-      setTimeout(() => setToastMsg(null), 3500);
-    }
+  const handleAddPreset = (amt: number) => {
+    setSimFormula(addPresetAmount(simFormula, amt));
   };
 
   const toggleFaq = (index: number) => {
@@ -284,11 +199,6 @@ export function LandingPage({
     setLegalTab(tab);
     setLegalModalVisible(true);
   };
-
-  const activeScenarioObj = PRESET_SCENARIOS.find((s) => s.id === activeScenarioId);
-  const activeTip =
-    activeScenarioObj?.tip ||
-    "Transaksi berhasil diupdate! Angka pada TotalCard di atas dan rincian transaksi di bawah tersinkronisasi 100%.";
 
   return (
     <View style={styles.rootWrapper}>
@@ -375,232 +285,151 @@ export function LandingPage({
             </View>
           </View>
 
-          {/* Kolom Showcase Interaktif (Simulator Nyata Bocor Halus) */}
+          {/* Kolom Showcase Interaktif (Mini Simulator) */}
           <View style={[styles.heroPreviewCol, isDesktop && styles.heroPreviewColDesktop]}>
-            <View style={styles.phoneMockup}>
-              {/* Top Status & Simulator Badge */}
-              <View style={styles.phoneStatusBar}>
-                <Text style={styles.phoneTime}>09:41</Text>
-                <View style={styles.phoneSimBadge}>
-                  <Text style={styles.phoneSimBadgeText}>SIMULATOR INTERAKTIF</Text>
+            <View style={styles.miniSimCard}>
+              {/* Header Mini Simulator */}
+              <View style={styles.miniSimHeader}>
+                <View style={styles.miniSimTitleRow}>
+                  <View style={styles.miniSimDot} />
+                  <Text style={styles.miniSimTitle}>MINI SIMULATOR BOCOR HALUS</Text>
+                </View>
+                <View style={styles.miniSimBadge}>
+                  <Text style={styles.miniSimBadgeText}>Interaktif</Text>
                 </View>
               </View>
 
-              {/* Header App Asli */}
-              <View style={styles.phoneAppHeader}>
-                <View>
-                  <Text style={styles.phoneAppTitle}>Bocor Halus</Text>
-                  <Text style={styles.phoneAppSubtitle}>Oktober 2026</Text>
-                </View>
-                <View style={styles.phoneAvatarCircle}>
-                  <Text style={styles.phoneAvatarText}>BH</Text>
-                </View>
-              </View>
-
-              {/* Skenario Cepat Selector */}
-              <View style={styles.scenarioRow}>
-                {PRESET_SCENARIOS.map((sc) => {
+              {/* Skenario Selector Tabs */}
+              <View style={styles.miniSimTabRow}>
+                {SCENARIO_PRESETS.map((sc) => {
                   const isActive = activeScenarioId === sc.id;
                   return (
                     <TouchableOpacity
                       key={sc.id}
-                      style={[styles.scenarioChip, isActive && styles.scenarioChipActive]}
-                      onPress={() => selectScenario(sc)}
+                      style={[styles.miniSimTab, isActive && styles.miniSimTabActive]}
+                      onPress={() => handleSelectScenario(sc)}
                       activeOpacity={0.8}
                     >
                       <Text
                         style={[
-                          styles.scenarioChipText,
-                          isActive && styles.scenarioChipTextActive,
+                          styles.miniSimTabText,
+                          isActive && styles.miniSimTabTextActive,
                         ]}
-                        numberOfLines={1}
                       >
                         {sc.title}
                       </Text>
                     </TouchableOpacity>
                   );
                 })}
-                <TouchableOpacity
-                  style={[styles.scenarioChip, activeScenarioId === "reset" && styles.scenarioChipActive]}
-                  onPress={handleReset}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.scenarioChipText}>Reset</Text>
-                </TouchableOpacity>
               </View>
 
-              {/* Toast Feedback Notifikasi */}
-              {toastMsg ? (
-                <View style={styles.simToast}>
-                  <Text style={styles.simToastText}>{toastMsg}</Text>
+              {/* Card Ringkasan Jatah (Sleek Emerald Card) */}
+              <View style={styles.miniBudgetCard}>
+                <View style={styles.miniBudgetTop}>
+                  <View>
+                    <Text style={styles.miniBudgetSub}>SISA JATAH BULANAN</Text>
+                    <Text style={styles.miniBudgetVal}>
+                      {formatRupiah(sisaJatah)}
+                    </Text>
+                  </View>
+                  <View style={[styles.miniStatusBadge, { backgroundColor: statusBadgeBg }]}>
+                    <Text style={[styles.miniStatusText, { color: statusBadgeText }]}>
+                      {statusBadge}
+                    </Text>
+                  </View>
                 </View>
-              ) : (
-                <View style={styles.simTipBox}>
-                  <Text style={styles.simTipText}>{activeTip}</Text>
+
+                {/* Progress Bar */}
+                <View style={styles.miniProgressTrack}>
+                  <View
+                    style={[
+                      styles.miniProgressBar,
+                      {
+                        width: `${Math.min(100, percentage)}%`,
+                        backgroundColor: barColor,
+                      },
+                    ]}
+                  />
                 </View>
-              )}
 
-              {/* TotalCard Komponen Asli Bocor Halus */}
-              <TotalCard
-                monthlyTotal={monthlyTotal}
-                yearlyTotal={monthlyTotal + 12500000}
-                month={10}
-                year={2026}
-                budgetLimit={budgetLimit}
-                microTotal={microTotal}
-                microCount={microCount}
-                onPressMicroInsight={() => {
-                  setToastMsg(`Bulan ini terdeteksi ${microCount} transaksi kecil bocor halus!`);
-                  setTimeout(() => setToastMsg(null), 3000);
-                }}
-              />
+                <View style={styles.miniBudgetInfoRow}>
+                  <Text style={styles.miniBudgetMeta}>
+                    Jatah Pokok: {formatRupiah(budgetLimit)}
+                  </Text>
+                  <Text style={styles.miniBudgetSpent}>
+                    Terpakai: {formatRupiah(totalSpent)} ({percentage}%)
+                  </Text>
+                </View>
 
-              {/* Form Input Catat Pengeluaran Cepat (Sama dengan Tambah Screen Asli) */}
-              <View style={styles.simFormCard}>
-                <Text style={styles.simFormTitle}>✍️ CATAT TRANSAKSI BARU (SMART CALCULATOR)</Text>
-                
-                {/* Input Rumus / Nominal */}
+                {/* Deteksi Bocor Halus Insight Badge */}
+                {microItems.length > 0 && (
+                  <View style={styles.miniBocorBadge}>
+                    <Text style={styles.miniBocorBadgeText}>
+                      💡 Deteksi Bocor Halus: {microItems.length} transaksi kecil (&lt;50rb) total {formatRupiah(microTotal)}
+                    </Text>
+                  </View>
+                )}
+              </View>
+
+              {/* Formula Smart Calculator Input */}
+              <View style={styles.miniCalcSection}>
+                <Text style={styles.miniCalcLabel}>
+                  Formula Belanjaan (Bisa Diketik Langsung):
+                </Text>
                 <TextInput
-                  style={styles.simInput}
+                  style={styles.miniCalcInput}
                   value={simFormula}
                   onChangeText={setSimFormula}
-                  placeholder="Ketik rumus mis. 15.000 + 35.000"
+                  placeholder="Mis. 15000 + 35000 + 12000"
                   placeholderTextColor={C.muted}
                 />
 
-                {/* Preset Chips Cepat */}
-                <View style={styles.simPresetRow}>
+                {/* Quick Preset Chips */}
+                <View style={styles.miniPresetRow}>
                   {[10000, 20000, 50000, 100000].map((amt) => (
                     <TouchableOpacity
                       key={amt}
-                      style={styles.simPresetChip}
+                      style={styles.miniPresetChip}
                       onPress={() => handleAddPreset(amt)}
                       activeOpacity={0.7}
                     >
-                      <Text style={styles.simPresetText}>+{amt / 1000}rb</Text>
+                      <Text style={styles.miniPresetText}>+{amt / 1000}rb</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
+              </View>
 
-                {/* Live Hasil Ekspresi */}
-                <View style={styles.simLiveCalcRow}>
-                  <Text style={styles.simLiveCalcLabel}>Hasil Langsung:</Text>
-                  <Text style={[styles.simLiveCalcValue, !isFormulaValid && { color: C.muted }]}>
-                    {isFormulaValid ? formatRupiah(evalResult!) : "Ekspresi belum lengkap"}
+              {/* Rincian Transaksi Skenario (100% Sinkron) */}
+              <View style={styles.miniRincianSection}>
+                <View style={styles.miniRincianHeader}>
+                  <Text style={styles.miniRincianTitle}>
+                    RINCIAN TRANSAKSI ({parsedItems.length})
+                  </Text>
+                  <Text style={styles.miniRincianLiveTotal}>
+                    Total: {formatRupiah(totalSpent)}
                   </Text>
                 </View>
 
-                {/* Kategori Selector Chips */}
-                <ScrollView
-                  horizontal
-                  showsHorizontalScrollIndicator={false}
-                  style={styles.simCatScroll}
-                >
-                  {CATEGORIES.slice(0, 5).map((cat) => {
-                    const isSelected = simCategory === cat.id;
-                    return (
-                      <TouchableOpacity
-                        key={cat.id}
-                        style={[
-                          styles.simCatChip,
-                          { backgroundColor: cat.bg },
-                          isSelected && styles.simCatChipActive,
-                        ]}
-                        onPress={() => setSimCategory(cat.id)}
-                        activeOpacity={0.8}
-                      >
-                        <Text style={styles.simCatEmoji}>{cat.emoji}</Text>
-                        <Text style={[styles.simCatLabel, { color: cat.color }]}>
-                          {cat.label}
-                        </Text>
-                      </TouchableOpacity>
-                    );
-                  })}
-                </ScrollView>
-
-                {/* Input Catatan Singkat */}
-                <TextInput
-                  style={styles.simNoteInput}
-                  value={simNote}
-                  onChangeText={setSimNote}
-                  placeholder="Catatan belanja (opsional)"
-                  placeholderTextColor={C.muted}
-                />
-
-                {/* Tombol Simpan ke Simulasi */}
-                <TouchableOpacity
-                  style={[styles.simAddBtn, !isFormulaValid && styles.simAddBtnDisabled]}
-                  onPress={handleAddExpense}
-                  disabled={!isFormulaValid}
-                  activeOpacity={0.8}
-                >
-                  <Text style={styles.simAddBtnText}>
-                    + Catat & Sinkronkan ke Total
-                  </Text>
-                </TouchableOpacity>
-              </View>
-
-              {/* Rincian Transaksi Nyata Skenario */}
-              <View style={styles.simSectionHeader}>
-                <Text style={styles.simSectionTitle}>
-                  RINCIAN TRANSAKSI AKTIF ({simExpenses.length})
-                </Text>
-                <Text style={styles.simSectionSubtitle}>
-                  Ketuk ✕ untuk menghapus
-                </Text>
-              </View>
-
-              <View style={styles.simExpenseList}>
-                {simExpenses.map((exp) => {
-                  const cat = getCategoryById(exp.category);
-                  const isFormula = exp.expression.includes("+") || exp.expression.includes("-");
-                  return (
-                    <View key={exp.id} style={styles.simExpenseItem}>
-                      <View style={[styles.simEmojiBadge, { backgroundColor: cat.bg }]}>
-                        <Text style={styles.simEmojiText}>{cat.emoji}</Text>
-                      </View>
-                      <View style={styles.simItemInfo}>
-                        <Text style={styles.simItemNote} numberOfLines={1}>
-                          {exp.note}
-                        </Text>
-                        <Text style={styles.simItemExpr} numberOfLines={1}>
-                          {isFormula ? exp.expression : cat.label}
-                        </Text>
-                      </View>
-                      <Text style={styles.simItemAmount}>
-                        {formatRupiah(exp.amount)}
+                <View style={styles.miniItemList}>
+                  {parsedItems.map((item) => (
+                    <View key={item.id} style={styles.miniItemRow}>
+                      <Text style={styles.miniItemEmoji}>{item.emoji}</Text>
+                      <Text style={styles.miniItemLabel} numberOfLines={1}>
+                        {item.label}
                       </Text>
-                      <TouchableOpacity
-                        style={styles.simDeleteBtn}
-                        onPress={() => handleDeleteExpense(exp.id)}
-                        activeOpacity={0.7}
-                        accessibilityLabel="Hapus transaksi ini"
-                      >
-                        <Text style={styles.simDeleteBtnText}>✕</Text>
-                      </TouchableOpacity>
+                      <Text style={styles.miniItemAmount}>
+                        {formatRupiah(item.amount)}
+                      </Text>
                     </View>
-                  );
-                })}
+                  ))}
+                </View>
               </View>
 
-              {/* Tab Bar Asli Bocor Halus */}
-              <View style={styles.simBottomNav}>
-                <View style={styles.simTabItem}>
-                  <TabIcon name="beranda" color={C.greenDark} size={20} focused={true} />
-                  <Text style={[styles.simTabLabel, styles.simTabLabelActive]}>Beranda</Text>
-                </View>
-                <View style={styles.simTabItem}>
-                  <TabIcon name="catat" color={C.muted} size={20} focused={false} />
-                  <Text style={styles.simTabLabel}>Catat</Text>
-                </View>
-                <View style={styles.simTabItem}>
-                  <TabIcon name="rekap" color={C.muted} size={20} focused={false} />
-                  <Text style={styles.simTabLabel}>Rekap</Text>
-                </View>
-                <View style={styles.simTabItem}>
-                  <TabIcon name="pengaturan" color={C.muted} size={20} focused={false} />
-                  <Text style={styles.simTabLabel}>Pengaturan</Text>
-                </View>
+              {/* Catatan Skenario */}
+              <View style={styles.miniNoteBox}>
+                <Text style={styles.miniNoteText}>
+                  {activePreset.note}
+                </Text>
               </View>
             </View>
           </View>
@@ -1037,359 +866,263 @@ const styles = StyleSheet.create({
   heroPreviewColDesktop: {
     flex: 1,
   },
-  phoneMockup: {
-    backgroundColor: C.cream,
-    borderRadius: 28,
-    borderWidth: 1.5,
+
+  /* MINI SIMULATOR */
+  miniSimCard: {
+    backgroundColor: C.white,
+    borderRadius: 20,
+    padding: 16,
+    borderWidth: 1,
     borderColor: C.border,
-    overflow: "hidden",
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 12 },
-    shadowOpacity: 0.12,
-    shadowRadius: 24,
-    elevation: 6,
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
+    elevation: 4,
     width: "100%",
   },
-  phoneStatusBar: {
+  miniSimHeader: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 10,
-    paddingBottom: 4,
-    backgroundColor: C.cream,
+    paddingBottom: 10,
+    marginBottom: 10,
+    borderBottomWidth: 1,
+    borderBottomColor: C.border,
   },
-  phoneTime: {
-    fontSize: 11,
+  miniSimTitleRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 8,
+  },
+  miniSimDot: {
+    width: 8,
+    height: 8,
+    borderRadius: 4,
+    backgroundColor: C.greenLight,
+  },
+  miniSimTitle: {
+    fontSize: 11.5,
     fontWeight: "800",
-    color: C.inkLight,
+    color: C.ink,
+    letterSpacing: 0.3,
   },
-  phoneSimBadge: {
+  miniSimBadge: {
     backgroundColor: C.greenSoft,
+    paddingHorizontal: 8,
+    paddingVertical: 2.5,
+    borderRadius: 6,
+  },
+  miniSimBadgeText: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: C.greenDark,
+  },
+  miniSimTabRow: {
+    flexDirection: "row",
+    backgroundColor: C.cream,
+    borderRadius: 10,
+    padding: 3,
+    marginBottom: 12,
+    gap: 4,
+  },
+  miniSimTab: {
+    flex: 1,
+    paddingVertical: 7,
+    alignItems: "center",
+    borderRadius: 8,
+  },
+  miniSimTabActive: {
+    backgroundColor: C.white,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.06,
+    shadowRadius: 4,
+  },
+  miniSimTabText: {
+    fontSize: 11,
+    fontWeight: "600",
+    color: C.muted,
+  },
+  miniSimTabTextActive: {
+    fontWeight: "800",
+    color: C.greenDark,
+  },
+  miniBudgetCard: {
+    backgroundColor: C.greenDark,
+    borderRadius: 16,
+    padding: 14,
+    marginBottom: 12,
+  },
+  miniBudgetTop: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+  },
+  miniBudgetSub: {
+    fontSize: 9.5,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.75)",
+    letterSpacing: 0.5,
+  },
+  miniBudgetVal: {
+    fontSize: 22,
+    fontWeight: "900",
+    color: C.white,
+    marginTop: 2,
+  },
+  miniStatusBadge: {
     paddingHorizontal: 8,
     paddingVertical: 3,
     borderRadius: 6,
   },
-  phoneSimBadgeText: {
-    fontSize: 9.5,
+  miniStatusText: {
+    fontSize: 10,
     fontWeight: "800",
-    color: C.greenDark,
-    letterSpacing: 0.4,
   },
-  phoneAppHeader: {
+  miniProgressTrack: {
+    height: 6,
+    backgroundColor: "rgba(255,255,255,0.2)",
+    borderRadius: 3,
+    marginVertical: 10,
+    overflow: "hidden",
+  },
+  miniProgressBar: {
+    height: "100%",
+    borderRadius: 3,
+  },
+  miniBudgetInfoRow: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    paddingHorizontal: 16,
-    paddingVertical: 10,
-    borderBottomWidth: 1,
-    borderBottomColor: C.border,
+  },
+  miniBudgetMeta: {
+    fontSize: 10.5,
+    color: "rgba(255,255,255,0.75)",
+  },
+  miniBudgetSpent: {
+    fontSize: 10.5,
+    fontWeight: "700",
+    color: "rgba(255,255,255,0.95)",
+  },
+  miniBocorBadge: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: "rgba(255,255,255,0.15)",
+  },
+  miniBocorBadgeText: {
+    fontSize: 10.5,
+    color: "#FDE68A",
+    fontWeight: "700",
+    lineHeight: 14,
+  },
+  miniCalcSection: {
     backgroundColor: C.cream,
+    borderRadius: 12,
+    padding: 10,
+    borderWidth: 1,
+    borderColor: C.border,
+    marginBottom: 10,
   },
-  phoneAppTitle: {
-    fontSize: 18,
-    fontWeight: "900",
-    color: C.ink,
-    letterSpacing: -0.3,
-  },
-  phoneAppSubtitle: {
+  miniCalcLabel: {
     fontSize: 11,
-    fontWeight: "600",
-    color: C.muted,
+    fontWeight: "700",
+    color: C.ink,
+    marginBottom: 6,
   },
-  phoneAvatarCircle: {
-    width: 34,
-    height: 34,
-    borderRadius: 17,
-    backgroundColor: C.greenSoft,
-    justifyContent: "center",
-    alignItems: "center",
-    borderWidth: 1.5,
-    borderColor: "#A7F3D0",
-  },
-  phoneAvatarText: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: C.greenDark,
-  },
-  scenarioRow: {
-    flexDirection: "row",
-    paddingHorizontal: 14,
-    paddingTop: 10,
-    paddingBottom: 6,
-    gap: 6,
-  },
-  scenarioChip: {
-    flex: 1,
-    paddingVertical: 7,
-    paddingHorizontal: 4,
-    borderRadius: 10,
+  miniCalcInput: {
     backgroundColor: C.white,
     borderWidth: 1,
     borderColor: C.border,
-    alignItems: "center",
-    justifyContent: "center",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 7,
+    fontSize: 13,
+    fontWeight: "700",
+    color: C.ink,
   },
-  scenarioChipActive: {
-    backgroundColor: C.greenDark,
-    borderColor: C.greenDark,
+  miniPresetRow: {
+    flexDirection: "row",
+    gap: 6,
+    marginTop: 6,
   },
-  scenarioChipText: {
+  miniPresetChip: {
+    backgroundColor: C.white,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
+    borderWidth: 1,
+    borderColor: C.border,
+  },
+  miniPresetText: {
     fontSize: 10,
     fontWeight: "700",
-    color: C.inkLight,
+    color: C.greenDark,
   },
-  scenarioChipTextActive: {
-    color: C.white,
+  miniRincianSection: {
+    borderTopWidth: 1,
+    borderTopColor: C.border,
+    paddingTop: 8,
+    marginBottom: 8,
   },
-  simToast: {
-    marginHorizontal: 14,
+  miniRincianHeader: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 6,
-    backgroundColor: C.greenDark,
-    paddingHorizontal: 12,
-    paddingVertical: 7,
-    borderRadius: 8,
   },
-  simToastText: {
-    fontSize: 11,
-    color: C.white,
-    fontWeight: "700",
-    textAlign: "center",
+  miniRincianTitle: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: C.muted,
+    letterSpacing: 0.3,
   },
-  simTipBox: {
-    marginHorizontal: 14,
-    marginBottom: 6,
-    backgroundColor: "#FEF3C7",
-    paddingHorizontal: 10,
+  miniRincianLiveTotal: {
+    fontSize: 10.5,
+    fontWeight: "800",
+    color: C.greenDark,
+  },
+  miniItemList: {
+    gap: 4,
+  },
+  miniItemRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: C.cream,
+    paddingHorizontal: 8,
     paddingVertical: 6,
     borderRadius: 8,
+  },
+  miniItemEmoji: {
+    fontSize: 13,
+    marginRight: 6,
+  },
+  miniItemLabel: {
+    flex: 1,
+    fontSize: 11,
+    fontWeight: "600",
+    color: C.ink,
+    paddingRight: 6,
+  },
+  miniItemAmount: {
+    fontSize: 11.5,
+    fontWeight: "800",
+    color: C.greenDark,
+  },
+  miniNoteBox: {
+    backgroundColor: "#FEF3C7",
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderLeftWidth: 3,
     borderLeftColor: "#D97706",
   },
-  simTipText: {
+  miniNoteText: {
     fontSize: 10.5,
-    lineHeight: 15,
     color: "#92400E",
     fontWeight: "600",
-  },
-  simFormCard: {
-    marginHorizontal: 14,
-    marginTop: 8,
-    marginBottom: 10,
-    backgroundColor: C.white,
-    borderRadius: 16,
-    padding: 12,
-    borderWidth: 1,
-    borderColor: C.border,
-  },
-  simFormTitle: {
-    fontSize: 10.5,
-    fontWeight: "800",
-    color: C.muted,
-    letterSpacing: 0.4,
-    marginBottom: 8,
-  },
-  simInput: {
-    backgroundColor: C.cream,
-    borderWidth: 1.5,
-    borderColor: C.border,
-    borderRadius: 10,
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    fontSize: 14,
-    fontWeight: "700",
-    color: C.ink,
-  },
-  simPresetRow: {
-    flexDirection: "row",
-    gap: 6,
-    marginTop: 6,
-    marginBottom: 4,
-  },
-  simPresetChip: {
-    backgroundColor: C.cream,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: C.border,
-  },
-  simPresetText: {
-    fontSize: 10.5,
-    fontWeight: "700",
-    color: C.greenDark,
-  },
-  simLiveCalcRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingVertical: 4,
-    marginBottom: 4,
-  },
-  simLiveCalcLabel: {
-    fontSize: 11,
-    fontWeight: "600",
-    color: C.muted,
-  },
-  simLiveCalcValue: {
-    fontSize: 13,
-    fontWeight: "800",
-    color: C.greenDark,
-  },
-  simCatScroll: {
-    flexDirection: "row",
-    marginVertical: 4,
-  },
-  simCatChip: {
-    flexDirection: "row",
-    alignItems: "center",
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 12,
-    marginRight: 6,
-    borderWidth: 1.5,
-    borderColor: "transparent",
-  },
-  simCatChipActive: {
-    borderColor: C.greenDark,
-    transform: [{ scale: 1.02 }],
-  },
-  simCatEmoji: {
-    fontSize: 13,
-    marginRight: 5,
-  },
-  simCatLabel: {
-    fontSize: 11,
-    fontWeight: "700",
-  },
-  simNoteInput: {
-    backgroundColor: C.cream,
-    borderWidth: 1,
-    borderColor: C.border,
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    fontSize: 12,
-    color: C.ink,
-    marginTop: 6,
-    marginBottom: 8,
-  },
-  simAddBtn: {
-    backgroundColor: C.greenDark,
-    borderRadius: 12,
-    paddingVertical: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  simAddBtnDisabled: {
-    backgroundColor: C.mutedBg,
-  },
-  simAddBtnText: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: C.white,
-  },
-  simSectionHeader: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    paddingHorizontal: 16,
-    paddingTop: 8,
-    paddingBottom: 6,
-  },
-  simSectionTitle: {
-    fontSize: 10.5,
-    fontWeight: "800",
-    color: C.muted,
-    letterSpacing: 0.4,
-  },
-  simSectionSubtitle: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: C.muted,
-  },
-  simExpenseList: {
-    paddingHorizontal: 14,
-    gap: 6,
-    marginBottom: 12,
-  },
-  simExpenseItem: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: C.white,
-    borderRadius: 14,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-    borderWidth: 1,
-    borderColor: C.border,
-  },
-  simEmojiBadge: {
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    justifyContent: "center",
-    alignItems: "center",
-    marginRight: 8,
-  },
-  simEmojiText: {
-    fontSize: 14,
-  },
-  simItemInfo: {
-    flex: 1,
-    paddingRight: 6,
-  },
-  simItemNote: {
-    fontSize: 12,
-    fontWeight: "700",
-    color: C.ink,
-  },
-  simItemExpr: {
-    fontSize: 10,
-    color: C.muted,
-    marginTop: 1,
-  },
-  simItemAmount: {
-    fontSize: 12,
-    fontWeight: "800",
-    color: C.greenDark,
-  },
-  simDeleteBtn: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: "#FEE2E2",
-    justifyContent: "center",
-    alignItems: "center",
-    marginLeft: 8,
-  },
-  simDeleteBtnText: {
-    fontSize: 11,
-    fontWeight: "800",
-    color: C.danger,
     lineHeight: 14,
-  },
-  simBottomNav: {
-    flexDirection: "row",
-    backgroundColor: C.cream,
-    borderTopWidth: 1,
-    borderTopColor: C.border,
-    paddingTop: 6,
-    paddingBottom: 8,
-  },
-  simTabItem: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  simTabLabel: {
-    fontSize: 10,
-    fontWeight: "600",
-    color: C.muted,
-    marginTop: 2,
-  },
-  simTabLabelActive: {
-    color: C.greenDark,
-    fontWeight: "800",
   },
 
   /* SECTION COMPARISON */
