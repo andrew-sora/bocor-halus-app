@@ -241,6 +241,7 @@ export function LandingPage({
           {/* Kolom Teks Hero */}
           <View style={[styles.heroTextCol, isDesktop && styles.heroTextColDesktop]}>
             <View style={styles.eyebrowChip}>
+              <View style={styles.eyebrowDot} />
               <Text style={styles.eyebrowChipText}>
                 BISA DI HP & LAPTOP • 100% PRIVAT LOKAL • BEBAS BIAYA BULANAN
               </Text>
@@ -257,7 +258,7 @@ export function LandingPage({
             </Text>
 
             <Text style={[styles.heroBody, isDesktop && styles.heroBodyDesktop]}>
-              Itu namanya <Text style={styles.heroHighlight}>"Bocor Halus"</Text> — pengeluaran kecil Rp 5.000, jajan kopi, parkir, dan ongkir yang tak pernah tercatat. Bocor Halus hadir sebagai aplikasi pencatat keuangan rumah tangga yang anti ribet: bisa dipasang langsung di layar HP (Android & iPhone) layaknya aplikasi biasa maupun dibuka di browser, langsung pakai tanpa perlu daftar akun.
+              Itu namanya <Text style={styles.heroHighlight}>"Bocor Halus"</Text> — jajan kopi, parkir, dan belanja receh yang diam-diam menguras gaji. Catat cepat langsung di HP Anda, tanpa repot daftar akun.
             </Text>
 
             {/* CTA Group */}
@@ -768,20 +769,29 @@ const styles = StyleSheet.create({
     paddingTop: 8,
   },
   eyebrowChip: {
-    backgroundColor: C.creamDark,
+    backgroundColor: C.greenSoft,
     alignSelf: "flex-start",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    borderRadius: 6,
-    marginBottom: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 20,
+    marginBottom: 14,
     borderWidth: 1,
-    borderColor: C.border,
+    borderColor: "#A7F3D0",
+  },
+  eyebrowDot: {
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: C.greenLight,
   },
   eyebrowChipText: {
-    fontSize: 10.5,
+    fontSize: 11,
     fontWeight: "800",
-    color: C.inkLight,
-    letterSpacing: 0.4,
+    color: C.greenDark,
+    letterSpacing: 0.5,
   },
   heroHeadline: {
     fontSize: 22,
