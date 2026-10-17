@@ -493,13 +493,13 @@ export function LandingPage({
                   <View style={styles.compareItemRow}>
                     <Text style={styles.compareCheckIcon}>✓</Text>
                     <Text style={styles.compareItemNew}>
-                      <Text style={styles.boldText}>📅 Kalender Pengeluaran:</Text> Pantau tanggal boros & rayakan hari hemat dalam kalender visual.
+                      <Text style={styles.boldText}>Kalender Pengeluaran:</Text> Pantau tanggal boros & hari hemat belanja dalam kalender visual.
                     </Text>
                   </View>
                   <View style={styles.compareItemRow}>
                     <Text style={styles.compareCheckIcon}>✓</Text>
                     <Text style={styles.compareItemNew}>
-                      <Text style={styles.boldText}>🐷 Celengan Target Impian:</Text> Alihkan uang jajan yang dihemat ke barang impian dengan 1-klik (+10rb, +20rb, +50rb).
+                      <Text style={styles.boldText}>Celengan Target Impian:</Text> Alihkan uang jajan yang dihemat ke barang impian dengan tombol 1-klik (+10rb, +20rb, +50rb).
                     </Text>
                   </View>
                   <View style={styles.compareItemRow}>
@@ -530,16 +530,15 @@ export function LandingPage({
             {/* Card 1: Kalender Pengeluaran Visual */}
             <View style={[styles.spotlightCard, isDesktop && styles.spotlightCardDesktop]}>
               <View style={styles.spotlightHeader}>
-                <View style={styles.spotlightEmojiBox}>
-                  <Text style={styles.spotlightEmoji}>📅</Text>
+                <View style={styles.spotlightTagBadge}>
+                  <Text style={styles.spotlightTagText}>FITUR 01</Text>
                 </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.spotlightTitle}>Kalender Pengeluaran Visual</Text>
-                  <Text style={styles.spotlightSub}>Peta Heatmap Transaksi Harian</Text>
-                </View>
+                <Text style={styles.spotlightTitle}>Kalender Pengeluaran</Text>
+                <Text style={styles.spotlightSub}>Peta Transaksi & Hari Bebas Belanja</Text>
               </View>
+
               <Text style={styles.spotlightDesc}>
-                Lihat langsung tanggal berapa saja belanja membengkak, hari mana terdeteksi jajan bocor halus (&lt;50rb), dan rayakan hari hemat tanpa belanja (No-Spend Day).
+                Lacak langsung tanggal belanja membengkak, pantau transaksi bocor halus (&lt;50rb), dan verifikasi hari hemat tanpa belanja secara transparan.
               </Text>
 
               {/* Mini Calendar Visual Box */}
@@ -550,13 +549,34 @@ export function LandingPage({
                   ))}
                 </View>
                 <View style={styles.miniCalGridRow}>
-                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>10</Text><View style={styles.miniCalPillSafe}><Text style={styles.miniCalPillTextSafe}>25k</Text></View></View>
-                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>11</Text><Text style={styles.miniCalStar}>✨</Text></View>
-                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>12</Text><View style={styles.miniCalPillBocor}><Text style={styles.miniCalPillTextBocor}>💧 45k</Text></View></View>
-                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>13</Text><Text style={styles.miniCalStar}>✨</Text></View>
-                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>14</Text><View style={styles.miniCalPillSafe}><Text style={styles.miniCalPillTextSafe}>35k</Text></View></View>
-                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>15</Text><View style={styles.miniCalPillHeavy}><Text style={styles.miniCalPillTextHeavy}>180k</Text></View></View>
-                  <View style={styles.miniCalCell}><Text style={styles.miniCalDate}>16</Text><Text style={styles.miniCalStar}>✨</Text></View>
+                  <View style={styles.miniCalCell}>
+                    <Text style={styles.miniCalDate}>10</Text>
+                    <View style={styles.miniCalPillSafe}><Text style={styles.miniCalPillTextSafe}>25k</Text></View>
+                  </View>
+                  <View style={styles.miniCalCell}>
+                    <Text style={styles.miniCalDate}>11</Text>
+                    <Text style={styles.miniCalEmptyDash}>—</Text>
+                  </View>
+                  <View style={styles.miniCalCell}>
+                    <Text style={styles.miniCalDate}>12</Text>
+                    <View style={styles.miniCalPillBocor}><Text style={styles.miniCalPillTextBocor}>45k</Text></View>
+                  </View>
+                  <View style={styles.miniCalCell}>
+                    <Text style={styles.miniCalDate}>13</Text>
+                    <Text style={styles.miniCalEmptyDash}>—</Text>
+                  </View>
+                  <View style={styles.miniCalCell}>
+                    <Text style={styles.miniCalDate}>14</Text>
+                    <View style={styles.miniCalPillSafe}><Text style={styles.miniCalPillTextSafe}>35k</Text></View>
+                  </View>
+                  <View style={styles.miniCalCell}>
+                    <Text style={styles.miniCalDate}>15</Text>
+                    <View style={styles.miniCalPillHeavy}><Text style={styles.miniCalPillTextHeavy}>180k</Text></View>
+                  </View>
+                  <View style={styles.miniCalCell}>
+                    <Text style={styles.miniCalDate}>16</Text>
+                    <Text style={styles.miniCalEmptyDash}>—</Text>
+                  </View>
                 </View>
               </View>
             </View>
@@ -564,22 +584,21 @@ export function LandingPage({
             {/* Card 2: Celengan Target Impian */}
             <View style={[styles.spotlightCard, isDesktop && styles.spotlightCardDesktop]}>
               <View style={styles.spotlightHeader}>
-                <View style={styles.spotlightEmojiBox}>
-                  <Text style={styles.spotlightEmoji}>🐷</Text>
+                <View style={styles.spotlightTagBadge}>
+                  <Text style={styles.spotlightTagText}>FITUR 02</Text>
                 </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.spotlightTitle}>Celengan Target Impian</Text>
-                  <Text style={styles.spotlightSub}>Alihkan Uang Jajan ke Tabungan</Text>
-                </View>
+                <Text style={styles.spotlightTitle}>Celengan Target Impian</Text>
+                <Text style={styles.spotlightSub}>Alihkan Uang Jajan ke Tabungan</Text>
               </View>
+
               <Text style={styles.spotlightDesc}>
-                Berhasil menahan godaan jajan impulsif? Cukup 1 klik tombol cepat (+10rb, +20rb, +50rb), uang tersebut langsung terkumpul rapi di tabungan barang impian Anda.
+                Saat berhasil menahan jajan impulsif, amankan uangnya ke target impian dengan satu sentuhan cepat tanpa alur perbankan yang rumit.
               </Text>
 
               {/* Mini Saving Visual Box */}
               <View style={styles.miniSavingBox}>
                 <View style={styles.miniSavingTopRow}>
-                  <Text style={styles.miniSavingGoalName}>👟 Beli Sepatu Olahraga</Text>
+                  <Text style={styles.miniSavingGoalName}>Target: Sepatu Olahraga</Text>
                   <Text style={styles.miniSavingPct}>70%</Text>
                 </View>
                 <View style={styles.miniSavingTrack}>
@@ -590,9 +609,9 @@ export function LandingPage({
                   <Text style={styles.miniSavingTargetAmt}>/ Rp 500.000</Text>
                 </View>
                 <View style={styles.miniSavingBtnRow}>
-                  <View style={styles.miniSavingChip}><Text style={styles.miniSavingChipText}>+10rb</Text></View>
-                  <View style={styles.miniSavingChip}><Text style={styles.miniSavingChipText}>+20rb</Text></View>
-                  <View style={styles.miniSavingChip}><Text style={styles.miniSavingChipText}>+50rb</Text></View>
+                  <View style={styles.miniSavingChip}><Text style={styles.miniSavingChipText}>+10.000</Text></View>
+                  <View style={styles.miniSavingChip}><Text style={styles.miniSavingChipText}>+20.000</Text></View>
+                  <View style={styles.miniSavingChip}><Text style={styles.miniSavingChipText}>+50.000</Text></View>
                 </View>
               </View>
             </View>
@@ -617,8 +636,8 @@ export function LandingPage({
                   "Smart Calculator: Ketik belanjaan pasar langsung terjumlah",
                   "Detektor Otomatis Transaksi Bocor Halus (<50rb)",
                   "Pantau Batas & Sisa Jatah Belanja Harian Real-time",
-                  "📅 Kalender Pengeluaran Visual: Deteksi tanggal jebol & hari hemat",
-                  "🐷 Celengan Target Impian: Alihkan sisa jajan ke tabungan 1-klik",
+                  "Kalender Pengeluaran: Deteksi tanggal jebol & hari hemat belanja",
+                  "Celengan Target Impian: Alihkan uang jajan ke tabungan 1-klik",
                   "Rekap Pengeluaran Bulanan & Grafik Kategori Otomatis",
                   "100% Bebas Iklan Pop-up yang Mengganggu",
                   "100% Privat Lokal: Data di HP Anda Tanpa Bikin Akun",
@@ -1794,34 +1813,34 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   spotlightHeader: {
-    flexDirection: "row",
-    alignItems: "center",
-    gap: 12,
     marginBottom: 10,
+    alignItems: "flex-start",
   },
-  spotlightEmojiBox: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
+  spotlightTagBadge: {
     backgroundColor: C.cream,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 6,
     borderWidth: 1,
     borderColor: C.border,
-    alignItems: "center",
-    justifyContent: "center",
+    marginBottom: 8,
   },
-  spotlightEmoji: {
-    fontSize: 22,
+  spotlightTagText: {
+    fontSize: 10,
+    fontWeight: "800",
+    color: C.greenDark,
+    letterSpacing: 0.8,
   },
   spotlightTitle: {
-    fontSize: 16,
+    fontSize: 17,
     fontWeight: "800",
     color: C.ink,
-    letterSpacing: -0.2,
+    letterSpacing: -0.3,
   },
   spotlightSub: {
     fontSize: 12,
     color: C.muted,
-    marginTop: 1,
+    marginTop: 2,
   },
   spotlightDesc: {
     fontSize: 13,
@@ -1868,40 +1887,45 @@ const styles = StyleSheet.create({
   },
   miniCalPillSafe: {
     backgroundColor: C.greenSoft,
-    paddingHorizontal: 4,
+    paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 4,
   },
   miniCalPillTextSafe: {
     fontSize: 9,
-    fontWeight: "800",
+    fontWeight: "700",
     color: C.greenDark,
+    fontVariant: ["tabular-nums"],
   },
   miniCalPillBocor: {
     backgroundColor: C.warningBg,
-    paddingHorizontal: 3,
+    paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 4,
   },
   miniCalPillTextBocor: {
-    fontSize: 8.5,
-    fontWeight: "800",
+    fontSize: 9,
+    fontWeight: "700",
     color: C.warning,
+    fontVariant: ["tabular-nums"],
   },
   miniCalPillHeavy: {
     backgroundColor: C.dangerBg,
-    paddingHorizontal: 3,
+    paddingHorizontal: 5,
     paddingVertical: 1,
     borderRadius: 4,
   },
   miniCalPillTextHeavy: {
-    fontSize: 8.5,
-    fontWeight: "800",
+    fontSize: 9,
+    fontWeight: "700",
     color: C.danger,
+    fontVariant: ["tabular-nums"],
   },
-  miniCalStar: {
-    fontSize: 10,
-    lineHeight: 14,
+  miniCalEmptyDash: {
+    fontSize: 12,
+    color: C.muted,
+    fontWeight: "600",
+    lineHeight: 16,
   },
   miniSavingBox: {
     backgroundColor: C.cream,
@@ -1959,16 +1983,17 @@ const styles = StyleSheet.create({
   },
   miniSavingChip: {
     flex: 1,
-    backgroundColor: C.greenSoft,
-    paddingVertical: 5,
+    backgroundColor: C.white,
+    paddingVertical: 6,
     borderRadius: 8,
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "rgba(16, 185, 129, 0.3)",
+    borderColor: C.border,
   },
   miniSavingChipText: {
-    fontSize: 11,
-    fontWeight: "800",
-    color: C.greenDark,
+    fontSize: 10.5,
+    fontWeight: "700",
+    color: C.inkLight,
+    fontVariant: ["tabular-nums"],
   },
 });
